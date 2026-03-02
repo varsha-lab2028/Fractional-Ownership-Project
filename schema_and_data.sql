@@ -6,7 +6,7 @@ SET FOREIGN_KEY_CHECKS = 0;
 --
 -- Table structure for table `ADMIN`
 --
-DROP TABLE IF EXISTS 'ADMIN';
+DROP TABLE IF EXISTS `ADMIN`;
 CREATE TABLE `ADMIN` (
   `admin_id` int NOT NULL,
   `name` varchar(100) DEFAULT NULL,
@@ -218,4 +218,5 @@ INSERT INTO `VALUATION` VALUES (1,1,1250000.00,'2024-02-01'),(2,1,1300000.00,'20
 
 SET FOREIGN_KEY_CHECKS = 1; 
 
+USE fractional_ownership_db; 
 SHOW TABLES; 
