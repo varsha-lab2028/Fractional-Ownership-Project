@@ -1,0 +1,126 @@
+package edu.iiitd.dbms.data_access;
+
+import edu.iiitd.dbms.config.ServerConnector;
+import edu.iiitd.dbms.domain.Trade;
+
+import java.sql.*;
+import java.sql.Date;
+import java.util.*;
+
+public class TradeDAO {
+    private Trade matchTradeColumns(ResultSet rs) throws SQLException {
+        return new Trade(
+                rs.getInt("trade_id"),
+                rs.getDouble("trade_price"),
+                rs.getInt("trade_units"),
+                rs.getDate("trade_date").toLocalDate(),
+                rs.getInt("buy_order_id"),
+                rs.getInt("sell_order_id")
+        );
+    }
+
+    public List<Trade> listTrades() throws SQLException {
+        String sql = """
+            SELECT *
+            FROM trade
+            ORDER BY trade_id
+        """;
+        List<Trade> tradeList = new ArrayList<>();
+        try (Connection connect = ServerConnector.DBConnection();
+             PreparedStatement ps = connect.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+            while (rs.next()) {
+                tradeList.add(matchTradeColumns(rs));
+            }
+        }
+        return tradeList;
+    }
+
+    public Trade findByTradeId(int tradeId) throws SQLException {
+        try (Connection connect = ServerConnector.DBConnection()) {
+            return findByTradeId(connect, tradeId);
+        }
+    }
+    public Trade findByTradeId(Connection connect, int tradeId) throws SQLException {
+        String sql = """
+            SELECT *
+            FROM trade
+            WHERE trade_id = ?
+        """;
+        try (PreparedStatement ps = connect.prepareStatement(sql)) {
+            ps.setInt(1, tradeId);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return matchTradeColumns(rs);
+                }
+                return null;
+            }
+        }
+    }
+
+    public void insertTrade(Trade trade) throws SQLException {
+        try (Connection connect = ServerConnector.DBConnection()) {
+            insertTrade(connect, trade);
+        }
+    }
+    public void insertTrade(Connection connect, Trade trade) throws SQLException {
+        String sql = """
+            INSERT INTO trade (trade_id, trade_price, trade_units, trade_date, buy_order_id, sell_order_id)
+            VALUES (?, ?, ?, ?, ?, ?)
+        """;
+        try (PreparedStatement ps = connect.prepareStatement(sql)) {
+            ps.setInt(1, trade.getTradeId());
+            ps.setDouble(2, trade.getTradePrice());
+            ps.setInt(3, trade.getTradeUnits());
+            ps.setDate(4, Date.valueOf(trade.getTradeDate()));
+            ps.setInt(5, trade.getBuyOrderId());
+            ps.setInt(6, trade.getSellOrderId());
+
+            ps.executeUpdate();
+        }
+    }
+
+    public List<Trade> listTradesByBuyOrder(int buyOrderId) throws SQLException {
+        String sql = """
+            SELECT *
+            FROM trade
+            WHERE buy_order_id = ?
+            ORDER BY trade_date DESC, trade_id DESC
+        """;
+
+        List<Trade> trades = new ArrayList<>();
+
+        try (Connection conn = ServerConnector.DBConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, buyOrderId);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    trades.add(matchTradeColumns(rs));
+                }
+            }
+        }
+        return trades;
+    }
+
+    public List<Trade> listTradesBySellOrder(int sellOrderId) throws SQLException {
+        String sql = """
+            SELECT trade_id, trade_price, trade_units, trade_date, buy_order_id, sell_order_id
+            FROM trade
+            WHERE sell_order_id = ?
+            ORDER BY trade_date DESC, trade_id DESC
+        """;
+        List<Trade> trades = new ArrayList<>();
+        try (Connection conn = ServerConnector.DBConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, sellOrderId);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    trades.add(matchTradeColumns(rs));
+                }
+            }
+        }
+        return trades;
+    }
+
+}

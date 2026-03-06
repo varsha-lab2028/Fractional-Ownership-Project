@@ -1,15 +1,14 @@
 package edu.iiitd.dbms.domain;
 
-import java.util.*;
-import java.math.*;
 import java.time.*;
+import java.util.*;
 
 public class TradeOrder {
     private final int orderId;
     private final Integer investorId;
     private final Integer assetId;
     private final String orderType;
-    private final BigDecimal price;
+    private final Double price;
     private final Integer units;
     private final LocalDate orderDate;
     private final String status;
@@ -19,7 +18,7 @@ public class TradeOrder {
                       Integer investorId,
                       Integer assetId,
                       String orderType,
-                      BigDecimal price,
+                      Double price,
                       Integer units,
                       LocalDate orderDate,
                       String status) {
@@ -28,7 +27,7 @@ public class TradeOrder {
         if (units != null && units < 0)
             throw new IllegalArgumentException("Units cannot be negative");
 
-        if (price != null && price.compareTo(BigDecimal.ZERO) < 0)
+        if (price < 0)
             throw new IllegalArgumentException("Price cannot be negative");
 
         if (orderType != null && orderType.isBlank())
@@ -51,7 +50,7 @@ public class TradeOrder {
     public Integer getInvestorId() { return investorId; }
     public Integer getAssetId() { return assetId; }
     public String getOrderType() { return orderType; }
-    public BigDecimal getPrice() { return price; }
+    public Double getPrice() { return price; }
     public Integer getUnits() { return units; }
     public LocalDate getOrderDate() { return orderDate; }
     public String getStatus() { return status; }

@@ -1,24 +1,24 @@
 package edu.iiitd.dbms.domain;
 
-import java.math.*;
+//import java.math.*;
 import java.time.*;
 import java.util.*;
 
 public class Valuation {
     private final int valuationId;
     private final Integer assetId;
-    private final BigDecimal valuationAmount;
+    private final double valuationAmount;
     private final LocalDate valuationDate;
 
     //constructor
     public Valuation(int valuationId,
                      Integer assetId,
-                     BigDecimal valuationAmount,
+                     double valuationAmount,
                      LocalDate valuationDate) {
         if (valuationId <= 0) {
             throw new IllegalArgumentException("Valuation Id must be positive");
         }
-        if (valuationAmount != null && valuationAmount.compareTo(BigDecimal.ZERO) < 0) {
+        if (valuationAmount < 0){
             throw new IllegalArgumentException("Valuation Amount cannot be negative");
         }
         this.valuationId = valuationId;
@@ -34,7 +34,7 @@ public class Valuation {
     public Integer getAssetId() {
         return assetId;
     }
-    public BigDecimal getValuationAmount() {
+    public double getValuationAmount() {
         return valuationAmount;
     }
     public LocalDate getValuationDate() {
