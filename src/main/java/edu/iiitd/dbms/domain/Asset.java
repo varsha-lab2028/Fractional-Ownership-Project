@@ -2,7 +2,7 @@ package edu.iiitd.dbms.domain;
 
 public class Asset {
     private final int assetId;
-    private final String assetName; //refers to the name of the asset
+    private final String assetName;
     private final String category;
     private final String description;
     private final String storageLocation;
