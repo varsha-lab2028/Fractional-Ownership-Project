@@ -1,5 +1,9 @@
 package edu.iiitd.dbms.ui.login;
 
+//connecting the auth backend to loginUI
+import edu.iiitd.dbms.auth.AuthenticationService;
+import edu.iiitd.dbms.domain.AuthClass;
+
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
@@ -14,6 +18,9 @@ public class loginUI extends JFrame {
     private final Color accentCrimson = new Color(139, 0, 0); 
     private final Color textMuted = new Color(150, 150, 150);
     private final Color textLight = new Color(240, 240, 240);
+
+    //instantiating auth service
+    private final AuthenticationService authService = new AuthenticationService();
 
     public loginUI() {
         setTitle("Fractional - Access Portal");
@@ -71,7 +78,8 @@ public class loginUI extends JFrame {
         rolePanel.add(adminBtn);
 
         //Input Fields
-        JLabel userLabel = new JLabel("ADMIN ID / EMAIL");
+        //JLabel userLabel = new JLabel("ADMIN ID / EMAIL");
+        JLabel userLabel = new JLabel("EMAIL");
         styleLabel(userLabel);
         JTextField userField = new JTextField();
         styleTextField(userField);
@@ -106,28 +114,68 @@ public class loginUI extends JFrame {
         loginBtn.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                String username = userField.getText();
-                String password = new String(passField.getPassword());
-                String selectedRole = investorBtn.isSelected() ? "Investor" : "Admin";
+                String email = userField.getText().trim();
+                String password = new String(passField.getPassword()).trim();
+                String selectedRole = investorBtn.isSelected() ? "INVESTOR" : "ADMIN";
 
-                //Verify credentials against the DB here
-                boolean isAuthSuccessful = true;
+                if (email.isEmpty() || password.isEmpty()) {
+                    JOptionPane.showMessageDialog(
+                            rightPanel,
+                            "Please enter both email and password.",
+                            "Login Error",
+                            JOptionPane.ERROR_MESSAGE
+                    );
+                    return;
+                }
 
-                if (isAuthSuccessful) {
-                    //Check DB if the market is open or closed/under maintenance
-                    boolean isSystemInMaintenance = false;
-                    
-                    if (isSystemInMaintenance) {
-                        //maintenance banner will appear after login is successful
-                        JOptionPane.showMessageDialog(rightPanel, 
-                            "System is currently under maintenance. Limited features may be available.", 
-                            "Maintenance Notice", JOptionPane.WARNING_MESSAGE);
+                try {
+                    AuthClass loggedInUser = authService.login(email, password);
+
+                    if (!loggedInUser.getUserType().equalsIgnoreCase(selectedRole)) {
+                        JOptionPane.showMessageDialog(
+                                rightPanel,
+                                "Selected role does not match this account.",
+                                "Login Error",
+                                JOptionPane.ERROR_MESSAGE
+                        );
+                        return;
                     }
 
-                    //Route to the correct dashboard based on selectedRole
-                    System.out.println("Routing to " + selectedRole + " Dashboard...");
-                    dispose(); // Closes the login window
-                    // new adminDash().setVisible(true);
+                    boolean isSystemInMaintenance = false;
+
+                    if (isSystemInMaintenance) {
+                        JOptionPane.showMessageDialog(
+                                rightPanel,
+                                "System is currently under maintenance. Limited features may be available.",
+                                "Maintenance Notice",
+                                JOptionPane.WARNING_MESSAGE
+                        );
+                    }
+
+                    JOptionPane.showMessageDialog(
+                            rightPanel,
+                            "Login successful. Welcome, " + loggedInUser.getName() + "!",
+                            "Success",
+                            JOptionPane.INFORMATION_MESSAGE
+                    );
+
+                    dispose();
+
+                    if (loggedInUser.getUserType().equalsIgnoreCase("ADMIN")) {
+                        System.out.println("Routing to Admin Dashboard...");
+                        // new AdminDashboardUI().setVisible(true);
+                    } else {
+                        System.out.println("Routing to Investor Dashboard...");
+                        // new InvestorDashboardUI().setVisible(true);
+                    }
+
+                } catch (Exception ex) {
+                    JOptionPane.showMessageDialog(
+                            rightPanel,
+                            ex.getMessage(),
+                            "Login Failed",
+                            JOptionPane.ERROR_MESSAGE
+                    );
                 }
             }
         });

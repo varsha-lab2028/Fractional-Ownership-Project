@@ -1,33 +1,31 @@
-package edu.iiitd.dbms.auth;
+package edu.iiitd.dbms.domain;
 
 import java.time.LocalDateTime;
 
-public class AuthenticatingUser {
-    private int userId;
+public class AuthClass {
+    private int authId;
+    private int linkedId;
     private String name;
     private String email;
-    private String role;          //shows admin or investor
-    private String authStatus;    //show whether active/disabled/frozen
+    private String userType;
+    private String authStatus;
     private String passwordHash;
     private LocalDateTime lastLogin;
+    //constructor
+    public AuthClass() {}
 
-    public AuthenticatingUser(int userId, String name, String email, String role,
-                              String authStatus, String passwordHash, LocalDateTime lastLogin){
-        this.userId = userId;
-        this.name = name;
-        this.email = email;
-        this.role = role;
-        this.authStatus = authStatus;
-        this.passwordHash = passwordHash;
-        this.lastLogin = lastLogin;
+    public int getAuthId() {
+        return authId;
+    }
+    public void setAuthId(int authId) {
+        this.authId = authId;
     }
 
-    //getters and setters
-    public int getUserId() {
-        return userId;
+    public int getLinkedId() {
+        return linkedId;
     }
-    public void setUserId(int userId) {
-        this.userId = userId;
+    public void setLinkedId(int linkedId) {
+        this.linkedId = linkedId;
     }
 
     public String getName() {
@@ -44,11 +42,11 @@ public class AuthenticatingUser {
         this.email = email;
     }
 
-    public String getRole() {
-        return role;
+    public String getUserType() {
+        return userType;
     }
-    public void setRole(String role) {
-        this.role = role;
+    public void setUserType(String userType) {
+        this.userType = userType;
     }
 
     public String getAuthStatus() {
