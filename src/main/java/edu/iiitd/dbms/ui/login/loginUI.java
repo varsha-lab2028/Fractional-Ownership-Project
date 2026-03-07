@@ -1,4 +1,4 @@
-package edu.iiitd.dbms.ui;
+package edu.iiitd.dbms.ui.login;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -8,7 +8,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 public class loginUI extends JFrame {
-
     // Aesthetic Color Palette
     private final Color bgDark = new Color(15, 15, 15);
     private final Color panelDark = new Color(25, 25, 25);
@@ -24,9 +23,7 @@ public class loginUI extends JFrame {
         setResizable(false);
         setLayout(new BorderLayout());
 
-        // ==========================================
         // LEFT PANEL: Logo & Branding
-        // ==========================================
         JPanel leftPanel = new JPanel();
         leftPanel.setBackground(bgDark);
         leftPanel.setPreferredSize(new Dimension(400, 550));
@@ -46,9 +43,7 @@ public class loginUI extends JFrame {
         gbcLeft.gridy = 1; gbcLeft.insets = new Insets(10, 0, 0, 0);
         leftPanel.add(subText, gbcLeft);
 
-        // ==========================================
         // RIGHT PANEL: Login Form
-        // ==========================================
         JPanel rightPanel = new JPanel();
         rightPanel.setBackground(panelDark);
         rightPanel.setLayout(new GridBagLayout());
@@ -59,7 +54,7 @@ public class loginUI extends JFrame {
         welcomeLabel.setFont(new Font("SansSerif", Font.BOLD, 28));
         welcomeLabel.setForeground(textLight);
 
-        // --- Profile Selection (User type selected during login) ---
+        //Profile Selection (User type selected during login)
         JPanel rolePanel = new JPanel(new GridLayout(1, 2, 10, 0));
         rolePanel.setBackground(panelDark);
         
@@ -75,7 +70,7 @@ public class loginUI extends JFrame {
         rolePanel.add(investorBtn);
         rolePanel.add(adminBtn);
 
-        // --- Input Fields ---
+        //Input Fields
         JLabel userLabel = new JLabel("ADMIN ID / EMAIL");
         styleLabel(userLabel);
         JTextField userField = new JTextField();
@@ -86,7 +81,7 @@ public class loginUI extends JFrame {
         JPasswordField passField = new JPasswordField();
         styleTextField(passField);
 
-        // --- Login Button ---
+        //Login Button
         JButton loginBtn = new JButton("ACCESS ACCOUNT");
         loginBtn.setFont(new Font("SansSerif", Font.BOLD, 14));
         loginBtn.setBackground(textLight);
@@ -95,7 +90,7 @@ public class loginUI extends JFrame {
         loginBtn.setBorder(new EmptyBorder(12, 0, 12, 0));
         loginBtn.setCursor(new Cursor(Cursor.HAND_CURSOR));
 
-        // Hover effect for the button
+        //Hover effect for the button
         loginBtn.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseEntered(java.awt.event.MouseEvent evt) {
                 loginBtn.setBackground(accentCrimson);
@@ -107,7 +102,7 @@ public class loginUI extends JFrame {
             }
         });
 
-        // --- Action Listener for Login Logic ---
+        //Action Listener for Login Logic
         loginBtn.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -115,29 +110,29 @@ public class loginUI extends JFrame {
                 String password = new String(passField.getPassword());
                 String selectedRole = investorBtn.isSelected() ? "Investor" : "Admin";
 
-                // TODO: 1. Verify credentials against the DB here
-                boolean isAuthSuccessful = true; // Placeholder
+                //Verify credentials against the DB here
+                boolean isAuthSuccessful = true;
 
                 if (isAuthSuccessful) {
-                    // TODO: 2. Check DB if the market is open or closed/under maintenance
-                    boolean isSystemInMaintenance = false; // Placeholder
+                    //Check DB if the market is open or closed/under maintenance
+                    boolean isSystemInMaintenance = false;
                     
                     if (isSystemInMaintenance) {
-                        // The maintenance banner will appear after login is successful
+                        //maintenance banner will appear after login is successful
                         JOptionPane.showMessageDialog(rightPanel, 
                             "System is currently under maintenance. Limited features may be available.", 
                             "Maintenance Notice", JOptionPane.WARNING_MESSAGE);
                     }
 
-                    // TODO: 3. Route to the correct dashboard based on selectedRole
+                    //Route to the correct dashboard based on selectedRole
                     System.out.println("Routing to " + selectedRole + " Dashboard...");
                     dispose(); // Closes the login window
-                    // new adminDash().setVisible(true); // Example routing
+                    // new adminDash().setVisible(true);
                 }
             }
         });
 
-        // Add components to Right Panel layout
+        //Add components to Right Panel layout
         gbc.gridx = 0; gbc.gridy = 0; gbc.insets = new Insets(10, 40, 30, 40); 
         rightPanel.add(welcomeLabel, gbc);
         gbc.gridy = 1; gbc.insets = new Insets(5, 40, 15, 40); rightPanel.add(rolePanel, gbc);
@@ -151,7 +146,7 @@ public class loginUI extends JFrame {
         add(rightPanel, BorderLayout.CENTER);
     }
 
-    // --- Helper Styling Methods ---
+    //Helper Styling Methods
     private void styleLabel(JLabel label) {
         label.setFont(new Font("SansSerif", Font.BOLD, 10));
         label.setForeground(textMuted);
