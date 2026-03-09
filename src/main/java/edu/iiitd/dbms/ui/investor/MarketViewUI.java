@@ -2,6 +2,10 @@ package edu.iiitd.dbms.ui.investor;
 
 import edu.iiitd.dbms.ui.components.MarketChartPanel;
 
+import edu.iiitd.dbms.dto.MarketViewRow;
+import edu.iiitd.dbms.service.MarketService;
+import java.util.List;
+
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.plaf.basic.BasicScrollBarUI;
@@ -11,8 +15,7 @@ import java.awt.event.MouseEvent;
 import java.awt.geom.GeneralPath;
 import java.awt.image.BufferedImage;
 
-public class MarketView extends JFrame {
-
+public class MarketViewUI extends JFrame {
     private final Color bgAbsoluteDark = new Color(14, 14, 14); 
     private final Color cardGlass = new Color(26, 26, 26);      
     private final Color borderSubtle = new Color(45, 45, 45);   
@@ -24,9 +27,14 @@ public class MarketView extends JFrame {
 
     private Point dragPoint;
     private GrainySidebar sidebar;
-    private boolean isBuyMode = true; 
+    private boolean isBuyMode = true;
 
-    public MarketView() {
+    //adding class fields
+    private final MarketService marketService = new MarketService();
+    private JPanel assetList;
+    private AestheticSearchBar searchField;
+
+    public MarketViewUI() {
         setTitle("Fractional. - Secondary Market");
         setSize(1350, 850);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -74,7 +82,7 @@ public class MarketView extends JFrame {
         searchContainer.setOpaque(false);
         searchContainer.add(toggleBtn);
         
-        AestheticSearchBar searchField = new AestheticSearchBar("🔍 Search ticker or asset name...");
+        searchField = new AestheticSearchBar("🔍 Search ticker or asset name...");
         searchField.setPreferredSize(new Dimension(350, 40));
         searchContainer.add(searchField);
 
@@ -94,23 +102,20 @@ public class MarketView extends JFrame {
 
         sidebar = new GrainySidebar();
 
-        // ==========================================
-        // SCROLLABLE MAIN LAYOUT 
-        // ==========================================
-        
+        // SCROLLABLE MAIN LAYOUT
         // LEFT COLUMN (Chart + Screener)
         JPanel leftColumn = new JPanel();
         leftColumn.setLayout(new BoxLayout(leftColumn, BoxLayout.Y_AXIS));
         leftColumn.setOpaque(false);
         leftColumn.setBorder(new EmptyBorder(0, 0, 0, 20));
 
-        // 1. Dynamic Market Chart (Line/Candle)
+        //Dynamic Market Chart (Line/Candle)
         JPanel chartContainer = createRoundedPanel();
         chartContainer.setLayout(new BorderLayout());
         chartContainer.setBorder(new EmptyBorder(20, 20, 20, 20));
         chartContainer.add(new MarketChartPanel("JDN1 - LIVE TRADING DATA"), BorderLayout.CENTER);
         
-        // 2. Asset Screener
+        //Asset Screener
         JPanel screenerPanel = createRoundedPanel();
         screenerPanel.setLayout(new BorderLayout());
         screenerPanel.setBorder(new EmptyBorder(20, 20, 20, 20));
@@ -124,14 +129,15 @@ public class MarketView extends JFrame {
         assetList.setLayout(new BoxLayout(assetList, BoxLayout.Y_AXIS));
         assetList.setBackground(cardGlass);
 
-        assetList.add(Box.createRigidArea(new Dimension(0, 15)));
+        //hardcoded items
+        /*assetList.add(Box.createRigidArea(new Dimension(0, 15)));
         assetList.add(createAssetRow("1985 Air Jordan 1", "JDN1", "$24.50", "+1.2%", pastelGreen));
         assetList.add(Box.createRigidArea(new Dimension(0, 10)));
         assetList.add(createAssetRow("Rolex Daytona", "RLXD", "$15.20", "-0.8%", pastelRed));
         assetList.add(Box.createRigidArea(new Dimension(0, 10)));
         assetList.add(createAssetRow("Basquiat Sketch", "BSQT", "$5.15", "+0.0%", textMuted));
         assetList.add(Box.createRigidArea(new Dimension(0, 10)));
-        assetList.add(createAssetRow("Patek Nautilus", "PTKN", "$36.00", "+2.4%", pastelGreen));
+        assetList.add(createAssetRow("Patek Nautilus", "PTKN", "$36.00", "+2.4%", pastelGreen));*/
 
         screenerPanel.add(assetList, BorderLayout.CENTER);
 
@@ -221,7 +227,7 @@ public class MarketView extends JFrame {
         rightColumn.add(Box.createRigidArea(new Dimension(0, 20)));
         rightColumn.add(orderTicket);
 
-        // --- Layout Assembly with ScrollPane ---
+        //Layout Assembly with ScrollPane
         JPanel gridContent = new JPanel(new BorderLayout());
         gridContent.setOpaque(false);
         gridContent.setBorder(new EmptyBorder(20, 25, 30, 25));
@@ -233,7 +239,7 @@ public class MarketView extends JFrame {
         mainScroll.getViewport().setBackground(bgAbsoluteDark);
         mainScroll.getVerticalScrollBar().setUnitIncrement(16); // Smooth scrolling
         
-        // Minimalist invisible scrollbar to keep aesthetic clean
+        //Minimalist invisible scrollbar to keep aesthetic clean
         mainScroll.getVerticalScrollBar().setUI(new BasicScrollBarUI() {
             @Override protected void configureScrollBarColors() { this.thumbColor = borderSubtle; this.trackColor = bgAbsoluteDark; }
             @Override protected JButton createDecreaseButton(int orientation) { return createZeroButton(); }
@@ -249,11 +255,87 @@ public class MarketView extends JFrame {
         add(dragBar, BorderLayout.NORTH);
         add(sidebar, BorderLayout.WEST);
         add(contentWrapper, BorderLayout.CENTER);
+
+        loadAllMarketRows();
     }
 
-    // ==========================================
+    //Adding methods
+    private void loadAllMarketRows() {
+        try {
+            List<MarketViewRow> rows = marketService.getAllMarketRows();
+            populateAssetList(rows);
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(
+                    this,
+                    "Failed to load market data: " + e.getMessage(),
+                    "Database Error",
+                    JOptionPane.ERROR_MESSAGE
+            );
+            e.printStackTrace();
+        }
+    }
+
+    private void loadMarketRowsByCategory(String category) {
+        try {
+            List<MarketViewRow> rows = marketService.getMarketRowsByCategory(category);
+            populateAssetList(rows);
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(
+                    this,
+                    "Failed to load filtered market data: " + e.getMessage(),
+                    "Database Error",
+                    JOptionPane.ERROR_MESSAGE
+            );
+            e.printStackTrace();
+        }
+    }
+
+    private void populateAssetList(List<MarketViewRow> rows) {
+        assetList.removeAll();
+
+        assetList.add(Box.createRigidArea(new Dimension(0, 15)));
+
+        if (rows == null || rows.isEmpty()) {
+            JLabel emptyLabel = new JLabel("No market listings found.");
+            emptyLabel.setForeground(textMuted);
+            emptyLabel.setFont(new Font("SansSerif", Font.PLAIN, 14));
+            assetList.add(emptyLabel);
+        } else {
+            for (int i = 0; i < rows.size(); i++) {
+                MarketViewRow row = rows.get(i);
+
+                String name = row.getAssetName();
+                String subText = row.getCategory();
+                String price = String.format("$%.2f", row.getPricePerUnit());
+                //String status = row.getIpoStatus();
+
+                //Color statusColor = getStatusColor(status);
+
+                //assetList.add(createAssetRow(name, subText, price, status, statusColor));
+
+                if (i < rows.size() - 1) {
+                    assetList.add(Box.createRigidArea(new Dimension(0, 10)));
+                }
+            }
+        }
+
+        assetList.revalidate();
+        assetList.repaint();
+    }
+
+    private Color getStatusColor(String status) {
+        if (status == null) return textMuted;
+
+        if (status.equalsIgnoreCase("Open") || status.equalsIgnoreCase("Active")) {
+            return pastelGreen;
+        } else if (status.equalsIgnoreCase("Closed") || status.equalsIgnoreCase("Rejected")) {
+            return pastelRed;
+        } else {
+            return pastelBlue;
+        }
+    }
+
     // SIDEBAR NAVIGATION
-    // ==========================================
     class GrainySidebar extends JPanel {
         private boolean isExpanded = false; 
         private final int EXPANDED_WIDTH = 250;
@@ -356,8 +438,7 @@ public class MarketView extends JFrame {
         }
     }
 
-    // --- Aesthetic UI Generators ---
-
+    //Aesthetic UI Generators
     private JPanel createRoundedPanel() {
         JPanel panel = new JPanel() {
             @Override
@@ -475,6 +556,6 @@ public class MarketView extends JFrame {
     }
 
     public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> new MarketView().setVisible(true));
+        SwingUtilities.invokeLater(() -> new MarketViewUI().setVisible(true));
     }
 }

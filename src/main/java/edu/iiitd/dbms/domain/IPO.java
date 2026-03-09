@@ -1,27 +1,27 @@
 package edu.iiitd.dbms.domain;
 
 import java.util.*;
-import java.math.*;
+//import java.math.*;
 import java.time.*;
 
 public class IPO {
     private final int ipoId;
     private final Integer assetId; //this is nullable
     private final Integer totalUnits;
-    private final BigDecimal pricePerUnit;
+    private final Double pricePerUnit;
     private final LocalDate ipoStartDate;
     private final LocalDate ipoEndDate;
     private final Integer lockInPeriod;
 
     //constructor
-    public IPO(int ipoId, Integer assetId, Integer totalUnits, BigDecimal pricePerUnit, LocalDate ipoStartDate, LocalDate ipoEndDate, Integer lockInPeriod){
+    public IPO(int ipoId, Integer assetId, Integer totalUnits, Double pricePerUnit, LocalDate ipoStartDate, LocalDate ipoEndDate, Integer lockInPeriod){
         if(ipoId < 0){
             throw new IllegalArgumentException("IPO ID cannot be negative");
         }
         if (totalUnits != null && totalUnits < 0)
             throw new IllegalArgumentException("Total units cannot be negative");
 
-        if (pricePerUnit != null && pricePerUnit.compareTo(BigDecimal.ZERO) < 0)
+        if (pricePerUnit < 0)
             throw new IllegalArgumentException("Price per unit value cannot be negative");
 
         if (ipoStartDate != null && ipoEndDate != null && ipoStartDate.isAfter(ipoEndDate))
@@ -43,7 +43,7 @@ public class IPO {
     public int getIpoId() { return ipoId; }
     public Integer getAssetId() { return assetId; }
     public Integer getTotalUnits() { return totalUnits; }
-    public BigDecimal getPricePerUnit() { return pricePerUnit; }
+    public Double getPricePerUnit() { return pricePerUnit; }
     public LocalDate getIpoStartDate() { return ipoStartDate; }
     public LocalDate getIpoEndDate() { return ipoEndDate; }
     public Integer getLockInPeriod() { return lockInPeriod; }
