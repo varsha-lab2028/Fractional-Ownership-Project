@@ -51,3 +51,9 @@ SELECT i.asset_id, i.total_units, SUM(o.units_held) AS total_held FROM IPO i LEF
 --Q13
 SELECT investor_id FROM OWNERSHIP WHERE investor_id NOT IN (SELECT investor_id FROM TRADE_ORDER);
 
+--Q14 Show latest valuation of each asset
+SELECT v.asset_id, a.name AS asset_name, v.valuation_amount, v.valuation_date FROM VALUATION v JOIN ASSET a ON v.asset_id = a.asset_id
+WHERE (v.asset_id, v.valuation_date) IN (SELECT asset_id, MAX(valuation_date) FROM VALUATION GROUP BY asset_id);
+
+--Q15 Show matched trades with buyer and seller investors
+SELECT t.trade_id, t.trade_date, t.trade_price, t.trade_units, b.asset_id FROM TRADE t JOIN TRADE_ORDER b ON t.buy_order_id = b.order_id;
