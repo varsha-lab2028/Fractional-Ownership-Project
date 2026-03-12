@@ -4,8 +4,8 @@ import edu.iiitd.dbms.config.DBConnection;
 import edu.iiitd.dbms.config.ServerConnector;
 import edu.iiitd.dbms.domain.Asset;
 
-import edu.iiitd.dbms.dto.AssetValuationRow;
-import edu.iiitd.dbms.dto.VerifiedAssetRow;
+import edu.iiitd.dbms.dto.InvestorMarketView.AssetValuationRow;
+import edu.iiitd.dbms.dto.InvestorMarketView.VerifiedAssetRow;
 
 import java.sql.*;
 import java.util.*;

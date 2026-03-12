@@ -11,7 +11,7 @@ import java.awt.event.MouseEvent;
 import java.awt.geom.GeneralPath;
 import java.awt.image.BufferedImage;
 
-public class adminDash extends JFrame {
+public class AdminDashUI extends JFrame {
 
     // Grayscale & Pastel Palette (Matched to Investor View)
     private final Color bgAbsoluteDark = new Color(14, 14, 14); 
@@ -27,7 +27,7 @@ public class adminDash extends JFrame {
     private GrainySidebar sidebar;
     private boolean isMarketOpen = true; // State for Market Toggle
 
-    public adminDash() {
+    public AdminDashUI() {
         setTitle("Fractional. - Admin Control Center");
         setSize(1350, 850);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -445,6 +445,6 @@ public class adminDash extends JFrame {
     }
 
     public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> new adminDash().setVisible(true));
+        SwingUtilities.invokeLater(() -> new AdminDashUI().setVisible(true));
     }
 }

@@ -2,7 +2,7 @@ package edu.iiitd.dbms.ui.investor;
 
 import edu.iiitd.dbms.ui.components.MarketChartPanel;
 
-import edu.iiitd.dbms.dto.MarketViewRow;
+import edu.iiitd.dbms.dto.InvestorMarketView.MarketViewRow;
 import edu.iiitd.dbms.service.MarketService;
 import java.util.List;
 

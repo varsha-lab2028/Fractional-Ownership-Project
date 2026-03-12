@@ -1,8 +1,8 @@
 package edu.iiitd.dbms.test;
 
-import edu.iiitd.dbms.dto.AssetValuationRow;
-import edu.iiitd.dbms.dto.MarketViewRow;
-import edu.iiitd.dbms.dto.VerifiedAssetRow;
+import edu.iiitd.dbms.dto.InvestorMarketView.AssetValuationRow;
+import edu.iiitd.dbms.dto.InvestorMarketView.MarketViewRow;
+import edu.iiitd.dbms.dto.InvestorMarketView.VerifiedAssetRow;
 import edu.iiitd.dbms.service.MarketService;
 
 import java.util.List;

@@ -1,5 +1,4 @@
 package edu.iiitd.dbms.ui.investor;
 
-public class walletView {
-    
+public class WalletViewUI {
 }

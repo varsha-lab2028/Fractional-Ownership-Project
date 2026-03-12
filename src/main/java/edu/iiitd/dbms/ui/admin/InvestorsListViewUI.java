@@ -1,5 +1,5 @@
 package edu.iiitd.dbms.ui.admin;
 
-public class investorsListView {
+public class InvestorsListViewUI {
     
 }

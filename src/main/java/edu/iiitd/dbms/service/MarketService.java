@@ -2,9 +2,9 @@ package edu.iiitd.dbms.service;
 
 import edu.iiitd.dbms.data_access.AssetDAO;
 import edu.iiitd.dbms.data_access.IpoDAO;
-import edu.iiitd.dbms.dto.AssetValuationRow;
-import edu.iiitd.dbms.dto.MarketViewRow;
-import edu.iiitd.dbms.dto.VerifiedAssetRow;
+import edu.iiitd.dbms.dto.InvestorMarketView.MarketViewRow;
+import edu.iiitd.dbms.dto.InvestorMarketView.AssetValuationRow;
+import edu.iiitd.dbms.dto.InvestorMarketView.VerifiedAssetRow;
 
 import java.sql.*;
 import java.util.*;

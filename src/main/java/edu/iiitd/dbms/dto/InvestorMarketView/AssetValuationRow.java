@@ -1,4 +1,4 @@
-package edu.iiitd.dbms.dto;
+package edu.iiitd.dbms.dto.InvestorMarketView;
 
 public class AssetValuationRow {
     private final int assetId;

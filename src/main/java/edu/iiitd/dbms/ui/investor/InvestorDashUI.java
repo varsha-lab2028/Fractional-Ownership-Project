@@ -11,7 +11,7 @@ import java.awt.event.MouseEvent;
 import java.awt.geom.GeneralPath;
 import java.awt.image.BufferedImage;
 
-public class investorDash extends JFrame {
+public class InvestorDashUI extends JFrame {
 
     private final Color bgAbsoluteDark = new Color(14, 14, 14); 
     private final Color cardGlass = new Color(26, 26, 26);      
@@ -23,7 +23,7 @@ public class investorDash extends JFrame {
     private Point dragPoint;
     private GrainySidebar sidebar;
 
-    public investorDash() {
+    public InvestorDashUI() {
         setTitle("Fractional. - Dashboard");
         setSize(1350, 850);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -32,7 +32,7 @@ public class investorDash extends JFrame {
         setLayout(new BorderLayout());
         getContentPane().setBackground(bgAbsoluteDark);
 
-        // --- CUSTOM DRAG BAR ---
+        //CUSTOM DRAG BAR
         JPanel dragBar = new JPanel(new BorderLayout());
         dragBar.setBackground(bgAbsoluteDark);
         dragBar.setPreferredSize(new Dimension(1350, 30));
@@ -55,7 +55,7 @@ public class investorDash extends JFrame {
             }
         });
 
-        // --- TOP NAV BAR ---
+        //TOP NAV BAR
         JPanel topBar = new JPanel(new BorderLayout());
         topBar.setBackground(bgAbsoluteDark);
         topBar.setBorder(new EmptyBorder(10, 15, 10, 25));
@@ -91,10 +91,10 @@ public class investorDash extends JFrame {
         topBar.add(searchContainer, BorderLayout.WEST);
         topBar.add(profilePanel, BorderLayout.EAST);
 
-        // --- THE CUSTOM COLLAPSIBLE SIDEBAR ---
+        //THE CUSTOM COLLAPSIBLE SIDEBAR
         sidebar = new GrainySidebar();
 
-        // --- RIGHT PANEL ---
+        //RIGHT PANEL
         JPanel rightPanel = new JPanel();
         rightPanel.setLayout(new BoxLayout(rightPanel, BoxLayout.Y_AXIS));
         rightPanel.setOpaque(false);
@@ -150,7 +150,7 @@ public class investorDash extends JFrame {
         rightPanel.add(Box.createRigidArea(new Dimension(0, 20)));
         rightPanel.add(activityCard); 
 
-        // --- CENTER PANEL ---
+        //CENTER PANEL
         JPanel centerPanel = new JPanel(new BorderLayout(0, 20));
         centerPanel.setOpaque(false);
         centerPanel.setBorder(new EmptyBorder(0, 0, 30, 15));
@@ -207,7 +207,7 @@ public class investorDash extends JFrame {
         centerPanel.add(chartsGrid, BorderLayout.NORTH);
         centerPanel.add(ipoContainer, BorderLayout.CENTER);
 
-        // --- Assembly ---
+        //Assembly
         add(dragBar, BorderLayout.NORTH);
         add(sidebar, BorderLayout.WEST);
         
@@ -219,9 +219,7 @@ public class investorDash extends JFrame {
         add(mainContent, BorderLayout.CENTER);
     }
 
-    // ==========================================
     // UPGRADED TRANSLUCENT GRAINY SIDEBAR
-    // ==========================================
     class GrainySidebar extends JPanel {
         private boolean isExpanded = false; // Starts completely collapsed
         private final int EXPANDED_WIDTH = 250;
@@ -338,11 +336,11 @@ public class investorDash extends JFrame {
             
             path.closePath();
 
-            // 1. More Transparent Background (Reduced alpha to 150)
+            //More Transparent Background (Reduced alpha to 150)
             g2.setColor(new Color(30, 30, 30, 150)); 
             g2.fill(path);
 
-            // 2. Subtle Grain Overlay
+            //Subtle Grain Overlay
             g2.setClip(path);
             g2.drawImage(noiseOverlay, 0, 0, null);
 
@@ -350,8 +348,7 @@ public class investorDash extends JFrame {
         }
     }
 
-    // --- Aesthetic Helpers ---
-
+    //Aesthetic Helpers
     private JPanel createActivityRow(String action, String amount) {
         JPanel row = new JPanel(new BorderLayout());
         row.setOpaque(false);
@@ -446,6 +443,6 @@ public class investorDash extends JFrame {
     }
 
     public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> new investorDash().setVisible(true));
+        SwingUtilities.invokeLater(() -> new InvestorDashUI().setVisible(true));
     }
 }
