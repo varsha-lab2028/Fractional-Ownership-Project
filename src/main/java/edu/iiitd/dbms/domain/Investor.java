@@ -1,42 +1,73 @@
 package edu.iiitd.dbms.domain;
 
-import java.util.*;
-import java.time.*;
+import java.time.LocalDate;
 
 public class Investor {
-    private final int investorId;
-    private final String investorName;
-    private final String investorEmail;
-    private final LocalDate registrationDate;
+    private int investorId;
+    private String name;
+    private String email;
+    private String phone; // Added phone field
+    private LocalDate registrationDate;
 
-    //constructor
-    public Investor(int investorId, String investorName, String investorEmail, LocalDate registrationDate){
-        if(investorId < 0){
-            throw new IllegalArgumentException("Investor ID cannot be negative");
-        }
-        if(investorName == null || investorName.isBlank()){
-            throw new IllegalArgumentException("Name of the investor should exist");
-        }
-        if(investorEmail == null || investorEmail.isBlank()){
-            throw new IllegalArgumentException("Email of the investor should exist");
-        }
+    // Updated Constructor to accept 5 parameters
+    public Investor(int investorId, String name, String email, String phone, LocalDate registrationDate) {
         this.investorId = investorId;
-        this.investorName = investorName;
-        this.investorEmail = investorEmail;
+        this.name = name;
+        this.email = email;
+        this.phone = phone;
         this.registrationDate = registrationDate;
     }
 
-    //getters
-    public int getInvestorId(){
+    // --- GETTERS ---
+    public int getInvestorId() {
         return investorId;
     }
-    public String getInvestorName(){
-        return investorName;
+
+    public String getName() {
+        return name;
     }
-    public String getInvestorEmail(){
-        return investorEmail;
+
+    public String getEmail() {
+        return email;
     }
-    public LocalDate getRegistrationDate(){
+
+    public String getPhone() {
+        return phone;
+    }
+
+    public LocalDate getRegistrationDate() {
         return registrationDate;
+    }
+
+    // --- SETTERS ---
+    public void setInvestorId(int investorId) {
+        this.investorId = investorId;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public void setPhone(String phone) {
+        this.phone = phone;
+    }
+
+    public void setRegistrationDate(LocalDate registrationDate) {
+        this.registrationDate = registrationDate;
+    }
+
+    @Override
+    public String toString() {
+        return "Investor{" +
+                "investorId=" + investorId +
+                ", name='" + name + '\'' +
+                ", email='" + email + '\'' +
+                ", phone='" + phone + '\'' +
+                ", registrationDate=" + registrationDate +
+                '}';
     }
 }

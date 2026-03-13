@@ -13,10 +13,12 @@ public class InvestorDAO {
     // HELPER METHODS
     // ==========================================
     private Investor matchInvestorColumns(ResultSet rs) throws SQLException {
+        // UPDATED: Added rs.getString("phone") so Profile Settings can load the current phone number
         return new Investor(
                 rs.getInt("investor_id"),
                 rs.getString("investor_name"),
                 rs.getString("email"),
+                rs.getString("phone"), 
                 rs.getDate("registration_date").toLocalDate()
         );
     }
@@ -92,7 +94,7 @@ public class InvestorDAO {
     }
 
     // ==========================================
-    // UPDATE
+    // UPDATE (Profile Settings)
     // ==========================================
     public boolean updateInvestorProfile(int investorId, String newName, String newPhone) throws SQLException {
         String sql = """
