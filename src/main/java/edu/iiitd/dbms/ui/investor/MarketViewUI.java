@@ -1,7 +1,6 @@
 package edu.iiitd.dbms.ui.investor;
 
 import edu.iiitd.dbms.ui.components.MarketChartPanel;
-
 import edu.iiitd.dbms.dto.InvestorMarketView.MarketViewRow;
 import edu.iiitd.dbms.service.MarketService;
 import java.util.List;
@@ -125,21 +124,18 @@ public class MarketViewUI extends JFrame {
         screenerTitle.setFont(new Font("SansSerif", Font.BOLD, 14));
         screenerPanel.add(screenerTitle, BorderLayout.NORTH);
 
-        JPanel assetList = new JPanel();
+        assetList = new JPanel();
         assetList.setLayout(new BoxLayout(assetList, BoxLayout.Y_AXIS));
         assetList.setBackground(cardGlass);
 
-        //hardcoded items
-        /*assetList.add(Box.createRigidArea(new Dimension(0, 15)));
-        assetList.add(createAssetRow("1985 Air Jordan 1", "JDN1", "$24.50", "+1.2%", pastelGreen));
-        assetList.add(Box.createRigidArea(new Dimension(0, 10)));
-        assetList.add(createAssetRow("Rolex Daytona", "RLXD", "$15.20", "-0.8%", pastelRed));
-        assetList.add(Box.createRigidArea(new Dimension(0, 10)));
-        assetList.add(createAssetRow("Basquiat Sketch", "BSQT", "$5.15", "+0.0%", textMuted));
-        assetList.add(Box.createRigidArea(new Dimension(0, 10)));
-        assetList.add(createAssetRow("Patek Nautilus", "PTKN", "$36.00", "+2.4%", pastelGreen));*/
+        // INNER SCROLL PANE: Strict bounds apply independent scrolling
+        JScrollPane screenerScroll = new JScrollPane(assetList);
+        screenerScroll.setBorder(null);
+        screenerScroll.getViewport().setBackground(cardGlass);
+        screenerScroll.setPreferredSize(new Dimension(0, 280)); 
+        applyCustomScrollbar(screenerScroll);
 
-        screenerPanel.add(assetList, BorderLayout.CENTER);
+        screenerPanel.add(screenerScroll, BorderLayout.CENTER);
 
         leftColumn.add(chartContainer);
         leftColumn.add(Box.createRigidArea(new Dimension(0, 20)));
@@ -227,7 +223,7 @@ public class MarketViewUI extends JFrame {
         rightColumn.add(Box.createRigidArea(new Dimension(0, 20)));
         rightColumn.add(orderTicket);
 
-        //Layout Assembly with ScrollPane
+        // OUTER SCROLL PANE: Scrolls the entire page if window is small
         JPanel gridContent = new JPanel(new BorderLayout());
         gridContent.setOpaque(false);
         gridContent.setBorder(new EmptyBorder(20, 25, 30, 25));
@@ -237,15 +233,8 @@ public class MarketViewUI extends JFrame {
         JScrollPane mainScroll = new JScrollPane(gridContent);
         mainScroll.setBorder(null);
         mainScroll.getViewport().setBackground(bgAbsoluteDark);
-        mainScroll.getVerticalScrollBar().setUnitIncrement(16); // Smooth scrolling
-        
-        //Minimalist invisible scrollbar to keep aesthetic clean
-        mainScroll.getVerticalScrollBar().setUI(new BasicScrollBarUI() {
-            @Override protected void configureScrollBarColors() { this.thumbColor = borderSubtle; this.trackColor = bgAbsoluteDark; }
-            @Override protected JButton createDecreaseButton(int orientation) { return createZeroButton(); }
-            @Override protected JButton createIncreaseButton(int orientation) { return createZeroButton(); }
-            private JButton createZeroButton() { JButton jb = new JButton(); jb.setPreferredSize(new Dimension(0,0)); return jb; }
-        });
+        mainScroll.getVerticalScrollBar().setUnitIncrement(16); 
+        applyCustomScrollbar(mainScroll);
 
         JPanel contentWrapper = new JPanel(new BorderLayout());
         contentWrapper.setOpaque(false);
@@ -259,18 +248,13 @@ public class MarketViewUI extends JFrame {
         loadAllMarketRows();
     }
 
-    //Adding methods
+    // --- Database Logic ---
     private void loadAllMarketRows() {
         try {
             List<MarketViewRow> rows = marketService.getAllMarketRows();
             populateAssetList(rows);
         } catch (Exception e) {
-            JOptionPane.showMessageDialog(
-                    this,
-                    "Failed to load market data: " + e.getMessage(),
-                    "Database Error",
-                    JOptionPane.ERROR_MESSAGE
-            );
+            JOptionPane.showMessageDialog(this, "Failed to load market data: " + e.getMessage(), "Database Error", JOptionPane.ERROR_MESSAGE);
             e.printStackTrace();
         }
     }
@@ -280,19 +264,13 @@ public class MarketViewUI extends JFrame {
             List<MarketViewRow> rows = marketService.getMarketRowsByCategory(category);
             populateAssetList(rows);
         } catch (Exception e) {
-            JOptionPane.showMessageDialog(
-                    this,
-                    "Failed to load filtered market data: " + e.getMessage(),
-                    "Database Error",
-                    JOptionPane.ERROR_MESSAGE
-            );
+            JOptionPane.showMessageDialog(this, "Failed to load filtered market data: " + e.getMessage(), "Database Error", JOptionPane.ERROR_MESSAGE);
             e.printStackTrace();
         }
     }
 
     private void populateAssetList(List<MarketViewRow> rows) {
         assetList.removeAll();
-
         assetList.add(Box.createRigidArea(new Dimension(0, 15)));
 
         if (rows == null || rows.isEmpty()) {
@@ -303,39 +281,31 @@ public class MarketViewUI extends JFrame {
         } else {
             for (int i = 0; i < rows.size(); i++) {
                 MarketViewRow row = rows.get(i);
-
                 String name = row.getAssetName();
                 String subText = row.getCategory();
                 String price = String.format("$%.2f", row.getPricePerUnit());
-                //String status = row.getIpoStatus();
-
-                //Color statusColor = getStatusColor(status);
-
-                //assetList.add(createAssetRow(name, subText, price, status, statusColor));
+                
+                // Using pastel green for mock "positive" change for now
+                assetList.add(createAssetRow(name, subText, price, "+0.0%", pastelGreen));
 
                 if (i < rows.size() - 1) {
                     assetList.add(Box.createRigidArea(new Dimension(0, 10)));
                 }
             }
         }
-
         assetList.revalidate();
         assetList.repaint();
     }
 
     private Color getStatusColor(String status) {
         if (status == null) return textMuted;
-
-        if (status.equalsIgnoreCase("Open") || status.equalsIgnoreCase("Active")) {
-            return pastelGreen;
-        } else if (status.equalsIgnoreCase("Closed") || status.equalsIgnoreCase("Rejected")) {
-            return pastelRed;
-        } else {
-            return pastelBlue;
-        }
+        if (status.equalsIgnoreCase("Open") || status.equalsIgnoreCase("Active")) return pastelGreen;
+        else if (status.equalsIgnoreCase("Closed") || status.equalsIgnoreCase("Rejected")) return pastelRed;
+        else return pastelBlue;
     }
 
-    // SIDEBAR NAVIGATION
+    // --- Aesthetics & Custom Components ---
+    
     class GrainySidebar extends JPanel {
         private boolean isExpanded = false; 
         private final int EXPANDED_WIDTH = 250;
@@ -438,7 +408,6 @@ public class MarketViewUI extends JFrame {
         }
     }
 
-    //Aesthetic UI Generators
     private JPanel createRoundedPanel() {
         JPanel panel = new JPanel() {
             @Override
@@ -515,7 +484,6 @@ public class MarketViewUI extends JFrame {
         return lbl;
     }
 
-    // Fix applied here for the invisible text on inactive toggles
     private void styleOrderToggle(JButton btn, boolean isActive, Color activeColor) {
         btn.setFont(new Font("SansSerif", Font.BOLD, 12));
         btn.setFocusPainted(false);
@@ -524,11 +492,20 @@ public class MarketViewUI extends JFrame {
         
         if (isActive) {
             btn.setBackground(activeColor);
-            btn.setForeground(bgAbsoluteDark); // Dark text on bright button
+            btn.setForeground(bgAbsoluteDark); 
         } else {
             btn.setBackground(cardGlass); 
-            btn.setForeground(textPrimary); // White text on dark button (Fixed invisible text)
+            btn.setForeground(textPrimary); 
         }
+    }
+
+    private void applyCustomScrollbar(JScrollPane scrollPane) {
+        scrollPane.getVerticalScrollBar().setUI(new BasicScrollBarUI() {
+            @Override protected void configureScrollBarColors() { this.thumbColor = borderSubtle; this.trackColor = cardGlass; }
+            @Override protected JButton createDecreaseButton(int orientation) { return createZeroButton(); }
+            @Override protected JButton createIncreaseButton(int orientation) { return createZeroButton(); }
+            private JButton createZeroButton() { JButton jb = new JButton(); jb.setPreferredSize(new Dimension(0,0)); return jb; }
+        });
     }
 
     class AestheticSearchBar extends JTextField {
