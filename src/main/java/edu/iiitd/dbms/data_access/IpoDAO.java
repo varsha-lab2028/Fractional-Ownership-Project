@@ -2,7 +2,7 @@ package edu.iiitd.dbms.data_access;
 
 import edu.iiitd.dbms.config.ServerConnector;
 import edu.iiitd.dbms.domain.IPO;
-import edu.iiitd.dbms.dto.MarketViewRow;
+import edu.iiitd.dbms.dto.InvestorMarketView.MarketViewRow;
 
 import java.sql.*;
 import java.util.*;
