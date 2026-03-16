@@ -4,22 +4,48 @@ import edu.iiitd.dbms.config.ServerConnector;
 import edu.iiitd.dbms.domain.Investor;
 
 import java.sql.*;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
-//read
 public class InvestorDAO {
+
+    // ==========================================
+    // HELPER METHODS
+    // ==========================================
     private Investor matchInvestorColumns(ResultSet rs) throws SQLException {
+        // UPDATED: Added rs.getString("phone") so Profile Settings can load the current phone number
         return new Investor(
                 rs.getInt("investor_id"),
                 rs.getString("investor_name"),
                 rs.getString("email"),
+                rs.getString("phone"), 
                 rs.getDate("registration_date").toLocalDate()
         );
     }
 
+    // ==========================================
+    // CREATE
+    // ==========================================
+    public boolean registerInvestor(String name, String email, String phone) throws SQLException {
+        String sql = """
+            INSERT INTO investor (investor_name, email, phone, registration_date, wallet_balance)
+            VALUES (?, ?, ?, CURRENT_DATE, 0.00)
+        """;
+        try (Connection conn = ServerConnector.DBConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, name);
+            ps.setString(2, email);
+            ps.setString(3, phone);
+            return ps.executeUpdate() > 0;
+        }
+    }
+
+    // ==========================================
+    // READ (Basic)
+    // ==========================================
     public List<Investor> listInvestors() throws SQLException {
         String sql = """
-            SELECT investor_id, investor_name, email, phone, wallet_balance
+            SELECT investor_id, investor_name, email, phone, registration_date, wallet_balance
             FROM investor
             ORDER BY investor_id
         """;
@@ -27,7 +53,6 @@ public class InvestorDAO {
         try (Connection conn = ServerConnector.DBConnection();
              PreparedStatement ps = conn.prepareStatement(sql);
              ResultSet rs = ps.executeQuery()) {
-
             while (rs.next()) investorList.add(matchInvestorColumns(rs));
         }
         return investorList;
@@ -41,18 +66,138 @@ public class InvestorDAO {
 
     public Investor findByInvestorId(Connection connect, int investorId) throws SQLException {
         String sql = """
-            SELECT investor_id, investor_name, email, phone, wallet_balance
+            SELECT investor_id, investor_name, email, phone, registration_date, wallet_balance
             FROM investor
             WHERE investor_id = ?
         """;
         try (PreparedStatement ps = connect.prepareStatement(sql)) {
             ps.setInt(1, investorId);
             try (ResultSet rs = ps.executeQuery()) {
-                if(rs.next()){
-                    return matchInvestorColumns(rs);
-                } else {
-                    return null;
-                }
+                return rs.next() ? matchInvestorColumns(rs) : null;
+            }
+        }
+    }
+
+    public Investor findByEmail(String email) throws SQLException {
+        String sql = """
+            SELECT investor_id, investor_name, email, phone, registration_date, wallet_balance
+            FROM investor
+            WHERE email = ?
+        """;
+        try (Connection conn = ServerConnector.DBConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, email);
+            try (ResultSet rs = ps.executeQuery()) {
+                return rs.next() ? matchInvestorColumns(rs) : null;
+            }
+        }
+    }
+
+    // ==========================================
+    // UPDATE (Profile Settings)
+    // ==========================================
+    public boolean updateInvestorProfile(int investorId, String newName, String newPhone) throws SQLException {
+        String sql = """
+            UPDATE investor 
+            SET investor_name = ?, phone = ? 
+            WHERE investor_id = ?
+        """;
+        try (Connection conn = ServerConnector.DBConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, newName);
+            ps.setString(2, newPhone);
+            ps.setInt(3, investorId);
+            return ps.executeUpdate() > 0;
+        }
+    }
+
+    // ==========================================
+    // DELETE
+    // ==========================================
+    public boolean deleteInvestor(int investorId) throws SQLException {
+        // Note: Make sure ON DELETE CASCADE is set up in your schema for related tables
+        String sql = "DELETE FROM investor WHERE investor_id = ?";
+        try (Connection conn = ServerConnector.DBConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, investorId);
+            return ps.executeUpdate() > 0;
+        }
+    }
+
+    // ==========================================
+    // WALLET OPERATIONS
+    // ==========================================
+    public double getWalletBalance(int investorId) throws SQLException {
+        String sql = "SELECT wallet_balance FROM investor WHERE investor_id = ?";
+        try (Connection conn = ServerConnector.DBConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, investorId);
+            try (ResultSet rs = stmt.executeQuery()) {
+                return rs.next() ? rs.getDouble("wallet_balance") : 0.00;
+            }
+        }
+    }
+
+    public boolean updateWalletBalance(Connection conn, int investorId, double amountToAdd) throws SQLException {
+        String sql = "UPDATE investor SET wallet_balance = wallet_balance + ? WHERE investor_id = ?";
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setDouble(1, amountToAdd);
+            stmt.setInt(2, investorId);
+            return stmt.executeUpdate() > 0;
+        }
+    }
+
+    public boolean updateWalletBalance(int investorId, double amountToAdd) throws SQLException {
+        try (Connection conn = ServerConnector.DBConnection()) {
+            return updateWalletBalance(conn, investorId, amountToAdd);
+        }
+    }
+
+    // ==========================================
+    // FINANCIAL AGGREGATIONS (For Dashboard)
+    // ==========================================
+    
+    /**
+     * Calculates the total initial capital invested based on units held and original IPO price.
+     */
+    public double getTotalInvestedAmount(int investorId) throws SQLException {
+        String sql = """
+            SELECT SUM(o.units_held * i.price_per_unit) as total_invested
+            FROM OWNERSHIP o
+            JOIN IPO i ON o.asset_id = i.asset_id
+            WHERE o.investor_id = ?
+        """;
+        try (Connection conn = ServerConnector.DBConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, investorId);
+            try (ResultSet rs = ps.executeQuery()) {
+                return rs.next() ? rs.getDouble("total_invested") : 0.00;
+            }
+        }
+    }
+
+    /**
+     * Calculates the current real-time portfolio value using the latest valuations.
+     * Logic: (Units Held / Total Asset Units) * Latest Asset Valuation
+     */
+    public double getCurrentPortfolioValue(int investorId) throws SQLException {
+        String sql = """
+            SELECT SUM((o.units_held * 1.0 / i.total_units) * v.valuation_amount) as current_value
+            FROM OWNERSHIP o
+            JOIN IPO i ON o.asset_id = i.asset_id
+            JOIN VALUATION v ON o.asset_id = v.asset_id
+            WHERE o.investor_id = ?
+            AND v.valuation_date = (
+                SELECT MAX(valuation_date) 
+                FROM VALUATION 
+                WHERE asset_id = o.asset_id
+            )
+        """;
+        try (Connection conn = ServerConnector.DBConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, investorId);
+            try (ResultSet rs = ps.executeQuery()) {
+                return rs.next() ? rs.getDouble("current_value") : 0.00;
             }
         }
     }
