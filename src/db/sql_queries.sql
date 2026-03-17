@@ -1,17 +1,6 @@
 USE fractional_ownership_db; 
 
---typical 'SELECT' queries for the tables 
-SELECT * FROM 'ADMIN'; 
-SELECT * FROM 'ASSET'; 
-SELECT * FROM 'INVESTOR';
-SELECT * FROM 'IPO'; 
-SELECT * FROM 'OWNERSHIP';
-SELECT * FROM 'TRADE_ORDER'; 
-SELECT * FROM 'TRADE';
-SELECT * FROM 'OWNERSHIP_HISTORY'; 
-SELECT * FROM 'VALUATION'; 
-
---15 SQL queries 
+--15 SQL queries
 --Q1 
 SELECT asset_id, name, category, storage_location, verification_status FROM ASSET WHERE verification_status = 'Verified';
 
