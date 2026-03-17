@@ -47,4 +47,17 @@ public class IPO {
     public LocalDate getIpoStartDate() { return ipoStartDate; }
     public LocalDate getIpoEndDate() { return ipoEndDate; }
     public Integer getLockInPeriod() { return lockInPeriod; }
+
+    @Override
+    public String toString() {
+        return "IPO{" +
+                "ipoId=" + ipoId +
+                ", assetId=" + assetId +
+                ", totalUnits=" + totalUnits +
+                ", pricePerUnit=" + pricePerUnit +
+                ", ipoStartDate=" + ipoStartDate +
+                ", ipoEndDate=" + ipoEndDate +
+                ", lockInPeriod=" + lockInPeriod +
+                '}';
+    }
 }

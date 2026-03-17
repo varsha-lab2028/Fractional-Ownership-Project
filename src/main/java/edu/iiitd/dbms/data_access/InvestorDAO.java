@@ -19,7 +19,8 @@ public class InvestorDAO {
                 rs.getString("investor_name"),
                 rs.getString("email"),
                 rs.getString("phone"), 
-                rs.getDate("registration_date").toLocalDate()
+                rs.getDate("registration_date").toLocalDate(),
+                rs.getDouble("walletBalance")
         );
     }
 

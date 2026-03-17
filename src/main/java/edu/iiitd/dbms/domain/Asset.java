@@ -65,4 +65,18 @@ public class Asset {
     public Integer getVerifiedBy(){
         return verifiedBy;
     }
+
+    @Override
+    public String toString() {
+        return "Asset{" +
+                "assetId=" + assetId +
+                ", assetName='" + assetName + '\'' +
+                ", category='" + category + '\'' +
+                ", description='" + description + '\'' +
+                ", storageLocation='" + storageLocation + '\'' +
+                ", verificationReference='" + verificationReference + '\'' +
+                ", verificationStatus='" + verificationStatus + '\'' +
+                ", verifiedBy=" + verifiedBy +
+                '}';
+    }
 }

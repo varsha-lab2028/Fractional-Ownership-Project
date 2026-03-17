@@ -14,6 +14,7 @@ public class AuthClass {
     //constructor
     public AuthClass() {}
 
+    //getters and setters
     public int getAuthId() {
         return authId;
     }
@@ -68,5 +69,18 @@ public class AuthClass {
     }
     public void setLastLogin(LocalDateTime lastLogin) {
         this.lastLogin = lastLogin;
+    }
+
+    @Override
+    public String toString() {
+        return "AuthClass{" +
+                "authId=" + authId +
+                ", linkedId=" + linkedId +
+                ", name='" + name + '\'' +
+                ", email='" + email + '\'' +
+                ", userType='" + userType + '\'' +
+                ", authStatus='" + authStatus + '\'' +
+                ", lastLogin=" + lastLogin +
+                '}';
     }
 }

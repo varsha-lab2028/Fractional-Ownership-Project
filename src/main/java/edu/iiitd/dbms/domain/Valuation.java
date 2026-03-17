@@ -40,4 +40,14 @@ public class Valuation {
     public LocalDate getValuationDate() {
         return valuationDate;
     }
+
+    @Override
+    public String toString() {
+        return "Valuation{" +
+                "valuationId=" + valuationId +
+                ", assetId=" + assetId +
+                ", valuationAmount=" + valuationAmount +
+                ", valuationDate=" + valuationDate +
+                '}';
+    }
 }

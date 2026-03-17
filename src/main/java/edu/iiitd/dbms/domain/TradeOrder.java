@@ -54,4 +54,18 @@ public class TradeOrder {
     public Integer getUnits() { return units; }
     public LocalDate getOrderDate() { return orderDate; }
     public String getStatus() { return status; }
+
+    @Override
+    public String toString() {
+        return "TradeOrder{" +
+                "orderId=" + orderId +
+                ", investorId=" + investorId +
+                ", assetId=" + assetId +
+                ", orderType='" + orderType + '\'' +
+                ", price=" + price +
+                ", units=" + units +
+                ", orderDate=" + orderDate +
+                ", status='" + status + '\'' +
+                '}';
+    }
 }

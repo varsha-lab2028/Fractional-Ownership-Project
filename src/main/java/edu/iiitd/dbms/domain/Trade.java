@@ -38,6 +38,7 @@ public class Trade {
         this.buyOrderId = buyOrderId;
         this.sellOrderId = sellOrderId;
     }
+
     //getters
     public int getTradeId() { return tradeId; }
     public Double getTradePrice() { return tradePrice; }
@@ -45,4 +46,17 @@ public class Trade {
     public LocalDate getTradeDate() { return tradeDate; }
     public Integer getBuyOrderId() { return buyOrderId; }
     public Integer getSellOrderId() { return sellOrderId; }
+
+    @Override
+    public String toString() {
+        return "Trade{" +
+                "tradeId=" + tradeId +
+                ", tradePrice=" + tradePrice +
+                ", tradeUnits=" + tradeUnits +
+                ", tradeDate=" + tradeDate +
+                ", buyOrderId=" + buyOrderId +
+                ", sellOrderId=" + sellOrderId +
+                '}';
+    }
+
 }

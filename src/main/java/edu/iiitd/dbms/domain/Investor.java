@@ -8,17 +8,19 @@ public class Investor {
     private String email;
     private String phone; // Added phone field
     private LocalDate registrationDate;
+    private Double walletBalance;
 
-    // Updated Constructor to accept 5 parameters
-    public Investor(int investorId, String name, String email, String phone, LocalDate registrationDate) {
+    //constructor
+    public Investor(int investorId, String name, String email, String phone, LocalDate registrationDate, Double walletBalance) {
         this.investorId = investorId;
         this.name = name;
         this.email = email;
         this.phone = phone;
         this.registrationDate = registrationDate;
+        this.walletBalance = walletBalance;
     }
 
-    // --- GETTERS ---
+    //getters
     public int getInvestorId() {
         return investorId;
     }
@@ -39,7 +41,9 @@ public class Investor {
         return registrationDate;
     }
 
-    // --- SETTERS ---
+    public Double getWalletBalance() {return walletBalance;}
+
+    //setters
     public void setInvestorId(int investorId) {
         this.investorId = investorId;
     }
@@ -60,6 +64,8 @@ public class Investor {
         this.registrationDate = registrationDate;
     }
 
+    public void setWalletBalance(Double walletBalance) {this.walletBalance = walletBalance;}
+
     @Override
     public String toString() {
         return "Investor{" +
@@ -68,6 +74,7 @@ public class Investor {
                 ", email='" + email + '\'' +
                 ", phone='" + phone + '\'' +
                 ", registrationDate=" + registrationDate +
+                ", walletBalance=" + walletBalance +
                 '}';
     }
 }

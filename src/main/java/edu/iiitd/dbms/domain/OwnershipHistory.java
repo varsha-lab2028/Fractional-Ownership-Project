@@ -50,4 +50,19 @@ public class OwnershipHistory {
     public Integer getTradeId() { return tradeId; }
     public Integer getIpoId() { return ipoId; }
 
+    @Override
+    public String toString() {
+        return "OwnershipHistory{" +
+                "historyId=" + historyId +
+                ", investorId=" + investorId +
+                ", assetId=" + assetId +
+                ", unitsBefore=" + unitsBefore +
+                ", unitsAfter=" + unitsAfter +
+                ", changeDate=" + changeDate +
+                ", changeType='" + changeType + '\'' +
+                ", tradeId=" + tradeId +
+                ", ipoId=" + ipoId +
+                '}';
+    }
+
 }

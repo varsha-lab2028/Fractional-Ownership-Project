@@ -27,4 +27,13 @@ public class Ownership {
     public int getInvestorId(){return investorId;}
     public int getAssetId(){return assetId;}
     public Integer getUnitsHeld(){return unitsHeld;}
+
+    @Override
+    public String toString() {
+        return "Ownership{" +
+                "investorId=" + investorId +
+                ", assetId=" + assetId +
+                ", unitsHeld=" + unitsHeld +
+                '}';
+    }
 }
