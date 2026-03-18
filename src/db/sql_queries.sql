@@ -72,3 +72,33 @@ JOIN TRADE_ORDER bo ON t.buy_order_id = bo.order_id
 JOIN TRADE_ORDER so ON t.sell_order_id = so.order_id
 JOIN INVESTOR bi ON bo.investor_id = bi.investor_id
 JOIN INVESTOR si ON so.investor_id = si.investor_id;
+
+--Q17 investor's name, id and email along with the current wallet balance they have
+SELECT investor_id, name, email, wallet_balance
+FROM INVESTOR
+ORDER BY wallet_balance DESC;
+
+--Q18 Show all wallet transactions with investor name
+SELECT wt.transaction_id, i.name AS investor_name, wt.amount, wt.transaction_type, wt.transfer_category, wt.transaction_date
+FROM WALLET_TRANSACTION wt
+JOIN INVESTOR i ON i.investor_id = wt.investor_id
+ORDER BY wt.transaction_date DESC;
+
+--Q19 Total amount transacted per investor grouped by transaction type
+SELECT i.name AS investor_name, wt.transaction_type, SUM(wt.amount) AS total_amount
+FROM WALLET_TRANSACTION wt
+JOIN INVESTOR i ON i.investor_id = wt.investor_id
+GROUP BY i.investor_id, wt.transaction_type;
+
+--Q20 Investors who have never made any wallet transaction
+SELECT i.investor_id, i.name
+FROM INVESTOR i WHERE NOT EXISTS (
+    SELECT 1
+    FROM WALLET_TRANSACTION wt
+    WHERE wt.investor_id = i.investor_id
+);
+
+--Q21 Investors whose wallet balance is greater than zero (active wallets)
+SELECT investor_id, name, wallet_balance
+FROM INVESTOR
+WHERE wallet_balance > 0;

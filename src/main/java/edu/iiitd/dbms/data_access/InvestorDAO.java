@@ -8,12 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class InvestorDAO {
-
-    // ==========================================
-    // HELPER METHODS
-    // ==========================================
     private Investor matchInvestorColumns(ResultSet rs) throws SQLException {
-        // UPDATED: Added rs.getString("phone") so Profile Settings can load the current phone number
         return new Investor(
                 rs.getInt("investor_id"),
                 rs.getString("investor_name"),
@@ -24,9 +19,7 @@ public class InvestorDAO {
         );
     }
 
-    // ==========================================
-    // CREATE
-    // ==========================================
+    //create methods
     public boolean registerInvestor(String name, String email, String phone) throws SQLException {
         String sql = """
             INSERT INTO investor (investor_name, email, phone, registration_date, wallet_balance)
@@ -41,9 +34,7 @@ public class InvestorDAO {
         }
     }
 
-    // ==========================================
-    // READ (Basic)
-    // ==========================================
+    //listing methods
     public List<Investor> listInvestors() throws SQLException {
         String sql = """
             SELECT investor_id, investor_name, email, phone, registration_date, wallet_balance
@@ -59,6 +50,7 @@ public class InvestorDAO {
         return investorList;
     }
 
+    //finding methods
     public Investor findByInvestorId(int investorId) throws SQLException {
         try (Connection connect = ServerConnector.DBConnection()) {
             return findByInvestorId(connect, investorId);
@@ -94,9 +86,7 @@ public class InvestorDAO {
         }
     }
 
-    // ==========================================
-    // UPDATE (Profile Settings)
-    // ==========================================
+    //updation methods (profile settings)
     public boolean updateInvestorProfile(int investorId, String newName, String newPhone) throws SQLException {
         String sql = """
             UPDATE investor 
@@ -112,9 +102,7 @@ public class InvestorDAO {
         }
     }
 
-    // ==========================================
-    // DELETE
-    // ==========================================
+    //deletion methods
     public boolean deleteInvestor(int investorId) throws SQLException {
         // Note: Make sure ON DELETE CASCADE is set up in your schema for related tables
         String sql = "DELETE FROM investor WHERE investor_id = ?";
@@ -125,9 +113,7 @@ public class InvestorDAO {
         }
     }
 
-    // ==========================================
-    // WALLET OPERATIONS
-    // ==========================================
+    //wallet operations
     public double getWalletBalance(int investorId) throws SQLException {
         String sql = "SELECT wallet_balance FROM investor WHERE investor_id = ?";
         try (Connection conn = ServerConnector.DBConnection();
@@ -139,7 +125,7 @@ public class InvestorDAO {
         }
     }
 
-    public boolean updateWalletBalance(Connection conn, int investorId, double amountToAdd) throws SQLException {
+    /*public boolean updateWalletBalance(Connection conn, int investorId, double amountToAdd) throws SQLException {
         String sql = "UPDATE investor SET wallet_balance = wallet_balance + ? WHERE investor_id = ?";
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setDouble(1, amountToAdd);
@@ -147,20 +133,44 @@ public class InvestorDAO {
             return stmt.executeUpdate() > 0;
         }
     }
-
     public boolean updateWalletBalance(int investorId, double amountToAdd) throws SQLException {
         try (Connection conn = ServerConnector.DBConnection()) {
             return updateWalletBalance(conn, investorId, amountToAdd);
         }
+    }*/
+
+    //insertWalletTransaction function will automatically update the wallet balance in investor due to our trigger
+    public boolean insertWalletTransaction(Connection conn,
+                                           int investorId,
+                                           double amount,
+                                           String transactionType,
+                                           String transferCategory) throws SQLException {
+        String sql = """
+        INSERT INTO wallet_transaction
+        (investor_id, amount, transaction_type, transfer_category, transaction_date)
+        VALUES (?, ?, ?, ?, NOW())
+        """;
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, investorId);
+            stmt.setDouble(2, amount);
+            stmt.setString(3, transactionType);
+            stmt.setString(4, transferCategory);
+
+            return stmt.executeUpdate() > 0;
+        }
+    }
+    public boolean insertWalletTransaction(int investorId,
+                                           double amount,
+                                           String transactionType,
+                                           String transferCategory) throws SQLException {
+        try (Connection conn = ServerConnector.DBConnection()) {
+            return insertWalletTransaction(conn, investorId, amount, transactionType, transferCategory);
+        }
     }
 
-    // ==========================================
-    // FINANCIAL AGGREGATIONS (For Dashboard)
-    // ==========================================
+    //financial aggregations (for dashboard)
     
-    /**
-     * Calculates the total initial capital invested based on units held and original IPO price.
-     */
+    //Calculates the total initial capital invested based on units held and original IPO price
     public double getTotalInvestedAmount(int investorId) throws SQLException {
         String sql = """
             SELECT SUM(o.units_held * i.price_per_unit) as total_invested
@@ -177,10 +187,8 @@ public class InvestorDAO {
         }
     }
 
-    /**
-     * Calculates the current real-time portfolio value using the latest valuations.
-     * Logic: (Units Held / Total Asset Units) * Latest Asset Valuation
-     */
+     //Calculates the current real-time portfolio value using the latest valuations.
+     //Logic: (Units Held / Total Asset Units) * Latest Asset Valuation
     public double getCurrentPortfolioValue(int investorId) throws SQLException {
         String sql = """
             SELECT SUM((o.units_held * 1.0 / i.total_units) * v.valuation_amount) as current_value
