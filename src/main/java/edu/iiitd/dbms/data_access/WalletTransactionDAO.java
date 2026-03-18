@@ -7,7 +7,7 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class WalletDAO {
+public class WalletTransactionDAO {
     public boolean insertWalletTransaction(Connection conn,
                                            int investorId,
                                            double amount,
@@ -101,8 +101,7 @@ public class WalletDAO {
         return transactions;
     }
 
-    //Process a new wallet transaction (like funding the account or buying an asset)
-    public void recordTransaction(int investorId, double amount, String type, String category) throws SQLException {
+    /*public void recordTransaction(int investorId, double amount, String type, String category) throws SQLException {
         String insertQuery = "INSERT INTO WALLET_TRANSACTION (investor_id, amount, transaction_type, transfer_category) " +
                              "VALUES (?, ?, ?, ?)";
         String updateWalletQuery = "UPDATE INVESTOR SET wallet_balance = wallet_balance + ? WHERE investor_id = ?";
@@ -127,6 +126,21 @@ public class WalletDAO {
                 conn.commit(); // Commit transaction
             } catch (SQLException e) {
                 conn.rollback(); // Rollback if either step fails
+                throw e;
+            }
+        }
+    }*/
+
+    //Process a new wallet transaction (like funding the account or buying an asset)
+    public boolean recordTransaction(int investorId, double amount, String type, String category) throws SQLException {
+        try (Connection conn = ServerConnector.DBConnection()) {
+            conn.setAutoCommit(false);
+            try {
+                boolean inserted = insertWalletTransaction(conn, investorId, amount, type, category);
+                conn.commit();
+                return inserted;
+            } catch (SQLException e) {
+                conn.rollback();
                 throw e;
             }
         }

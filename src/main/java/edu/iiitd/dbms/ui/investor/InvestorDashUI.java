@@ -1,7 +1,7 @@
 package edu.iiitd.dbms.ui.investor;
 
 import edu.iiitd.dbms.data_access.InvestorDAO;
-import edu.iiitd.dbms.data_access.WalletDAO;
+import edu.iiitd.dbms.data_access.WalletTransactionDAO;
 import edu.iiitd.dbms.dto.WalletTransactionDTO;
 import edu.iiitd.dbms.service.MarketService;
 import edu.iiitd.dbms.dto.InvestorMarketView.MarketViewRow;
@@ -40,7 +40,7 @@ public class InvestorDashUI extends JFrame {
     // Data Access (Assuming Investor ID 1 for now)
     private final int currentInvestorId = 1;
     private final InvestorDAO investorDAO = new InvestorDAO();
-    private final WalletDAO walletDAO = new WalletDAO();
+    private final WalletTransactionDAO walletDAO = new WalletTransactionDAO();
     private final MarketService marketService = new MarketService();
 
     public InvestorDashUI() {

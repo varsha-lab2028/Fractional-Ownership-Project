@@ -1,7 +1,7 @@
 package edu.iiitd.dbms.ui.investor;
 
 import edu.iiitd.dbms.data_access.InvestorDAO;
-import edu.iiitd.dbms.data_access.WalletDAO;
+import edu.iiitd.dbms.data_access.WalletTransactionDAO;
 import edu.iiitd.dbms.dto.WalletTransactionDTO;
 
 import javax.swing.*;
@@ -33,7 +33,7 @@ public class WalletViewUI extends JFrame {
     // Data Access
     private final int currentInvestorId = 1; // Assuming Aman for now
     private final InvestorDAO investorDAO = new InvestorDAO();
-    private final WalletDAO walletDAO = new WalletDAO();
+    private final WalletTransactionDAO walletDAO = new WalletTransactionDAO();
 
     public WalletViewUI() {
         setTitle("Fractional. - Wallet & Ledger");

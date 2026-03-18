@@ -15,7 +15,7 @@ public class InvestorDAO {
                 rs.getString("email"),
                 rs.getString("phone"), 
                 rs.getDate("registration_date").toLocalDate(),
-                rs.getDouble("walletBalance")
+                rs.getDouble("wallet_balance")
         );
     }
 
@@ -114,7 +114,7 @@ public class InvestorDAO {
     }
 
     //wallet operations
-    public double getWalletBalance(int investorId) throws SQLException {
+    /*public double getWalletBalance(int investorId) throws SQLException {
         String sql = "SELECT wallet_balance FROM investor WHERE investor_id = ?";
         try (Connection conn = ServerConnector.DBConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -123,7 +123,7 @@ public class InvestorDAO {
                 return rs.next() ? rs.getDouble("wallet_balance") : 0.00;
             }
         }
-    }
+    }*/
 
     /*public boolean updateWalletBalance(Connection conn, int investorId, double amountToAdd) throws SQLException {
         String sql = "UPDATE investor SET wallet_balance = wallet_balance + ? WHERE investor_id = ?";
@@ -140,7 +140,7 @@ public class InvestorDAO {
     }*/
 
     //insertWalletTransaction function will automatically update the wallet balance in investor due to our trigger
-    public boolean insertWalletTransaction(Connection conn,
+    /*public boolean insertWalletTransaction(Connection conn,
                                            int investorId,
                                            double amount,
                                            String transactionType,
@@ -166,7 +166,7 @@ public class InvestorDAO {
         try (Connection conn = ServerConnector.DBConnection()) {
             return insertWalletTransaction(conn, investorId, amount, transactionType, transferCategory);
         }
-    }
+    }*/
 
     //financial aggregations (for dashboard)
     

@@ -87,6 +87,7 @@ BEGIN
 END$$
 DELIMITER;
 
+
 -- ============================================================
 -- TRIGGER 4: trg_log_ownership_history_on_update
 -- ============================================================
@@ -96,8 +97,8 @@ DELIMITER;
 --          trade settles), auto-log a record in OWNERSHIP_HISTORY
 --          capturing units_before and units_after.
 DROP TRIGGER IF EXISTS trg_log_ownership_history_on_update;
-
 DELIMITER $$
+
 CREATE TRIGGER trg_log_ownership_history_on_update
 AFTER UPDATE ON OWNERSHIP
 FOR EACH ROW
@@ -106,26 +107,60 @@ BEGIN
         INSERT INTO OWNERSHIP_HISTORY (
             investor_id,
             asset_id,
-            units_before,   -- OLD row concept from Slide 46
-            units_after,    -- NEW row concept from Slide 46
+            units_before,
+            units_after,
             change_date,
             change_type,
             trade_id,
             ipo_id
         )
         VALUES (
-                NEW.investor_id,
-                NEW.asset_id,
-                OLD.units_held,  -- "referencing old row" value
-                NEW.units_held,  -- "referencing new row" value
-                CURDATE(),
-                'TRADE',
-                NULL,
-                NULL
+            NEW.investor_id,
+            NEW.asset_id,
+            OLD.units_held,
+            NEW.units_held,
+            CURDATE(),
+            'HOLDING_UPDATE',
+            NULL,
+            NULL
         );
     END IF;
 END$$
-DELIMITER;
+DELIMITER ;
 
+
+-- ============================================================
+-- TRIGGER 5: trg_log_ownership_history_on_insert
+-- ============================================================
+-- specifically added for Trigger 4, because when ownership get first record, it won't get logged
+DROP TRIGGER IF EXISTS trg_log_ownership_history_on_insert;
+DELIMITER $$
+
+CREATE TRIGGER trg_log_ownership_history_on_insert
+AFTER INSERT ON OWNERSHIP
+FOR EACH ROW
+BEGIN
+    INSERT INTO OWNERSHIP_HISTORY (
+        investor_id,
+        asset_id,
+        units_before,
+        units_after,
+        change_date,
+        change_type,
+        trade_id,
+        ipo_id
+    )
+    VALUES (
+        NEW.investor_id,
+        NEW.asset_id,
+        0,
+        NEW.units_held,
+        CURDATE(),
+        'INITIAL_ALLOCATION',
+        NULL,
+        NULL
+    );
+END$$
+DELIMITER ;
 
 
