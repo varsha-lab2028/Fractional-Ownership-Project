@@ -15,7 +15,7 @@ public class PortfolioDAO {
         String query = """
             SELECT 
                 a.asset_id, 
-                a.name AS asset_name, 
+                a.asset_name AS asset_name, 
                 a.category, 
                 o.units_held, 
                 i.price_per_unit AS ipo_price,

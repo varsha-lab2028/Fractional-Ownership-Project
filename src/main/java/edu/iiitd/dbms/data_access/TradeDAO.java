@@ -2,6 +2,7 @@ package edu.iiitd.dbms.data_access;
 
 import edu.iiitd.dbms.config.ServerConnector;
 import edu.iiitd.dbms.domain.Trade;
+import edu.iiitd.dbms.dto.TradeWithPartiesDTO;
 
 import java.sql.*;
 import java.sql.Date;
@@ -124,6 +125,46 @@ public class TradeDAO {
             }
         }
         return trades;
+    }
+
+    //Q16 - matched trades enriched with buyer and seller investor names
+    public List<TradeWithPartiesDTO> getTradesWithParties() throws SQLException {
+        String sql = """
+            SELECT t.trade_id,
+                   t.trade_date,
+                   t.trade_price,
+                   t.trade_units,
+                   bo.asset_id,
+                   bi.investor_id AS buyer_id,
+                   bi.investor_name AS buyer_name,
+                   si.investor_id  AS seller_id,
+                   si.investor_name AS seller_name
+            FROM TRADE t
+            JOIN TRADE_ORDER bo ON t.buy_order_id  = bo.order_id
+            JOIN TRADE_ORDER so ON t.sell_order_id = so.order_id
+            JOIN INVESTOR bi ON bo.investor_id = bi.investor_id
+            JOIN INVESTOR si ON so.investor_id = si.investor_id
+            ORDER BY t.trade_date DESC, t.trade_id DESC
+        """;
+        List<TradeWithPartiesDTO> result = new ArrayList<>();
+        try (Connection conn = ServerConnector.DBConnection();
+             PreparedStatement ps = conn.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+            while (rs.next()) {
+                result.add(new TradeWithPartiesDTO(
+                        rs.getInt("trade_id"),
+                        rs.getDate("trade_date").toLocalDate(),
+                        rs.getDouble("trade_price"),
+                        rs.getInt("trade_units"),
+                        rs.getInt("asset_id"),
+                        rs.getInt("buyer_id"),
+                        rs.getString("buyer_name"),
+                        rs.getInt("seller_id"),
+                        rs.getString("seller_name")
+                ));
+            }
+        }
+        return result;
     }
 
 }

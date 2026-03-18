@@ -82,6 +82,30 @@ public class ValuationDAO {
         return historyList;
     }
 
+    //Q15 - latest valuation snapshot for EVERY asset in a single query
+    public List<Valuation> getAllLatestValuations() throws SQLException {
+        String sql = """
+            SELECT v.valuation_id, v.asset_id, v.valuation_amount, v.valuation_date
+            FROM VALUATION v
+            JOIN ASSET a ON v.asset_id = a.asset_id
+            WHERE (v.asset_id, v.valuation_date) IN (
+                SELECT asset_id, MAX(valuation_date)
+                FROM VALUATION
+                GROUP BY asset_id
+            )
+            ORDER BY v.asset_id
+        """;
+        List<Valuation> result = new ArrayList<>();
+        try (Connection conn = ServerConnector.DBConnection();
+             PreparedStatement ps = conn.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+            while (rs.next()) {
+                result.add(matchValuationColumns(rs));
+            }
+        }
+        return result;
+    }
+
     //to simulate valuation updates
     public void insertValuationToSimulate(int assetId, double amount, Date valuationDate) throws SQLException {
         String sqlQuery = "INSERT INTO valuation(asset_id, valuation_amount, valuation_date) VALUES (?, ?, ?)";

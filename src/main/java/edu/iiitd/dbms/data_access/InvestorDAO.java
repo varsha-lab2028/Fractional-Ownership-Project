@@ -115,7 +115,9 @@ public class InvestorDAO {
     }
 
     //wallet operations
-    /*public double getWalletBalance(int investorId) throws SQLException {
+    // Convenience method used by UI classes — reads wallet_balance from the investor row
+    // (kept in sync by the DB trigger on wallet_transaction)
+    public double getWalletBalance(int investorId) throws SQLException {
         String sql = "SELECT wallet_balance FROM investor WHERE investor_id = ?";
         try (Connection conn = ServerConnector.DBConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -124,50 +126,7 @@ public class InvestorDAO {
                 return rs.next() ? rs.getDouble("wallet_balance") : 0.00;
             }
         }
-    }*/
-
-    /*public boolean updateWalletBalance(Connection conn, int investorId, double amountToAdd) throws SQLException {
-        String sql = "UPDATE investor SET wallet_balance = wallet_balance + ? WHERE investor_id = ?";
-        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setDouble(1, amountToAdd);
-            stmt.setInt(2, investorId);
-            return stmt.executeUpdate() > 0;
-        }
     }
-    public boolean updateWalletBalance(int investorId, double amountToAdd) throws SQLException {
-        try (Connection conn = ServerConnector.DBConnection()) {
-            return updateWalletBalance(conn, investorId, amountToAdd);
-        }
-    }*/
-
-    //insertWalletTransaction function will automatically update the wallet balance in investor due to our trigger
-    /*public boolean insertWalletTransaction(Connection conn,
-                                           int investorId,
-                                           double amount,
-                                           String transactionType,
-                                           String transferCategory) throws SQLException {
-        String sql = """
-        INSERT INTO wallet_transaction
-        (investor_id, amount, transaction_type, transfer_category, transaction_date)
-        VALUES (?, ?, ?, ?, NOW())
-        """;
-        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setInt(1, investorId);
-            stmt.setDouble(2, amount);
-            stmt.setString(3, transactionType);
-            stmt.setString(4, transferCategory);
-
-            return stmt.executeUpdate() > 0;
-        }
-    }
-    public boolean insertWalletTransaction(int investorId,
-                                           double amount,
-                                           String transactionType,
-                                           String transferCategory) throws SQLException {
-        try (Connection conn = ServerConnector.DBConnection()) {
-            return insertWalletTransaction(conn, investorId, amount, transactionType, transferCategory);
-        }
-    }*/
 
     //financial aggregations (for dashboard)
     
@@ -210,5 +169,56 @@ public class InvestorDAO {
                 return rs.next() ? rs.getDouble("current_value") : 0.00;
             }
         }
+    }
+
+    //Q17 - all investors ordered by wallet balance descending
+    public List<Investor> listInvestorsByWalletBalance() throws SQLException {
+        String sql = """
+            SELECT investor_id, investor_name, email, phone, registration_date, wallet_balance
+            FROM investor
+            ORDER BY wallet_balance DESC
+        """;
+        List<Investor> result = new ArrayList<>();
+        try (Connection conn = ServerConnector.DBConnection();
+             PreparedStatement ps = conn.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+            while (rs.next()) result.add(matchInvestorColumns(rs));
+        }
+        return result;
+    }
+
+    //Q20 - investors who have NEVER made a wallet transaction (NOT EXISTS)
+    public List<Investor> listInvestorsWithNoWalletTransactions() throws SQLException {
+        String sql = """
+            SELECT investor_id, investor_name, email, phone, registration_date, wallet_balance
+            FROM INVESTOR i
+            WHERE NOT EXISTS (
+                SELECT 1 FROM WALLET_TRANSACTION wt WHERE wt.investor_id = i.investor_id
+            )
+        """;
+        List<Investor> result = new ArrayList<>();
+        try (Connection conn = ServerConnector.DBConnection();
+             PreparedStatement ps = conn.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+            while (rs.next()) result.add(matchInvestorColumns(rs));
+        }
+        return result;
+    }
+
+    //Q21 - investors with a positive wallet balance (active wallets)
+    public List<Investor> listInvestorsWithPositiveBalance() throws SQLException {
+        String sql = """
+            SELECT investor_id, investor_name, email, phone, registration_date, wallet_balance
+            FROM INVESTOR
+            WHERE wallet_balance > 0
+            ORDER BY wallet_balance DESC
+        """;
+        List<Investor> result = new ArrayList<>();
+        try (Connection conn = ServerConnector.DBConnection();
+             PreparedStatement ps = conn.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+            while (rs.next()) result.add(matchInvestorColumns(rs));
+        }
+        return result;
     }
 }

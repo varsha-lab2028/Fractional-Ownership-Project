@@ -4,6 +4,7 @@ import edu.iiitd.dbms.config.DBConnection;
 import edu.iiitd.dbms.config.ServerConnector;
 import edu.iiitd.dbms.domain.Asset;
 
+import edu.iiitd.dbms.dto.AssetWithAdminDTO;
 import edu.iiitd.dbms.dto.InvestorMarketView.AssetValuationRow;
 import edu.iiitd.dbms.dto.InvestorMarketView.VerifiedAssetRow;
 
@@ -30,8 +31,10 @@ public class AssetDAO {
     //gets all the assets
     public List<Asset> listAssets() throws SQLException {
         String sqlQuery = """
-                SELECT asset_id, name, category, description, storage_location, verification_reference, " +
-                verification_status, verified_by FROM asset ORDER BY asset_id""";
+                SELECT asset_id, asset_name, category, description, storage_location,
+                       verification_reference, verification_status, verified_by
+                FROM asset
+                ORDER BY asset_id""";
         List<Asset> assetList = new ArrayList<>();
         try (Connection connect = ServerConnector.DBConnection();
              PreparedStatement ps = connect.prepareStatement(sqlQuery);
@@ -46,10 +49,11 @@ public class AssetDAO {
     public List<Asset> searchAssets(String keyword) throws SQLException {
         String like = "%" + keyword + "%";
         String sqlQuery = """
-                SELECT asset_id, name, category, description, storage_location, " +
-                "verification_reference, verification_status, verified_by FROM asset 
-                WHERE asset_id LIKE ? OR name LIKE ? OR category LIKE ? OR 
-                storage_location LIKE ?
+                SELECT asset_id, asset_name, category, description, storage_location,
+                       verification_reference, verification_status, verified_by
+                FROM asset
+                WHERE CAST(asset_id AS CHAR) LIKE ? OR asset_name LIKE ?
+                   OR category LIKE ? OR storage_location LIKE ?
                 """;
 
         List<Asset> assetList = new ArrayList<>();
@@ -57,6 +61,8 @@ public class AssetDAO {
              PreparedStatement ps = connect.prepareStatement(sqlQuery)) {
             ps.setString(1, like);
             ps.setString(2, like);
+            ps.setString(3, like);
+            ps.setString(4, like);
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
                     assetList.add(matchAssetColumns(rs));
@@ -93,11 +99,39 @@ public class AssetDAO {
     }
 
     //applying some of the 15 sql queries used here
+
+    //Q2 - Asset list joined with the admin who verified it (LEFT JOIN so unverified assets appear too)
+    public List<AssetWithAdminDTO> getAssetsWithAdmin() throws SQLException {
+        String sql = """
+            SELECT a.asset_id, a.asset_name, a.verification_status,
+                   ad.admin_id, ad.name AS admin_name
+            FROM ASSET a
+            LEFT JOIN ADMIN ad ON ad.admin_id = a.verified_by
+            ORDER BY a.asset_id
+        """;
+        List<AssetWithAdminDTO> result = new ArrayList<>();
+        try (Connection conn = ServerConnector.DBConnection();
+             PreparedStatement ps = conn.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+            while (rs.next()) {
+                int adminId = rs.getInt("admin_id");
+                result.add(new AssetWithAdminDTO(
+                        rs.getInt("asset_id"),
+                        rs.getString("asset_name"),
+                        rs.getString("verification_status"),
+                        rs.wasNull() ? null : adminId,
+                        rs.getString("admin_name")
+                ));
+            }
+        }
+        return result;
+    }
+
     //Q1
     public List<VerifiedAssetRow> getVerifiedAssets() throws SQLException {
         List<VerifiedAssetRow> verifiedAssetRows = new ArrayList<>();
         String sqlQuery = """
-                SELECT asset_id, name, category, storage_location, verification_status
+                SELECT asset_id, asset_name, category, storage_location, verification_status
                 FROM ASSET
                 WHERE verification_status = 'Verified'
                 """;
@@ -107,7 +141,7 @@ public class AssetDAO {
             while (rs.next()) {
                 VerifiedAssetRow row = new VerifiedAssetRow(
                         rs.getInt("asset_id"),
-                        rs.getString("name"),
+                        rs.getString("asset_name"),
                         rs.getString("category"),
                         rs.getString("storage_location"),
                         rs.getString("verification_status")
@@ -118,11 +152,11 @@ public class AssetDAO {
         return verifiedAssetRows;
     }
 
-    //Q8
+    //Q8/Q9
     public List<AssetValuationRow> getAssetsWithValuation() throws SQLException {
         List<AssetValuationRow> assetValuationRows = new ArrayList<>();
         String sqlQuery = """
-                SELECT a.asset_id, a.name, v.valuation_amount
+                SELECT a.asset_id, a.asset_name, v.valuation_amount
                 FROM ASSET a
                 LEFT JOIN VALUATION v ON a.asset_id = v.asset_id
                 """;
@@ -136,7 +170,7 @@ public class AssetDAO {
 
                 AssetValuationRow row = new AssetValuationRow(
                         rs.getInt("asset_id"),
-                        rs.getString("name"),
+                        rs.getString("asset_name"),
                         valuation
                 );
                 assetValuationRows.add(row);
@@ -149,10 +183,10 @@ public class AssetDAO {
     public List<VerifiedAssetRow> searchVerifiedAssetsByName(String keyword) throws SQLException {
         List<VerifiedAssetRow> assets = new ArrayList<>();
         String sqlQuery = """
-                SELECT asset_id, name, category, storage_location, verification_status
+                SELECT asset_id, asset_name, category, storage_location, verification_status
                 FROM ASSET
                 WHERE verification_status = 'Verified'
-                  AND LOWER(name) LIKE LOWER(?)
+                  AND LOWER(asset_name) LIKE LOWER(?)
                 """;
         try (Connection con = ServerConnector.DBConnection();
              PreparedStatement ps = con.prepareStatement(sqlQuery)) {
@@ -161,7 +195,7 @@ public class AssetDAO {
                 while (rs.next()) {
                     VerifiedAssetRow row = new VerifiedAssetRow(
                             rs.getInt("asset_id"),
-                            rs.getString("name"),
+                            rs.getString("asset_name"),
                             rs.getString("category"),
                             rs.getString("storage_location"),
                             rs.getString("verification_status")
@@ -177,7 +211,7 @@ public class AssetDAO {
     public List<VerifiedAssetRow> getVerifiedAssetsByCategory(String category) throws SQLException {
         List<VerifiedAssetRow> verifiedAssetsByCategory = new ArrayList<>();
         String sqlQuery = """
-                SELECT asset_id, name, category, storage_location, verification_status
+                SELECT asset_id, asset_name, category, storage_location, verification_status
                 FROM ASSET
                 WHERE verification_status = 'Verified'
                   AND LOWER(category) = LOWER(?)
@@ -189,7 +223,7 @@ public class AssetDAO {
                 while (rs.next()) {
                     VerifiedAssetRow row = new VerifiedAssetRow(
                             rs.getInt("asset_id"),
-                            rs.getString("name"),
+                            rs.getString("asset_name"),
                             rs.getString("category"),
                             rs.getString("storage_location"),
                             rs.getString("verification_status")

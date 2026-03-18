@@ -14,6 +14,7 @@ public class TradingService {
     private final TradeOrderDAO    tradeOrderDAO;
     private final TradeDAO         tradeDAO;
     private final OwnershipDAO     ownershipDAO;
+    private final OwnershipHistoryDAO ownershipHistoryDAO;
     private final InvestorDAO      investorDAO;
     private final WalletTransactionDAO walletTransactionDAO;
 
@@ -21,6 +22,7 @@ public class TradingService {
         this.tradeOrderDAO = new TradeOrderDAO();
         this.tradeDAO      = new TradeDAO();
         this.ownershipDAO  = new OwnershipDAO();
+        this.ownershipHistoryDAO = new OwnershipHistoryDAO();
         this.investorDAO   = new InvestorDAO();
         this.walletTransactionDAO = new WalletTransactionDAO();
     }
@@ -118,11 +120,28 @@ public class TradingService {
             ownershipDAO.updateUnits(conn, buyOrder.getInvestorId(), assetId,
                                      buyerPrev + tradeUnits);
 
+            // Insert ownership history — buyer
+            ownershipHistoryDAO.insert(conn,
+                    buyOrder.getInvestorId(), assetId,
+                    buyerPrev, buyerPrev + tradeUnits,
+                    "TRADE_BUY",
+                    newTradeId, null);
 
             int sellerPrev = getUnits(conn, sellOrder.getInvestorId(), assetId);
             ownershipDAO.updateUnits(conn, sellOrder.getInvestorId(), assetId,
                                      sellerPrev - tradeUnits);
 
+            // Insert ownership history — seller
+            ownershipHistoryDAO.insert(conn,
+                    sellOrder.getInvestorId(), assetId,
+                    sellerPrev, sellerPrev - tradeUnits,
+                    "TRADE_SELL",
+                    newTradeId, null);
+
+            // Clean up zero-unit rows
+            ownershipDAO.deleteIfZero(conn, sellOrder.getInvestorId(), assetId);
+
+            // Update order statuses
             tradeOrderDAO.updateStatus(conn, buyOrderId,  "FILLED");
             tradeOrderDAO.updateStatus(conn, sellOrderId, "FILLED");
 
@@ -131,20 +150,18 @@ public class TradingService {
             investorDAO.updateWalletBalance(conn, sellOrder.getInvestorId(), +totalCost);*/
 
             double totalCost = tradeUnits * tradePrice;
-            // Buyer pays money results in negative wallet transaction
-            walletTransactionDAO.insertWalletTransaction(
+            // Buyer pays — deduct from wallet
+            walletTransactionDAO.deductForAssetPurchase(
                     conn,
                     buyOrder.getInvestorId(),
-                    -totalCost,
-                    "ASSET_PURCHASE",
+                    totalCost,
                     "Trade Execution"
             );
-            // Seller receives money results in positive wallet transaction
-            walletTransactionDAO.insertWalletTransaction(
+            // Seller receives — credit to wallet
+            walletTransactionDAO.creditAssetSale(
                     conn,
                     sellOrder.getInvestorId(),
                     totalCost,
-                    "ASSET_SALE",
                     "Trade Execution"
             );
 

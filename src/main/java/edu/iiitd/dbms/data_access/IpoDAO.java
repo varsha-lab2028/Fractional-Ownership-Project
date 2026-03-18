@@ -78,6 +78,45 @@ public class IpoDAO {
         }
     }
 
+    //Q5 - IPOs active on a specific reference date (useful for demo/seed data browsing)
+    public List<MarketViewRow> listIposByReferenceDate(java.time.LocalDate referenceDate) throws SQLException {
+        String sqlQuery = """
+                SELECT i.ipo_id,
+                       i.asset_id,
+                       a.asset_name AS asset_name,
+                       a.category,
+                       i.total_units,
+                       i.price_per_unit,
+                       i.ipo_start_date,
+                       i.ipo_end_date,
+                       i.lock_in_period
+                FROM IPO i JOIN ASSET a ON a.asset_id = i.asset_id
+                WHERE DATE(?) BETWEEN DATE(i.ipo_start_date) AND DATE(i.ipo_end_date)
+                ORDER BY i.ipo_id
+                """;
+        List<MarketViewRow> result = new ArrayList<>();
+        try (Connection conn = ServerConnector.DBConnection();
+             PreparedStatement ps = conn.prepareStatement(sqlQuery)) {
+            ps.setDate(1, java.sql.Date.valueOf(referenceDate));
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    result.add(new MarketViewRow(
+                            rs.getInt("ipo_id"),
+                            rs.getInt("asset_id"),
+                            rs.getString("asset_name"),
+                            rs.getString("category"),
+                            rs.getInt("total_units"),
+                            rs.getDouble("price_per_unit"),
+                            rs.getDate("ipo_start_date"),
+                            rs.getDate("ipo_end_date"),
+                            rs.getInt("lock_in_period")
+                    ));
+                }
+            }
+        }
+        return result;
+    }
+
     //Active IPOs = today between start and end date
     //one of the 15 sql queries used here
     //Q4
@@ -103,7 +142,7 @@ public class IpoDAO {
         String sqlQuery = """
                 SELECT i.ipo_id,
                        i.asset_id,
-                       a.name AS asset_name,
+                       a.asset_name AS asset_name,
                        a.category,
                        i.total_units,
                        i.price_per_unit,
@@ -141,7 +180,7 @@ public class IpoDAO {
         String sqlQuery = """
                 SELECT i.ipo_id,
                        i.asset_id,
-                       a.name AS asset_name,
+                       a.asset_name AS asset_name,
                        a.category,
                        i.total_units,
                        i.price_per_unit,
@@ -150,7 +189,7 @@ public class IpoDAO {
                        i.status
                 FROM IPO i
                 JOIN ASSET a ON a.asset_id = i.asset_id
-                WHERE LOWER(a.name) LIKE LOWER(?)
+                WHERE LOWER(a.asset_name) LIKE LOWER(?)
                 ORDER BY i.ipo_id
                 """;
         try (Connection con = ServerConnector.DBConnection();
@@ -182,7 +221,7 @@ public class IpoDAO {
         String sqlQuery = """
                 SELECT i.ipo_id,
                        i.asset_id,
-                       a.name AS asset_name,
+                       a.asset_name AS asset_name,
                        a.category,
                        i.total_units,
                        i.price_per_unit,
@@ -225,7 +264,7 @@ public class IpoDAO {
         String sqlQuery = """
                 SELECT i.ipo_id,
                        i.asset_id,
-                       a.name AS asset_name,
+                       a.asset_name AS asset_name,
                        a.category,
                        i.total_units,
                        i.price_per_unit,

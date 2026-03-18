@@ -33,6 +33,22 @@ public class PortfolioService {
         }
     }
 
+    // show details for one specific holding
+    public AssetHoldingDTO showHoldingDetails(int investorId, int assetId) throws Exception {
+        List<AssetHoldingDTO> holdings = listInvestorHoldings(investorId);
+        return holdings.stream()
+                .filter(h -> h.getAssetId() == assetId)
+                .findFirst()
+                .orElse(null);
+    }
+
+    // calculate current value of a single holding
+    public double calculateCurrentValue(int investorId, int assetId) throws Exception {
+        AssetHoldingDTO holding = showHoldingDetails(investorId, assetId);
+        if (holding == null) return 0.0;
+        return holding.getCurrentValue();
+    }
+
     //current portfolio value
     public double getCurrentPortfolioValue(int investorId) throws Exception {
         try {
