@@ -1,5 +1,7 @@
 package edu.iiitd.dbms.ui.admin;
 
+import edu.iiitd.dbms.auth.LoginManager;
+
 import edu.iiitd.dbms.data_access.AssetDAO;
 import edu.iiitd.dbms.data_access.TradeDAO;
 import edu.iiitd.dbms.data_access.TradeOrderDAO;
@@ -93,7 +95,7 @@ public class AdminAssetsViewUI extends JFrame {
         JLabel roleLabel = new JLabel("PLATFORM ADMIN");
         roleLabel.setForeground(pastelBlue);
         roleLabel.setFont(new Font("SansSerif", Font.BOLD, 10));
-        JLabel profileLabel = new JLabel("DISHA K.");
+        JLabel profileLabel = new JLabel(LoginManager.getCurrentUser() != null ? LoginManager.getCurrentUser().getName().toUpperCase().split(" ")[0] + " " + (LoginManager.getCurrentUser().getName().split(" ").length > 1 ? String.valueOf(LoginManager.getCurrentUser().getName().split(" ")[LoginManager.getCurrentUser().getName().split(" ").length-1].charAt(0)).toUpperCase() + "." : "") : "ADMIN");
         profileLabel.setForeground(textPrimary);
         profileLabel.setFont(new Font("SansSerif", Font.BOLD, 14));
         profilePanel.add(roleLabel);
@@ -419,6 +421,7 @@ public class AdminAssetsViewUI extends JFrame {
             }
             navButtons[0].addActionListener(e -> { dispose(); new AdminDashUI().setVisible(true); });
             navButtons[2].addActionListener(e -> { dispose(); new InvestorsListViewUI().setVisible(true); });
+            navButtons[1].addActionListener(e -> { dispose(); new AdminAssetsViewUI().setVisible(true); });
         }
 
         public void toggleSidebar() {

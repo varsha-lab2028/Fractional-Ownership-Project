@@ -1,5 +1,7 @@
 package edu.iiitd.dbms.ui.investor;
 
+import edu.iiitd.dbms.auth.LoginManager;
+
 import edu.iiitd.dbms.ui.components.MarketChartPanel;
 import edu.iiitd.dbms.dto.InvestorMarketView.MarketViewRow;
 import edu.iiitd.dbms.service.MarketService;
@@ -90,7 +92,7 @@ public class MarketViewUI_updated extends JFrame {
         JLabel roleLabel = new JLabel("INVESTOR");
         roleLabel.setForeground(textMuted);
         roleLabel.setFont(new Font("SansSerif", Font.BOLD, 10));
-        JLabel profileLabel = new JLabel("DISHA K.");
+        JLabel profileLabel = new JLabel(getDisplayName());
         profileLabel.setForeground(textPrimary);
         profileLabel.setFont(new Font("SansSerif", Font.BOLD, 14));
         profilePanel.add(roleLabel);

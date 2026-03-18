@@ -1,5 +1,7 @@
 package edu.iiitd.dbms.ui.investor;
 
+import edu.iiitd.dbms.auth.LoginManager;
+
 import edu.iiitd.dbms.data_access.InvestorDAO;
 import edu.iiitd.dbms.data_access.OwnershipDAO;
 import edu.iiitd.dbms.data_access.TradeOrderDAO;
@@ -42,13 +44,21 @@ public class SellOrderUI extends JFrame {
     private JLabel unitsAvailableLabel;
     private JPanel holdingsListPanel;
 
-    private final int currentInvestorId = 1;
+    private int currentInvestorId = LoginManager.getCurrentUser() != null ? LoginManager.getCurrentUser().getLinkedId() : 1;
     private final OwnershipDAO ownershipDAO = new OwnershipDAO();
     private final TradeOrderDAO tradeOrderDAO = new TradeOrderDAO();
     private final InvestorDAO investorDAO = new InvestorDAO();
     private final AssetDAO assetDAO = new AssetDAO();
     private List<Ownership> holdings;
     private List<VerifiedAssetRow> verifiedAssets;
+
+    private String getDisplayName() {
+        if (LoginManager.getCurrentUser() == null) return "INVESTOR";
+        String full = LoginManager.getCurrentUser().getName();
+        if (full == null || full.isBlank()) return "INVESTOR";
+        String[] p = full.trim().split("\s+");
+        return p[0].toUpperCase() + (p.length > 1 ? " " + Character.toUpperCase(p[p.length-1].charAt(0)) + "." : "");
+    }
 
     public SellOrderUI() {
         setTitle("Fractional. - Place Sell Order");
@@ -99,7 +109,7 @@ public class SellOrderUI extends JFrame {
         JLabel roleLabel = new JLabel("INVESTOR");
         roleLabel.setForeground(textMuted);
         roleLabel.setFont(new Font("SansSerif", Font.BOLD, 10));
-        JLabel profileLabel = new JLabel("DISHA K.");
+        JLabel profileLabel = new JLabel(getDisplayName());
         profileLabel.setForeground(textPrimary);
         profileLabel.setFont(new Font("SansSerif", Font.BOLD, 14));
         profilePanel.add(roleLabel);
@@ -218,7 +228,7 @@ public class SellOrderUI extends JFrame {
         backBtn.setFont(new Font("SansSerif", Font.PLAIN, 13));
         backBtn.setCursor(new Cursor(Cursor.HAND_CURSOR));
         backBtn.setAlignmentX(Component.LEFT_ALIGNMENT);
-        backBtn.addActionListener(e -> { dispose(); new HoldingsViewUI().setVisible(true); });
+        backBtn.addActionListener(e -> { dispose(); new HoldingsViewUI_updated().setVisible(true); });
 
         formCard.add(makeLabel("SELECT HOLDING TO SELL"));
         formCard.add(Box.createRigidArea(new Dimension(0, 6)));
@@ -506,9 +516,9 @@ public class SellOrderUI extends JFrame {
                 add(navButtons[i]);
             }
             navButtons[0].addActionListener(e -> { dispose(); new InvestorDashUI().setVisible(true); });
-            navButtons[1].addActionListener(e -> { dispose(); new MarketViewUI().setVisible(true); });
+            navButtons[1].addActionListener(e -> { dispose(); new MarketViewUI_updated().setVisible(true); });
             navButtons[2].addActionListener(e -> { dispose(); new WalletViewUI().setVisible(true); });
-            navButtons[3].addActionListener(e -> { dispose(); new HoldingsViewUI().setVisible(true); });
+            navButtons[3].addActionListener(e -> { dispose(); new HoldingsViewUI_updated().setVisible(true); });
             navButtons[4].addActionListener(e -> { dispose(); new ProfileSettingsUI().setVisible(true); });
         }
 

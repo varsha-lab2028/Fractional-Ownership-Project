@@ -8,18 +8,18 @@ public class AuthenticationService {
 
     public AuthClass login(String email, String rawPassword) throws Exception {
         if (email == null || rawPassword == null) throw new Exception("Fields cannot be empty.");
-
-        AuthClass user = authDAO.findByEmail(email); // Database lookup 
-
+        AuthClass user = authDAO.findByEmail(email);
         if (user == null) throw new Exception("User not found.");
         if (!"ACTIVE".equalsIgnoreCase(user.getAuthStatus())) throw new Exception("Account inactive.");
-
         if (!PasswordHasher.verifyHash(rawPassword, user.getPasswordHash())) {
-            throw new Exception("Invalid password."); // Security check [cite: 12, 14]
+            throw new Exception("Invalid password.");
         }
-
-        authDAO.updateLastLogin(user.getAuthId()); // Updates timestamp 
-        LoginManager.login(user); // Sets the session 
+        authDAO.updateLastLogin(user.getAuthId());
+        LoginManager.login(user);
         return user;
+    }
+
+    public void logout() {
+        LoginManager.logout();
     }
 }

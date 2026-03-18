@@ -1,5 +1,7 @@
 package edu.iiitd.dbms.ui.investor;
 
+import edu.iiitd.dbms.auth.LoginManager;
+
 import edu.iiitd.dbms.data_access.InvestorDAO;
 import edu.iiitd.dbms.domain.Investor;
 
@@ -31,8 +33,16 @@ public class ProfileSettingsUI extends JFrame {
     private JLabel emailLabel;
     private JLabel memberSinceLabel;
 
-    private final int currentInvestorId = 1; // Testing with ID 1
+    private int currentInvestorId = LoginManager.getCurrentUser() != null ? LoginManager.getCurrentUser().getLinkedId() : 1; // Testing with ID 1
     private final InvestorDAO investorDAO = new InvestorDAO();
+
+    private String getDisplayName() {
+        if (LoginManager.getCurrentUser() == null) return "INVESTOR";
+        String full = LoginManager.getCurrentUser().getName();
+        if (full == null || full.isBlank()) return "INVESTOR";
+        String[] p = full.trim().split("\s+");
+        return p[0].toUpperCase() + (p.length > 1 ? " " + Character.toUpperCase(p[p.length-1].charAt(0)) + "." : "");
+    }
 
     public ProfileSettingsUI() {
         setTitle("Fractional. - Profile Settings");
@@ -87,7 +97,7 @@ public class ProfileSettingsUI extends JFrame {
         JLabel roleLabel = new JLabel("INVESTOR");
         roleLabel.setForeground(textMuted);
         roleLabel.setFont(new Font("SansSerif", Font.BOLD, 10));
-        JLabel profileLabel = new JLabel("DISHA K.");
+        JLabel profileLabel = new JLabel(getDisplayName());
         profileLabel.setForeground(textPrimary);
         profileLabel.setFont(new Font("SansSerif", Font.BOLD, 14));
         profilePanel.add(roleLabel);
@@ -153,6 +163,14 @@ public class ProfileSettingsUI extends JFrame {
         
         JButton logoutBtn = new JButton("Sign Out");
         styleActionButton(logoutBtn, cardGlass, pastelRed, true);
+        logoutBtn.addActionListener(e -> {
+            int confirm = JOptionPane.showConfirmDialog(ProfileSettingsUI.this, "Are you sure you want to sign out?", "Sign Out", JOptionPane.YES_NO_OPTION);
+            if (confirm == JOptionPane.YES_OPTION) {
+                edu.iiitd.dbms.auth.LoginManager.logout();
+                dispose();
+                new edu.iiitd.dbms.ui.login.logintesterUI().setVisible(true);
+            }
+        });
         
         btnPanel.add(saveBtn);
         btnPanel.add(Box.createRigidArea(new Dimension(20, 0)));
@@ -163,7 +181,7 @@ public class ProfileSettingsUI extends JFrame {
         // Update Logic
         saveBtn.addActionListener(e -> {
             try {
-                boolean success = investorDAO.updateInvestorProfile(currentInvestorId, nameField.getText(), phoneField.getText());
+                boolean success = investorDAO.updateInvestorProfile(currentInvestorId, nameField.getText(), null);
                 if (success) {
                     JOptionPane.showMessageDialog(this, "Profile updated successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
                 }
@@ -194,8 +212,8 @@ public class ProfileSettingsUI extends JFrame {
             if (user != null) {
                 nameField.setText(user.getName());
                 emailLabel.setText(user.getEmail());
-                // If phone is added to domain model, set it here.
-                memberSinceLabel.setText("MEMBER SINCE: " + user.getRegistrationDate().toString());
+                if (user.getPhone() != null) phoneField.setText(user.getPhone()); else phoneField.setText("N/A");
+                memberSinceLabel.setText("MEMBER SINCE: " + (user.getRegistrationDate() != null ? user.getRegistrationDate().toString() : "N/A"));
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -304,6 +322,11 @@ public class ProfileSettingsUI extends JFrame {
             }
         }
 
+            navButtons[0].addActionListener(e -> { ProfileSettingsUI.this.dispose(); new edu.iiitd.dbms.ui.investor.InvestorDashUI().setVisible(true); });
+            navButtons[1].addActionListener(e -> { ProfileSettingsUI.this.dispose(); new edu.iiitd.dbms.ui.investor.MarketViewUI_updated().setVisible(true); });
+            navButtons[2].addActionListener(e -> { ProfileSettingsUI.this.dispose(); new edu.iiitd.dbms.ui.investor.WalletViewUI().setVisible(true); });
+            navButtons[3].addActionListener(e -> { ProfileSettingsUI.this.dispose(); new edu.iiitd.dbms.ui.investor.HoldingsViewUI_updated().setVisible(true); });
+            navButtons[4].addActionListener(e -> { ProfileSettingsUI.this.dispose(); new edu.iiitd.dbms.ui.investor.ProfileSettingsUI().setVisible(true); });
         public void toggleSidebar() {
             if (animator != null && animator.isRunning()) return;
             int targetWidth = isExpanded ? 0 : EXPANDED_WIDTH;

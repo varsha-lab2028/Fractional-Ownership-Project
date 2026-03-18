@@ -9,47 +9,82 @@ public class AuthDAO {
 
     /**
      * Look up a user by email in the user_auth table.
-     * Returns null if not found.
+     * Two-step: first fetch auth row, then fetch display name separately.
+     * This avoids CASE/JOIN column ambiguity on TiDB and other MySQL-compatible DBs.
      */
     public AuthClass findByEmail(String email) throws SQLException {
-        String sql = """
-            SELECT ua.auth_id,
-                   ua.email,
-                   ua.password_hash,
-                   ua.user_type,
-                   ua.linked_id,
-                   ua.status,
-                   ua.last_login,
-                   CASE ua.user_type
-                       WHEN 'INVESTOR' THEN i.investor_name
-                       WHEN 'ADMIN'    THEN a.name
-                   END AS display_name
-            FROM user_auth ua
-            LEFT JOIN INVESTOR i ON ua.user_type = 'INVESTOR' AND ua.linked_id = i.investor_id
-            LEFT JOIN ADMIN    a ON ua.user_type = 'ADMIN'    AND ua.linked_id = a.admin_id
-            WHERE ua.email = ?
+        String authSql = """
+            SELECT auth_id, email, password_hash, user_type, linked_id, status, last_login
+            FROM user_auth
+            WHERE email = ?
         """;
 
         try (Connection conn = ServerConnector.DBConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
+             PreparedStatement stmt = conn.prepareStatement(authSql)) {
 
             stmt.setString(1, email);
             try (ResultSet rs = stmt.executeQuery()) {
-                if (rs.next()) {
-                    AuthClass user = new AuthClass();
-                    user.setAuthId(rs.getInt("auth_id"));
-                    user.setName(rs.getString("display_name"));
-                    user.setEmail(rs.getString("email"));
-                    user.setPasswordHash(rs.getString("password_hash"));
-                    user.setUserType(rs.getString("user_type"));
-                    user.setLinkedId(rs.getInt("linked_id"));
-                    user.setAuthStatus(rs.getString("status"));
+                if (!rs.next()) return null;
 
-                    Timestamp ts = rs.getTimestamp("last_login");
-                    if (ts != null) {
-                        user.setLastLogin(ts.toLocalDateTime());
+                AuthClass user = new AuthClass();
+                user.setAuthId(rs.getInt("auth_id"));
+                user.setEmail(rs.getString("email"));
+                user.setPasswordHash(rs.getString("password_hash"));
+                user.setUserType(rs.getString("user_type"));
+                user.setLinkedId(rs.getInt("linked_id"));
+                user.setAuthStatus(rs.getString("status"));
+
+                Timestamp ts = rs.getTimestamp("last_login");
+                if (ts != null) user.setLastLogin(ts.toLocalDateTime());
+
+                // Fetch display name from the appropriate profile table
+                String name = fetchDisplayName(conn, user.getUserType(), user.getLinkedId());
+                user.setName(name != null ? name : user.getEmail());
+
+                return user;
+            }
+        }
+    }
+
+    /**
+     * Fetch the human-readable name from either INVESTOR or ADMIN table.
+     * Tries both possible column names (investor_name and name) for compatibility.
+     */
+    private String fetchDisplayName(Connection conn, String userType, int linkedId) {
+        if ("INVESTOR".equalsIgnoreCase(userType)) {
+            // Try investor_name first, then name as fallback
+            for (String col : new String[]{"investor_name", "name"}) {
+                try {
+                    String sql = "SELECT " + col + " FROM investor WHERE investor_id = ?";
+                    try (PreparedStatement ps = conn.prepareStatement(sql)) {
+                        ps.setInt(1, linkedId);
+                        try (ResultSet rs = ps.executeQuery()) {
+                            if (rs.next()) {
+                                String val = rs.getString(1);
+                                if (val != null && !val.isBlank()) return val;
+                            }
+                        }
                     }
-                    return user;
+                } catch (SQLException ignored) {
+                    // Column doesn't exist, try the next one
+                }
+            }
+        } else if ("ADMIN".equalsIgnoreCase(userType)) {
+            // Try name first, then admin_name as fallback
+            for (String col : new String[]{"name", "admin_name"}) {
+                try {
+                    String sql = "SELECT " + col + " FROM admin WHERE admin_id = ?";
+                    try (PreparedStatement ps = conn.prepareStatement(sql)) {
+                        ps.setInt(1, linkedId);
+                        try (ResultSet rs = ps.executeQuery()) {
+                            if (rs.next()) {
+                                String val = rs.getString(1);
+                                if (val != null && !val.isBlank()) return val;
+                            }
+                        }
+                    }
+                } catch (SQLException ignored) {
+                    // Column doesn't exist, try the next one
                 }
             }
         }

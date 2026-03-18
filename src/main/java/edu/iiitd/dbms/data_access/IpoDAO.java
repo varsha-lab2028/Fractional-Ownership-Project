@@ -5,297 +5,136 @@ import edu.iiitd.dbms.domain.IPO;
 import edu.iiitd.dbms.dto.InvestorMarketView.MarketViewRow;
 
 import java.sql.*;
+import java.time.LocalDate;
 import java.util.*;
 
-//this DAO exists for the relationship = asset ↔ IPO link + list for market/admin
 public class IpoDAO {
-    private IPO matchIpoColumns(ResultSet rs) throws SQLException {
+
+    private IPO map(ResultSet rs) throws SQLException {
         return new IPO(
-                rs.getInt("ipo_id"),
-                rs.getInt("asset_id"),
-                rs.getInt("total_units"),
-                rs.getDouble("price_per_unit"),
-                rs.getDate("ipo_start_date").toLocalDate(),
-                rs.getDate("ipo_end_date").toLocalDate(),
-                rs.getInt("lock_in_period")
+            rs.getInt("ipo_id"),
+            rs.getInt("asset_id"),
+            rs.getInt("total_units"),
+            rs.getDouble("price_per_unit"),
+            rs.getDate("ipo_start_date") != null ? rs.getDate("ipo_start_date").toLocalDate() : null,
+            rs.getDate("ipo_end_date")   != null ? rs.getDate("ipo_end_date").toLocalDate()   : null,
+            rs.getInt("lock_in_period")
         );
     }
 
-    //required methods
-    //get all the IPOs
+    private MarketViewRow mapRow(ResultSet rs) throws SQLException {
+        return new MarketViewRow(
+            rs.getInt("ipo_id"), rs.getInt("asset_id"), rs.getString("asset_name"),
+            rs.getString("category"), rs.getInt("total_units"), rs.getDouble("price_per_unit"),
+            rs.getDate("ipo_start_date"), rs.getDate("ipo_end_date"), rs.getInt("lock_in_period")
+        );
+    }
+
     public List<IPO> listIPOs() throws SQLException {
-        String sqlQuery = """
-                SELECT * FROM ipo ORDER BY ipo_id
-                """;
-        List<IPO> IPOList = new ArrayList<>();
-        try(Connection connect = ServerConnector.DBConnection();
-            PreparedStatement ps = connect.prepareStatement(sqlQuery);
-            ResultSet rs = ps.executeQuery()){
-            while(rs.next()){
-                IPOList.add(matchIpoColumns(rs));
-            }
-        }
-        return IPOList;
-    }
-
-    //get by ipo id
-    public IPO findByIpoId(int ipoId) throws SQLException {
-        String sqlQuery = """
-                SELECT * FROM ipo WHERE ipo_id = ?
-                """;
-        try (Connection conn = ServerConnector.DBConnection();
-             PreparedStatement ps = conn.prepareStatement(sqlQuery)) {
-            ps.setInt(1, ipoId);
-            try (ResultSet rs = ps.executeQuery()) {
-                if(rs.next()){
-                    return matchIpoColumns(rs);
-                } else {
-                    return null;
-                }
-            }
-        }
-    }
-
-    //get by asset id
-    public IPO findByAssetId(int assetId) throws SQLException {
-        try (Connection connect = ServerConnector.DBConnection()){
-            return findByAssetId(connect, assetId);
-        }
-    }
-    public IPO findByAssetId(Connection connect, int assetId) throws SQLException {
-        String sqlQuery = """
-                SELECT * FROM ipo WHERE asset_id = ?
-                """;
-        try(PreparedStatement ps = connect.prepareStatement(sqlQuery)){
-            ps.setInt(1, assetId);
-            try (ResultSet rs = ps.executeQuery()){
-                if(rs.next()){
-                    return matchIpoColumns(rs);
-                } else {
-                    return null;
-                }
-            }
-        }
-    }
-
-    //Q5 - IPOs active on a specific reference date (useful for demo/seed data browsing)
-    public List<MarketViewRow> listIposByReferenceDate(java.time.LocalDate referenceDate) throws SQLException {
-        String sqlQuery = """
-                SELECT i.ipo_id,
-                       i.asset_id,
-                       a.asset_name AS asset_name,
-                       a.category,
-                       i.total_units,
-                       i.price_per_unit,
-                       i.ipo_start_date,
-                       i.ipo_end_date,
-                       i.lock_in_period
-                FROM IPO i JOIN ASSET a ON a.asset_id = i.asset_id
-                WHERE DATE(?) BETWEEN DATE(i.ipo_start_date) AND DATE(i.ipo_end_date)
-                ORDER BY i.ipo_id
-                """;
-        List<MarketViewRow> result = new ArrayList<>();
-        try (Connection conn = ServerConnector.DBConnection();
-             PreparedStatement ps = conn.prepareStatement(sqlQuery)) {
-            ps.setDate(1, java.sql.Date.valueOf(referenceDate));
-            try (ResultSet rs = ps.executeQuery()) {
-                while (rs.next()) {
-                    result.add(new MarketViewRow(
-                            rs.getInt("ipo_id"),
-                            rs.getInt("asset_id"),
-                            rs.getString("asset_name"),
-                            rs.getString("category"),
-                            rs.getInt("total_units"),
-                            rs.getDouble("price_per_unit"),
-                            rs.getDate("ipo_start_date"),
-                            rs.getDate("ipo_end_date"),
-                            rs.getInt("lock_in_period")
-                    ));
-                }
-            }
-        }
-        return result;
-    }
-
-    //Active IPOs = today between start and end date
-    //one of the 15 sql queries used here
-    //Q4
-    public List<IPO> listActiveIpos() throws SQLException {
-        String sqlQuery = """
-                SELECT * FROM ipo WHERE CURDATE() BETWEEN ipo_start_date AND ipo_end_date
-                ORDER BY ipo_start_date DESC
-                """;
-        List<IPO> ActiveIposList = new ArrayList<>();
-        try (Connection connect = ServerConnector.DBConnection();
-            PreparedStatement ps = connect.prepareStatement(sqlQuery);
-            ResultSet rs = ps.executeQuery()){
-            while(rs.next()){
-                ActiveIposList.add(matchIpoColumns(rs));
-            }
-        }
-        return ActiveIposList;
-    }
-
-    //Q3
-    public List<MarketViewRow> getAllMarketRows() throws SQLException {
-        List<MarketViewRow> marketViewRowsList = new ArrayList<>();
-        String sqlQuery = """
-                SELECT i.ipo_id,
-                       i.asset_id,
-                       a.asset_name AS asset_name,
-                       a.category,
-                       i.total_units,
-                       i.price_per_unit,
-                       i.ipo_start_date,
-                       i.ipo_end_date,
-                       i.lock_in_period
-                FROM IPO i
-                JOIN ASSET a ON a.asset_id = i.asset_id
-                ORDER BY i.ipo_id
-                """;
-        try (Connection con = ServerConnector.DBConnection();
-             PreparedStatement ps = con.prepareStatement(sqlQuery);
+        List<IPO> list = new ArrayList<>();
+        try (Connection c = ServerConnector.DBConnection();
+             PreparedStatement ps = c.prepareStatement("SELECT * FROM ipo ORDER BY ipo_id");
              ResultSet rs = ps.executeQuery()) {
-            while (rs.next()) {
-                MarketViewRow row = new MarketViewRow(
-                        rs.getInt("ipo_id"),
-                        rs.getInt("asset_id"),
-                        rs.getString("asset_name"),
-                        rs.getString("category"),
-                        rs.getInt("total_units"),
-                        rs.getDouble("price_per_unit"),
-                        rs.getDate("ipo_start_date"),
-                        rs.getDate("ipo_end_date"),
-                        rs.getInt("lock_in_period")
-                );
-                marketViewRowsList.add(row);
-            }
+            while (rs.next()) list.add(map(rs));
         }
-        return marketViewRowsList;
+        return list;
     }
 
-    //search by asset name
+    public IPO findByIpoId(int id) throws SQLException {
+        try (Connection c = ServerConnector.DBConnection();
+             PreparedStatement ps = c.prepareStatement("SELECT * FROM ipo WHERE ipo_id = ?")) {
+            ps.setInt(1, id);
+            try (ResultSet rs = ps.executeQuery()) { return rs.next() ? map(rs) : null; }
+        }
+    }
+
+    public IPO findByAssetId(int assetId) throws SQLException {
+        try (Connection c = ServerConnector.DBConnection()) { return findByAssetId(c, assetId); }
+    }
+    public IPO findByAssetId(Connection c, int assetId) throws SQLException {
+        try (PreparedStatement ps = c.prepareStatement("SELECT * FROM ipo WHERE asset_id = ?")) {
+            ps.setInt(1, assetId);
+            try (ResultSet rs = ps.executeQuery()) { return rs.next() ? map(rs) : null; }
+        }
+    }
+
+    // Q4 — active IPOs (CURDATE between start and end)
+    public List<IPO> listActiveIpos() throws SQLException {
+        List<IPO> list = new ArrayList<>();
+        try (Connection c = ServerConnector.DBConnection();
+             PreparedStatement ps = c.prepareStatement("SELECT * FROM ipo WHERE CURDATE() BETWEEN ipo_start_date AND ipo_end_date ORDER BY ipo_start_date DESC");
+             ResultSet rs = ps.executeQuery()) {
+            while (rs.next()) list.add(map(rs));
+        }
+        return list;
+    }
+
+    // Q3 — all market rows
+    public List<MarketViewRow> getAllMarketRows() throws SQLException {
+        String sql = """
+            SELECT i.ipo_id, i.asset_id, a.name AS asset_name, a.category,
+                   i.total_units, i.price_per_unit, i.ipo_start_date, i.ipo_end_date, i.lock_in_period
+            FROM IPO i JOIN ASSET a ON a.asset_id = i.asset_id
+            ORDER BY i.ipo_id
+            """;
+        List<MarketViewRow> list = new ArrayList<>();
+        try (Connection c = ServerConnector.DBConnection();
+             PreparedStatement ps = c.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+            while (rs.next()) list.add(mapRow(rs));
+        }
+        return list;
+    }
+
+    // Q5 — market rows by reference date
+    public List<MarketViewRow> listIposByReferenceDate(LocalDate referenceDate) throws SQLException {
+        String sql = """
+            SELECT i.ipo_id, i.asset_id, a.name AS asset_name, a.category,
+                   i.total_units, i.price_per_unit, i.ipo_start_date, i.ipo_end_date, i.lock_in_period
+            FROM IPO i JOIN ASSET a ON a.asset_id = i.asset_id
+            WHERE DATE(?) BETWEEN DATE(i.ipo_start_date) AND DATE(i.ipo_end_date)
+            ORDER BY i.ipo_id
+            """;
+        List<MarketViewRow> list = new ArrayList<>();
+        try (Connection c = ServerConnector.DBConnection();
+             PreparedStatement ps = c.prepareStatement(sql)) {
+            ps.setDate(1, Date.valueOf(referenceDate));
+            try (ResultSet rs = ps.executeQuery()) { while (rs.next()) list.add(mapRow(rs)); }
+        }
+        return list;
+    }
+
     public List<MarketViewRow> searchMarketRowsByAssetName(String keyword) throws SQLException {
-        List<MarketViewRow> marketRowsByAssetNameList = new ArrayList<>();
-        String sqlQuery = """
-                SELECT i.ipo_id,
-                       i.asset_id,
-                       a.asset_name AS asset_name,
-                       a.category,
-                       i.total_units,
-                       i.price_per_unit,
-                       i.ipo_start_date,
-                       i.ipo_end_date,
-                       i.status
-                FROM IPO i
-                JOIN ASSET a ON a.asset_id = i.asset_id
-                WHERE LOWER(a.asset_name) LIKE LOWER(?)
-                ORDER BY i.ipo_id
-                """;
-        try (Connection con = ServerConnector.DBConnection();
-             PreparedStatement ps = con.prepareStatement(sqlQuery)) {
+        String sql = """
+            SELECT i.ipo_id, i.asset_id, a.name AS asset_name, a.category,
+                   i.total_units, i.price_per_unit, i.ipo_start_date, i.ipo_end_date, i.lock_in_period
+            FROM IPO i JOIN ASSET a ON a.asset_id = i.asset_id
+            WHERE LOWER(a.name) LIKE LOWER(?)
+            ORDER BY i.ipo_id
+            """;
+        List<MarketViewRow> list = new ArrayList<>();
+        try (Connection c = ServerConnector.DBConnection();
+             PreparedStatement ps = c.prepareStatement(sql)) {
             ps.setString(1, "%" + keyword + "%");
-            try (ResultSet rs = ps.executeQuery()) {
-                while (rs.next()) {
-                    MarketViewRow row = new MarketViewRow(
-                            rs.getInt("ipo_id"),
-                            rs.getInt("asset_id"),
-                            rs.getString("asset_name"),
-                            rs.getString("category"),
-                            rs.getInt("total_units"),
-                            rs.getDouble("price_per_unit"),
-                            rs.getDate("ipo_start_date"),
-                            rs.getDate("ipo_end_date"),
-                            rs.getInt("lock_in_period")
-                    );
-                    marketRowsByAssetNameList.add(row);
-                }
-            }
+            try (ResultSet rs = ps.executeQuery()) { while (rs.next()) list.add(mapRow(rs)); }
         }
-        return marketRowsByAssetNameList;
+        return list;
     }
 
-    //filtering by category
     public List<MarketViewRow> getMarketRowsByCategory(String category) throws SQLException {
-        List<MarketViewRow> marketRowsByCategoryList = new ArrayList<>();
-        String sqlQuery = """
-                SELECT i.ipo_id,
-                       i.asset_id,
-                       a.asset_name AS asset_name,
-                       a.category,
-                       i.total_units,
-                       i.price_per_unit,
-                       i.ipo_start_date,
-                       i.ipo_end_date,
-                       i.lock_in_period
-                FROM IPO i
-                JOIN ASSET a ON a.asset_id = i.asset_id
-                WHERE LOWER(a.category) = LOWER(?)
-                ORDER BY i.ipo_id
-                """;
-        try(Connection connect = ServerConnector.DBConnection();
-            PreparedStatement ps = connect.prepareStatement(sqlQuery)) {
+        String sql = """
+            SELECT i.ipo_id, i.asset_id, a.name AS asset_name, a.category,
+                   i.total_units, i.price_per_unit, i.ipo_start_date, i.ipo_end_date, i.lock_in_period
+            FROM IPO i JOIN ASSET a ON a.asset_id = i.asset_id
+            WHERE LOWER(a.category) = LOWER(?)
+            ORDER BY i.ipo_id
+            """;
+        List<MarketViewRow> list = new ArrayList<>();
+        try (Connection c = ServerConnector.DBConnection();
+             PreparedStatement ps = c.prepareStatement(sql)) {
             ps.setString(1, category);
-
-            try (ResultSet rs = ps.executeQuery()){
-                while(rs.next()){
-                    MarketViewRow row = new MarketViewRow(
-                            rs.getInt("ipo_id"),
-                            rs.getInt("asset_id"),
-                            rs.getString("asset_name"),
-                            rs.getString("category"),
-                            rs.getInt("total_units"),
-                            rs.getDouble("price_per_unit"),
-                            rs.getDate("ipo_start_date"),
-                            rs.getDate("ipo_end_date"),
-                            rs.getInt("lock_in_period")
-                    );
-                    marketRowsByCategoryList.add(row);
-                }
-            }
+            try (ResultSet rs = ps.executeQuery()) { while (rs.next()) list.add(mapRow(rs)); }
         }
-        return marketRowsByCategoryList;
+        return list;
     }
-
-    //filter by IPO status
-    /*
-    public List<MarketViewRow> getMarketRowsByStatus(String status) throws SQLException {
-        List<MarketViewRow> marketStatusByStatusList = new ArrayList<>();
-        String sqlQuery = """
-                SELECT i.ipo_id,
-                       i.asset_id,
-                       a.asset_name AS asset_name,
-                       a.category,
-                       i.total_units,
-                       i.price_per_unit,
-                       i.ipo_start_date,
-                       i.ipo_end_date,
-                       a.verification_status
-                FROM IPO i
-                JOIN ASSET a ON a.asset_id = i.asset_id
-                WHERE LOWER(a.verification_status) = LOWER(?)
-                ORDER BY i.ipo_id
-                """;
-        try(Connection connect = ServerConnector.DBConnection();
-            PreparedStatement ps = connect.prepareStatement(sqlQuery)){
-            ps.setString(1, status);
-            try (ResultSet rs = ps.executeQuery()){
-                while(rs.next()){
-                    MarketViewRow row = new MarketViewRow(
-                            rs.getInt("ipo_id"),
-                            rs.getInt("asset_id"),
-                            rs.getString("asset_name"),
-                            rs.getString("category"),
-                            rs.getInt("total_units"),
-                            rs.getDouble("price_per_unit"),
-                            rs.getDate("ipo_start_date"),
-                            rs.getDate("ipo_end_date"),
-                            rs.getString("verification_status")
-                    );
-                    marketStatusByStatusList.add(row);
-                }
-            }
-        }
-        return marketStatusByStatusList;
-    }*/
 }

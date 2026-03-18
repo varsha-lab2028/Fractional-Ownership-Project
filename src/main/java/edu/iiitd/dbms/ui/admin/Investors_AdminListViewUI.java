@@ -1,5 +1,7 @@
 package edu.iiitd.dbms.ui.admin;
 
+import edu.iiitd.dbms.auth.LoginManager;
+
 import edu.iiitd.dbms.data_access.InvestorDAO;
 import edu.iiitd.dbms.domain.Investor;
 
@@ -93,7 +95,7 @@ public class Investors_AdminListViewUI extends JFrame {
         JLabel roleLabel = new JLabel("PLATFORM ADMIN");
         roleLabel.setForeground(pastelBlue);
         roleLabel.setFont(new Font("SansSerif", Font.BOLD, 10));
-        JLabel profileLabel = new JLabel("DISHA K.");
+        JLabel profileLabel = new JLabel(LoginManager.getCurrentUser() != null ? LoginManager.getCurrentUser().getName().toUpperCase().split(" ")[0] + " " + (LoginManager.getCurrentUser().getName().split(" ").length > 1 ? String.valueOf(LoginManager.getCurrentUser().getName().split(" ")[LoginManager.getCurrentUser().getName().split(" ").length-1].charAt(0)).toUpperCase() + "." : "") : "ADMIN");
         profileLabel.setForeground(textPrimary);
         profileLabel.setFont(new Font("SansSerif", Font.BOLD, 14));
         profilePanel.add(roleLabel);

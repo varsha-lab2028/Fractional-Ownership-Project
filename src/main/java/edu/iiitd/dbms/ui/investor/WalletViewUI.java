@@ -1,5 +1,7 @@
 package edu.iiitd.dbms.ui.investor;
 
+import edu.iiitd.dbms.auth.LoginManager;
+
 import edu.iiitd.dbms.data_access.InvestorDAO;
 import edu.iiitd.dbms.data_access.WalletTransactionDAO;
 import edu.iiitd.dbms.dto.WalletTransactionDTO;
@@ -31,9 +33,17 @@ public class WalletViewUI extends JFrame {
     private JLabel balanceLabel;
 
     // Data Access
-    private final int currentInvestorId = 1; // Assuming Aman for now
+    private int currentInvestorId = LoginManager.getCurrentUser() != null ? LoginManager.getCurrentUser().getLinkedId() : 1; // Assuming Aman for now
     private final InvestorDAO investorDAO = new InvestorDAO();
     private final WalletTransactionDAO walletDAO = new WalletTransactionDAO();
+
+    private String getDisplayName() {
+        if (LoginManager.getCurrentUser() == null) return "INVESTOR";
+        String full = LoginManager.getCurrentUser().getName();
+        if (full == null || full.isBlank()) return "INVESTOR";
+        String[] p = full.trim().split("\s+");
+        return p[0].toUpperCase() + (p.length > 1 ? " " + Character.toUpperCase(p[p.length-1].charAt(0)) + "." : "");
+    }
 
     public WalletViewUI() {
         setTitle("Fractional. - Wallet & Ledger");
@@ -89,7 +99,7 @@ public class WalletViewUI extends JFrame {
         JLabel roleLabel = new JLabel("INVESTOR");
         roleLabel.setForeground(textMuted);
         roleLabel.setFont(new Font("SansSerif", Font.BOLD, 10));
-        JLabel profileLabel = new JLabel("DISHA K.");
+        JLabel profileLabel = new JLabel(getDisplayName());
         profileLabel.setForeground(textPrimary);
         profileLabel.setFont(new Font("SansSerif", Font.BOLD, 14));
         profilePanel.add(roleLabel);
@@ -134,6 +144,36 @@ public class WalletViewUI extends JFrame {
         
         actionButtons.add(withdrawBtn);
         actionButtons.add(depositBtn);
+
+        depositBtn.addActionListener(e -> {
+            String input = JOptionPane.showInputDialog(WalletViewUI.this, "Enter deposit amount ($):", "Deposit Funds", JOptionPane.QUESTION_MESSAGE);
+            if (input != null && !input.isBlank()) {
+                try {
+                    double amount = Double.parseDouble(input.trim());
+                    if (amount <= 0) { JOptionPane.showMessageDialog(WalletViewUI.this, "Amount must be positive.", "Error", JOptionPane.ERROR_MESSAGE); return; }
+                    walletDAO.deposit(currentInvestorId, amount);
+                    JOptionPane.showMessageDialog(WalletViewUI.this, String.format("Successfully deposited $%,.2f!", amount), "Deposit Successful", JOptionPane.INFORMATION_MESSAGE);
+                    loadWalletData();
+                } catch (NumberFormatException ex) {
+                    JOptionPane.showMessageDialog(WalletViewUI.this, "Please enter a valid number.", "Error", JOptionPane.ERROR_MESSAGE);
+                } catch (Exception ex) { JOptionPane.showMessageDialog(WalletViewUI.this, "Deposit failed: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE); }
+            }
+        });
+
+        withdrawBtn.addActionListener(e -> {
+            String input = JOptionPane.showInputDialog(WalletViewUI.this, "Enter withdrawal amount ($):", "Withdraw", JOptionPane.QUESTION_MESSAGE);
+            if (input != null && !input.isBlank()) {
+                try {
+                    double amount = Double.parseDouble(input.trim());
+                    if (amount <= 0) { JOptionPane.showMessageDialog(WalletViewUI.this, "Amount must be positive.", "Error", JOptionPane.ERROR_MESSAGE); return; }
+                    walletDAO.withdraw(currentInvestorId, amount);
+                    JOptionPane.showMessageDialog(WalletViewUI.this, String.format("Successfully withdrew $%,.2f!", amount), "Withdrawal Successful", JOptionPane.INFORMATION_MESSAGE);
+                    loadWalletData();
+                } catch (NumberFormatException ex) {
+                    JOptionPane.showMessageDialog(WalletViewUI.this, "Please enter a valid number.", "Error", JOptionPane.ERROR_MESSAGE);
+                } catch (Exception ex) { JOptionPane.showMessageDialog(WalletViewUI.this, "Withdrawal failed: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE); }
+            }
+        });
 
         balanceCard.add(balanceInfo, BorderLayout.WEST);
         balanceCard.add(actionButtons, BorderLayout.EAST);
@@ -338,6 +378,11 @@ public class WalletViewUI extends JFrame {
                 int yPos = (i == navItems.length - 1) ? 650 : 100 + (i * 50);
                 navButtons[i].setBounds(20, yPos, 200, 40);
                 add(navButtons[i]);
+            navButtons[0].addActionListener(e -> { WalletViewUI.this.dispose(); new edu.iiitd.dbms.ui.investor.InvestorDashUI().setVisible(true); });
+            navButtons[1].addActionListener(e -> { WalletViewUI.this.dispose(); new edu.iiitd.dbms.ui.investor.MarketViewUI_updated().setVisible(true); });
+            navButtons[2].addActionListener(e -> { WalletViewUI.this.dispose(); new WalletViewUI().setVisible(true); });
+            navButtons[3].addActionListener(e -> { WalletViewUI.this.dispose(); new edu.iiitd.dbms.ui.investor.HoldingsViewUI_updated().setVisible(true); });
+            navButtons[4].addActionListener(e -> { WalletViewUI.this.dispose(); new edu.iiitd.dbms.ui.investor.ProfileSettingsUI().setVisible(true); });
             }
         }
 

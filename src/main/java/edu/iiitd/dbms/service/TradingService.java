@@ -142,8 +142,8 @@ public class TradingService {
             ownershipDAO.deleteIfZero(conn, sellOrder.getInvestorId(), assetId);
 
             // Update order statuses
-            tradeOrderDAO.updateStatus(conn, buyOrderId,  "FILLED");
-            tradeOrderDAO.updateStatus(conn, sellOrderId, "FILLED");
+            tradeOrderDAO.updateStatus(conn, buyOrderId,  "MATCHED");
+            tradeOrderDAO.updateStatus(conn, sellOrderId, "MATCHED");
 
             /*double totalCost = tradeUnits * tradePrice;
             investorDAO.updateWalletBalance(conn, buyOrder.getInvestorId(),  -totalCost);

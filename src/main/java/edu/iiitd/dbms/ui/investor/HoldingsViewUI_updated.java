@@ -1,5 +1,7 @@
 package edu.iiitd.dbms.ui.investor;
 
+import edu.iiitd.dbms.auth.LoginManager;
+
 import edu.iiitd.dbms.data_access.InvestorDAO;
 import edu.iiitd.dbms.data_access.PortfolioDAO;
 import edu.iiitd.dbms.dto.AssetHoldingDTO;
@@ -34,7 +36,7 @@ public class HoldingsViewUI_updated extends JFrame {
     private JLabel totalPLLabel;
 
     // Data Access (Assuming Investor ID 1 for now)
-    private final int currentInvestorId = 1;
+    private int currentInvestorId = LoginManager.getCurrentUser() != null ? LoginManager.getCurrentUser().getLinkedId() : 1;
     private final InvestorDAO investorDAO = new InvestorDAO();
     private final PortfolioDAO portfolioDAO = new PortfolioDAO();
 
@@ -91,7 +93,7 @@ public class HoldingsViewUI_updated extends JFrame {
         JLabel roleLabel = new JLabel("INVESTOR");
         roleLabel.setForeground(textMuted);
         roleLabel.setFont(new Font("SansSerif", Font.BOLD, 10));
-        JLabel profileLabel = new JLabel("DISHA K.");
+        JLabel profileLabel = new JLabel(getDisplayName());
         profileLabel.setForeground(textPrimary);
         profileLabel.setFont(new Font("SansSerif", Font.BOLD, 14));
         profilePanel.add(roleLabel);
@@ -413,7 +415,7 @@ public class HoldingsViewUI_updated extends JFrame {
             }
 
             navButtons[0].addActionListener(e -> { HoldingsViewUI_updated.this.dispose(); new InvestorDashUI().setVisible(true); });
-            navButtons[1].addActionListener(e -> { HoldingsViewUI_updated.this.dispose(); new MarketViewUI().setVisible(true); });
+            navButtons[1].addActionListener(e -> { HoldingsViewUI_updated.this.dispose(); new MarketViewUI_updated().setVisible(true); });
             navButtons[2].addActionListener(e -> { HoldingsViewUI_updated.this.dispose(); new WalletViewUI().setVisible(true); });
             navButtons[3].addActionListener(e -> { HoldingsViewUI_updated.this.dispose(); new HoldingsViewUI_updated().setVisible(true); });
             navButtons[4].addActionListener(e -> { HoldingsViewUI_updated.this.dispose(); new ProfileSettingsUI().setVisible(true); });

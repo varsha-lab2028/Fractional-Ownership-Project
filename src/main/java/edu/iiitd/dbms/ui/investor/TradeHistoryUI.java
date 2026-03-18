@@ -1,5 +1,7 @@
 package edu.iiitd.dbms.ui.investor;
 
+import edu.iiitd.dbms.auth.LoginManager;
+
 import edu.iiitd.dbms.data_access.OwnershipHistoryDAO;
 import edu.iiitd.dbms.data_access.TradeOrderDAO;
 import edu.iiitd.dbms.data_access.AssetDAO;
@@ -36,10 +38,18 @@ public class TradeHistoryUI extends JFrame {
     private JButton historyTabBtn;
     private JPanel tabContent;
 
-    private final int currentInvestorId = 1;
+    private int currentInvestorId = LoginManager.getCurrentUser() != null ? LoginManager.getCurrentUser().getLinkedId() : 1;
     private final TradeOrderDAO tradeOrderDAO = new TradeOrderDAO();
     private final OwnershipHistoryDAO ownershipHistoryDAO = new OwnershipHistoryDAO();
     private final AssetDAO assetDAO = new AssetDAO();
+
+    private String getDisplayName() {
+        if (LoginManager.getCurrentUser() == null) return "INVESTOR";
+        String full = LoginManager.getCurrentUser().getName();
+        if (full == null || full.isBlank()) return "INVESTOR";
+        String[] p = full.trim().split("\s+");
+        return p[0].toUpperCase() + (p.length > 1 ? " " + Character.toUpperCase(p[p.length-1].charAt(0)) + "." : "");
+    }
 
     public TradeHistoryUI() {
         setTitle("Fractional. - Trade History");
@@ -92,7 +102,7 @@ public class TradeHistoryUI extends JFrame {
         JLabel roleLabel = new JLabel("INVESTOR");
         roleLabel.setForeground(textMuted);
         roleLabel.setFont(new Font("SansSerif", Font.BOLD, 10));
-        JLabel profileLabel = new JLabel("DISHA K.");
+        JLabel profileLabel = new JLabel(getDisplayName());
         profileLabel.setForeground(textPrimary);
         profileLabel.setFont(new Font("SansSerif", Font.BOLD, 14));
         profilePanel.add(roleLabel);
@@ -121,7 +131,7 @@ public class TradeHistoryUI extends JFrame {
         statsRow.setAlignmentX(Component.LEFT_ALIGNMENT);
 
         JPanel openOrdersCard = createStatCard("OPEN ORDERS", "—", textPrimary);
-        JPanel filledOrdersCard = createStatCard("FILLED ORDERS", "—", pastelGreen);
+        JPanel filledOrdersCard = createStatCard("FILLED / MATCHED", "—", pastelGreen);
         JPanel historyEntriesCard = createStatCard("HISTORY ENTRIES", "—", pastelBlue);
 
         statsRow.add(openOrdersCard);
@@ -197,7 +207,7 @@ public class TradeHistoryUI extends JFrame {
         try {
             List<TradeOrder> orders = tradeOrderDAO.listOrdersByInvestor(currentInvestorId);
             long openCount = orders.stream().filter(o -> "OPEN".equalsIgnoreCase(o.getStatus())).count();
-            long filledCount = orders.stream().filter(o -> "FILLED".equalsIgnoreCase(o.getStatus())).count();
+            long filledCount = orders.stream().filter(o -> "FILLED".equalsIgnoreCase(o.getStatus()) || "MATCHED".equalsIgnoreCase(o.getStatus())).count();
 
             // Update stat cards
             updateStatCardValue(openCard, String.valueOf(openCount));
@@ -272,7 +282,7 @@ public class TradeHistoryUI extends JFrame {
         Color typeColor = isBuy ? pastelGreen : pastelRed;
         String statusStr = o.getStatus() != null ? o.getStatus() : "—";
         Color statusColor = "OPEN".equalsIgnoreCase(statusStr) ? pastelBlue
-                         : "FILLED".equalsIgnoreCase(statusStr) ? pastelGreen : textMuted;
+                         : ("FILLED".equalsIgnoreCase(statusStr) || "MATCHED".equalsIgnoreCase(statusStr)) ? pastelGreen : textMuted;
 
         row.add(makeCell("#" + o.getOrderId(), textMuted, false));
         row.add(makeCell("Asset " + (o.getAssetId() != null ? o.getAssetId() : "—"), textPrimary, false));
@@ -475,7 +485,7 @@ public class TradeHistoryUI extends JFrame {
             navButtons[0].addActionListener(e -> { dispose(); new InvestorDashUI().setVisible(true); });
             navButtons[1].addActionListener(e -> { dispose(); new MarketViewUI().setVisible(true); });
             navButtons[2].addActionListener(e -> { dispose(); new WalletViewUI().setVisible(true); });
-            navButtons[3].addActionListener(e -> { dispose(); new HoldingsViewUI().setVisible(true); });
+            navButtons[3].addActionListener(e -> { dispose(); new HoldingsViewUI_updated().setVisible(true); });
             navButtons[4].addActionListener(e -> { dispose(); new ProfileSettingsUI().setVisible(true); });
         }
 

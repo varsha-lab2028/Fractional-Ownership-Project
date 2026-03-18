@@ -1,5 +1,7 @@
 package edu.iiitd.dbms.ui.investor;
 
+import edu.iiitd.dbms.auth.LoginManager;
+
 import edu.iiitd.dbms.data_access.InvestorDAO;
 import edu.iiitd.dbms.data_access.WalletTransactionDAO;
 import edu.iiitd.dbms.dto.WalletTransactionDTO;
@@ -38,10 +40,18 @@ public class InvestorDashUI extends JFrame {
     private JPanel ipoListPanel;
 
     // Data Access (Assuming Investor ID 1 for now)
-    private final int currentInvestorId = 1;
+    private int currentInvestorId = LoginManager.getCurrentUser() != null ? LoginManager.getCurrentUser().getLinkedId() : 1;
     private final InvestorDAO investorDAO = new InvestorDAO();
     private final WalletTransactionDAO walletDAO = new WalletTransactionDAO();
     private final MarketService marketService = new MarketService();
+
+    private String getDisplayName() {
+        if (LoginManager.getCurrentUser() == null) return "INVESTOR";
+        String full = LoginManager.getCurrentUser().getName();
+        if (full == null || full.isBlank()) return "INVESTOR";
+        String[] p = full.trim().split("\s+");
+        return p[0].toUpperCase() + (p.length > 1 ? " " + Character.toUpperCase(p[p.length-1].charAt(0)) + "." : "");
+    }
 
     public InvestorDashUI() {
         setTitle("Fractional. - Dashboard");
@@ -100,7 +110,7 @@ public class InvestorDashUI extends JFrame {
         JLabel roleLabel = new JLabel("INVESTOR");
         roleLabel.setForeground(textMuted);
         roleLabel.setFont(new Font("SansSerif", Font.BOLD, 10));
-        JLabel profileLabel = new JLabel("DISHA K.");
+        JLabel profileLabel = new JLabel(getDisplayName());
         profileLabel.setForeground(textPrimary);
         profileLabel.setFont(new Font("SansSerif", Font.BOLD, 14));
         profilePanel.add(roleLabel);
@@ -312,6 +322,8 @@ public class InvestorDashUI extends JFrame {
         buyBtn.setBackground(textPrimary); buyBtn.setForeground(bgAbsoluteDark);
         buyBtn.setOpaque(true); buyBtn.setBorderPainted(false);
         rightCol.add(pLabel); rightCol.add(Box.createRigidArea(new Dimension(15, 0))); rightCol.add(buyBtn);
+        buyBtn.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        buyBtn.addActionListener(evt -> { dispose(); new BuyOrderUI().setVisible(true); });
         row.add(leftCol, BorderLayout.WEST); row.add(rightCol, BorderLayout.EAST);
         return row;
     }
@@ -373,7 +385,7 @@ public class InvestorDashUI extends JFrame {
             });
             navButtons[1].addActionListener(e -> { 
                 dispose(); 
-                new MarketViewUI().setVisible(true); 
+                new MarketViewUI_updated().setVisible(true); 
             });
             navButtons[2].addActionListener(e -> { 
                 dispose(); 
@@ -381,7 +393,7 @@ public class InvestorDashUI extends JFrame {
             });
             navButtons[3].addActionListener(e -> { 
                 dispose(); 
-                new HoldingsViewUI().setVisible(true); 
+                new HoldingsViewUI_updated().setVisible(true); 
             });
             navButtons[4].addActionListener(e -> { 
                 dispose(); 
