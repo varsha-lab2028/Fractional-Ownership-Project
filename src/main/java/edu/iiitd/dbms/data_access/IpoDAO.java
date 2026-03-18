@@ -22,6 +22,7 @@ public class IpoDAO {
     }
 
     //required methods
+    //get all the IPOs
     public List<IPO> listIPOs() throws SQLException {
         String sqlQuery = """
                 SELECT * FROM ipo ORDER BY ipo_id
@@ -37,6 +38,7 @@ public class IpoDAO {
         return IPOList;
     }
 
+    //get by ipo id
     public IPO findByIpoId(int ipoId) throws SQLException {
         String sqlQuery = """
                 SELECT * FROM ipo WHERE ipo_id = ?
@@ -54,6 +56,7 @@ public class IpoDAO {
         }
     }
 
+    //get by asset id
     public IPO findByAssetId(int assetId) throws SQLException {
         try (Connection connect = ServerConnector.DBConnection()){
             return findByAssetId(connect, assetId);

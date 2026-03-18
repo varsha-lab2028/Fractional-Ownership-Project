@@ -34,6 +34,7 @@ public class OwnershipDAO {
         }
     }
 
+    //updating units method
     public void updateUnits(Connection connect, int investorId, int assetId, int newUnitsHeld) throws SQLException {
         String sqlQuery = "INSERT INTO ownership(investor_id, asset_id, units_held) VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE units_held = VALUES(units_held)";
         try(PreparedStatement ps = connect.prepareStatement(sqlQuery)){
@@ -44,6 +45,7 @@ public class OwnershipDAO {
         }
     }
 
+    //get by investor and asset
     public List<Ownership> listHoldings(int investorId) throws SQLException{
         String sqlQuery = "SELECT investor_id, asset_id, units_held FROM ownership WHERE investor_id = ? ORDER BY asset_id";
         List<Ownership> ownershipList = new ArrayList<>();

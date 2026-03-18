@@ -8,7 +8,6 @@ import java.sql.SQLException;
 import java.util.List;
 
 public class AdminService {
-
     private final AdminDAO           adminDAO;
     private final InvestorDAO        investorDAO;
     private final AssetDAO           assetDAO;
@@ -27,7 +26,7 @@ public class AdminService {
         this.historyDAO  = new OwnershipHistoryDAO();
     }
 
-    // ── View investors ────────────────────────────────────────────────────────
+    //View investors
     public List<Investor> getAllInvestors() throws Exception {
         try {
             return investorDAO.listInvestors();
@@ -36,7 +35,7 @@ public class AdminService {
         }
     }
 
-    // ── View assets ───────────────────────────────────────────────────────────
+    //View assets
     public List<Asset> getAllAssets() throws Exception {
         try {
             return assetDAO.listAssets();
@@ -45,7 +44,7 @@ public class AdminService {
         }
     }
 
-    // ── View IPOs ─────────────────────────────────────────────────────────────
+    //View IPOs
     public List<IPO> getAllIPOs() throws Exception {
         try {
             return ipoDAO.listIPOs();
@@ -54,7 +53,7 @@ public class AdminService {
         }
     }
 
-    // ── View IPOs as market rows (richer DTO with asset name + price) ─────────
+    //View IPOs as market rows (richer DTO with asset name + price)
     public List<MarketViewRow> getAllMarketRows() throws Exception {
         try {
             return ipoDAO.getAllMarketRows();
@@ -63,7 +62,7 @@ public class AdminService {
         }
     }
 
-    // ── View all executed trades ──────────────────────────────────────────────
+    //View all executed trades
     public List<Trade> getAllTrades() throws Exception {
         try {
             return tradeDAO.listTrades();
@@ -72,7 +71,7 @@ public class AdminService {
         }
     }
 
-    // ── View all trade orders ─────────────────────────────────────────────────
+    //View all trade orders
     public List<TradeOrder> getAllOrders() throws Exception {
         try {
             return tradeOrderDAO.listOrders();
@@ -81,7 +80,7 @@ public class AdminService {
         }
     }
 
-    // ── View ownership history for an investor ────────────────────────────────
+    //View ownership history for an investor
     public List<OwnershipHistory> getOwnershipHistory(int investorId) throws Exception {
         try {
             return historyDAO.listByInvestorId(investorId);
@@ -90,7 +89,7 @@ public class AdminService {
         }
     }
 
-    // ── View all admins ───────────────────────────────────────────────────────
+    //View all admins
     public List<Admin> getAllAdmins() throws Exception {
         try {
             return adminDAO.listAdmins();

@@ -35,6 +35,7 @@ public class InvestorDAO {
     }
 
     //listing methods
+    //gets all the investors
     public List<Investor> listInvestors() throws SQLException {
         String sql = """
             SELECT investor_id, investor_name, email, phone, registration_date, wallet_balance
@@ -51,12 +52,12 @@ public class InvestorDAO {
     }
 
     //finding methods
+    //get by investor id
     public Investor findByInvestorId(int investorId) throws SQLException {
         try (Connection connect = ServerConnector.DBConnection()) {
             return findByInvestorId(connect, investorId);
         }
     }
-
     public Investor findByInvestorId(Connection connect, int investorId) throws SQLException {
         String sql = """
             SELECT investor_id, investor_name, email, phone, registration_date, wallet_balance
@@ -86,7 +87,7 @@ public class InvestorDAO {
         }
     }
 
-    //updation methods (profile settings)
+    //updating methods (profile settings)
     public boolean updateInvestorProfile(int investorId, String newName, String newPhone) throws SQLException {
         String sql = """
             UPDATE investor 

@@ -8,15 +8,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class PortfolioDAO {
-
-    /**
-     * Fetches all current asset holdings for a specific investor, including 
-     * real-time fractional valuation calculations.
-     */
+    /*Fetches all current asset holdings for a specific investor, including
+     real-time fractional valuation calculations*/
     public List<AssetHoldingDTO> getInvestorHoldings(int investorId) throws SQLException {
         List<AssetHoldingDTO> holdings = new ArrayList<>();
-        
-        // Complex join across OWNERSHIP, ASSET, IPO, and a subquery for the latest VALUATION
         String query = """
             SELECT 
                 a.asset_id, 
@@ -48,14 +43,13 @@ public class PortfolioDAO {
                     int unitsHeld = rs.getInt("units_held");
                     double ipoPrice = rs.getDouble("ipo_price");
                     int totalUnits = rs.getInt("total_units");
-                    
-                    // Handle case where valuation might not exist yet (defaults to 0)
+
                     double latestValuation = rs.getDouble("latest_valuation");
                     if (rs.wasNull()) {
                         latestValuation = ipoPrice * totalUnits; // Fallback to IPO valuation
                     }
 
-                    // Calculate the financial metrics
+                    //Calculates the financial metrics
                     double totalInvested = unitsHeld * ipoPrice;
                     double fractionalShare = (double) unitsHeld / totalUnits;
                     double currentValue = fractionalShare * latestValuation;

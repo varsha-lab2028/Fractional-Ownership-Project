@@ -27,6 +27,7 @@ public class AssetDAO {
     }
 
     //required methods
+    //gets all the assets
     public List<Asset> listAssets() throws SQLException {
         String sqlQuery = """
                 SELECT asset_id, name, category, description, storage_location, verification_reference, " +
@@ -65,6 +66,7 @@ public class AssetDAO {
         return assetList;
     }
 
+    //get by asset id
     public Asset findByAssetId(int assetId) throws SQLException {
         try (Connection connect = ServerConnector.DBConnection()) {
             return findByAssetId(connect, assetId);

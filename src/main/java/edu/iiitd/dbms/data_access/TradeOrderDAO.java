@@ -7,8 +7,8 @@ import java.sql.*;
 import java.util.*;
 import java.sql.Date;
 
-//this is a request which is made by an investor
-//this DAO will enable to place order + update the status
+//this shows which investors are open for trading, who have matched, etc.
+//this DAO will enable to place order and update the status
 public class TradeOrderDAO {
     private TradeOrder matchTradeOrderColumns(ResultSet rs) throws SQLException {
         return new TradeOrder(
@@ -60,6 +60,7 @@ public class TradeOrderDAO {
         return orders;
     }
 
+    //get by id
     public TradeOrder findByOrderId(int orderId) throws SQLException {
         try (Connection connect = ServerConnector.DBConnection()) {
             return findByOrderId(connect, orderId);
@@ -82,6 +83,7 @@ public class TradeOrderDAO {
         }
     }
 
+    //insert method
     public void insertOrder(TradeOrder order) throws SQLException {
         try (Connection connect = ServerConnector.DBConnection()) {
             insertOrder(connect, order);
@@ -106,6 +108,7 @@ public class TradeOrderDAO {
         }
     }
 
+
     public void updateStatus(int orderId, String newStatus) throws SQLException {
         try (Connection connect = ServerConnector.DBConnection()) {
             updateStatus(connect, orderId, newStatus);
@@ -120,6 +123,7 @@ public class TradeOrderDAO {
         }
     }
 
+    //list by investors method
     public List<TradeOrder> listOrdersByInvestor(int investorId) throws SQLException {
         String sql = """
             SELECT *

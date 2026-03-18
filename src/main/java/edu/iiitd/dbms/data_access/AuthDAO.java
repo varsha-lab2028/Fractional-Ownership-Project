@@ -10,25 +10,16 @@ import java.sql.SQLException;
 import java.sql.Timestamp;
 
 public class AuthDAO {
-
-    /**
-     * Finds a user by email by checking both investor and admin tables.
-     * This aligns with the seeded data currently in the database.
-     */
+    //Finds a user by email by checking both investor and admin tables
     public AuthClass findByEmail(String email) throws SQLException {
-        // 1. Try finding in the Investor table first
         AuthClass user = findInTable(email, "investor", "investor_id", "INVESTOR");
-        
-        // 2. If not found, try the Admin table
         if (user == null) {
             user = findInTable(email, "admin", "admin_id", "ADMIN");
         }
-        
         return user;
     }
 
     private AuthClass findInTable(String email, String tableName, String idColumn, String type) throws SQLException {
-        // Dynamically query the table where hashed passwords were seeded
         String sql = "SELECT " + idColumn + " as auth_id, name, email, password_hash, status, last_login " +
                      "FROM " + tableName + " WHERE email = ?";
                      
@@ -59,13 +50,8 @@ public class AuthDAO {
         return null;
     }
 
-    /**
-     * Updates the last_login timestamp in the appropriate table.
-     */
+    //Updates the last_login timestamp in the appropriate table
     public void updateLastLogin(int authId) throws SQLException {
-        // Since we don't store userType here, we check both for a quick update 
-        // Or better, let's just update based on the current session user type.
-        // For a simple fix, we'll try investor first.
         String sqlInvestor = "UPDATE investor SET last_login = NOW() WHERE investor_id = ?";
         String sqlAdmin = "UPDATE admin SET last_login = NOW() WHERE admin_id = ?";
 

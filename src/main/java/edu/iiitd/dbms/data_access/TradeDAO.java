@@ -19,6 +19,7 @@ public class TradeDAO {
         );
     }
 
+    //list all
     public List<Trade> listTrades() throws SQLException {
         String sql = """
             SELECT *
@@ -36,6 +37,7 @@ public class TradeDAO {
         return tradeList;
     }
 
+    //get by id
     public Trade findByTradeId(int tradeId) throws SQLException {
         try (Connection connect = ServerConnector.DBConnection()) {
             return findByTradeId(connect, tradeId);
@@ -59,6 +61,7 @@ public class TradeDAO {
         }
     }
 
+    //insert method
     public void insertTrade(Trade trade) throws SQLException {
         try (Connection connect = ServerConnector.DBConnection()) {
             insertTrade(connect, trade);

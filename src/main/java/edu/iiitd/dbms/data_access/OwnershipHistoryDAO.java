@@ -9,6 +9,7 @@ import java.time.*;
 
 //list history - trigger proof
 public class OwnershipHistoryDAO {
+    //list by investor
     public List<OwnershipHistory> listByInvestorId(int investorId) throws SQLException {
         String sql = """
             SELECT history_id, investor_id, asset_id, units_before, units_after, change_date, change_type, trade_id, ipo_id

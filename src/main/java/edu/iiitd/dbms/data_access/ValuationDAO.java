@@ -1,6 +1,7 @@
 package edu.iiitd.dbms.data_access;
 
 import edu.iiitd.dbms.config.ServerConnector;
+import edu.iiitd.dbms.domain.TradeOrder;
 import edu.iiitd.dbms.domain.Valuation;
 
 import java.sql.*;
@@ -19,6 +20,26 @@ public class ValuationDAO {
                 rs.getDate("valuation_date").toLocalDate()
         );
     }
+
+    //list all valuations
+    public List<Valuation> listValuations() throws SQLException {
+        String sqlQuery = """
+            SELECT *
+            FROM valuation
+            ORDER BY valuation_id
+        """;
+        List<Valuation> valuationList = new ArrayList<>();
+        try (Connection connect = ServerConnector.DBConnection();
+             PreparedStatement ps = connect.prepareStatement(sqlQuery);
+             ResultSet rs = ps.executeQuery()) {
+            while (rs.next()) {
+                valuationList.add(matchValuationColumns(rs));
+            }
+        }
+        return valuationList;
+    }
+
+    //get latest by asset
     public Valuation getLatestForAsset(int assetId) throws SQLException {
         String sqlQuery = """
             SELECT valuation_id, asset_id, valuation_amount, valuation_date
@@ -40,6 +61,7 @@ public class ValuationDAO {
         }
     }
 
+    //get history by asset id
     public List<Valuation> getHistory(int assetId) throws SQLException {
         String sql = """
             SELECT valuation_id, asset_id, valuation_amount, valuation_date

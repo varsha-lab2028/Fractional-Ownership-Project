@@ -74,7 +74,4 @@ public class MarketService {
             throw new RuntimeException("Failed to fetch filtered market rows", e);
         }
     }*/
-
-
-
 }

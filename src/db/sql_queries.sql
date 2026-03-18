@@ -13,7 +13,7 @@ SELECT i.ipo_id, a.name AS asset_name, i.total_units, i.price_per_unit FROM IPO 
 --Q4 For finding IPOs active on today's date (Active IPOs)
 SELECT * FROM IPO WHERE CURDATE() BETWEEN ipo_start_date AND ipo_end_date;
 
---Q5 NEW : Listing IPOs for seeded data by using a reference date (used for the project)
+--Q5 Listing IPOs for seeded data by using a reference date (used for the project)
 SELECT i.ipo_id,
        a.asset_id,
        a.name AS asset_name,
