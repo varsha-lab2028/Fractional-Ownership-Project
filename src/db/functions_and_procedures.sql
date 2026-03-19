@@ -1,4 +1,4 @@
-USE fractional_ownership_db;
+USE test;
 
 -- Functions
 

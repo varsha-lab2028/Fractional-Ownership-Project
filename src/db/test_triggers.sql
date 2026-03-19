@@ -1,5 +1,7 @@
 --THESE ARE TEST CASES TO CHECK IF THE TRIGGERS WORK OR NOT
 
+USE test;
+
 --TEST 1 : Wallet deposit (after insert trigger)
 -- Deposit money
 INSERT INTO WALLET_TRANSACTION
