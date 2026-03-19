@@ -2,9 +2,7 @@ package edu.iiitd.dbms.dto;
 
 import java.time.LocalDate;
 
-/**
- * Q16 — Executed trade enriched with buyer and seller investor names.
- */
+/*Q16 — Executed trade enriched with buyer and seller investor names.*/
 public class TradeWithPartiesDTO {
     private final int        tradeId;
     private final LocalDate  tradeDate;

@@ -12,8 +12,8 @@ import java.awt.*;
 
 public class DynamicChartPanel extends JPanel {
 
-    private final Color bgBlack = new Color(0, 0, 0); // Absolute Pure Black
-    private final Color credNeon = new Color(0, 255, 163); // CRED's signature neon mint
+    private final Color bgBlack = new Color(0, 0, 0);
+    private final Color credNeon = new Color(0, 255, 163);
 
     public DynamicChartPanel() {
         setLayout(new BorderLayout());

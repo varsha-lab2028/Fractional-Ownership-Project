@@ -27,8 +27,6 @@ public class WalletTransactionImpl {
         this.walletDAO = new WalletTransactionDAO();
     }
 
-    // READ
-
     public double getBalance(int investorId) throws SQLException {
         return walletDAO.getStoredWalletBalance(investorId);
     }
@@ -47,8 +45,6 @@ public class WalletTransactionImpl {
         return walletDAO.getTransactionSummaryByInvestorAndType();
     }
 
-    // RAW INSERT (used internally by TradingService for atomic trade execution)
-
     public boolean insert(Connection conn, int investorId, double amount,
                           String transactionType, String transferCategory) throws SQLException {
         return walletDAO.insertWalletTransaction(conn, investorId, amount, transactionType, transferCategory);
@@ -58,8 +54,6 @@ public class WalletTransactionImpl {
                           String transactionType, String transferCategory) throws SQLException {
         return walletDAO.insertWalletTransaction(investorId, amount, transactionType, transferCategory);
     }
-
-    // DEPOSIT
 
     public boolean deposit(int investorId, double amount, String category) throws SQLException {
         return walletDAO.deposit(investorId, amount, category);
@@ -73,8 +67,6 @@ public class WalletTransactionImpl {
         return walletDAO.deposit(conn, investorId, amount, category);
     }
 
-    // WITHDRAWAL
-
     public boolean withdraw(int investorId, double amount, String category) throws SQLException {
         return walletDAO.withdraw(investorId, amount, category);
     }
@@ -86,8 +78,6 @@ public class WalletTransactionImpl {
     public boolean withdraw(Connection conn, int investorId, double amount, String category) throws SQLException {
         return walletDAO.withdraw(conn, investorId, amount, category);
     }
-
-    // DIVIDEND
 
     public boolean creditDividend(int investorId, double amount, String category) throws SQLException {
         return walletDAO.creditDividend(investorId, amount, category);
@@ -101,8 +91,6 @@ public class WalletTransactionImpl {
         return walletDAO.creditDividend(conn, investorId, amount, category);
     }
 
-    // ASSET PURCHASE
-
     public boolean deductForPurchase(int investorId, double amount, String category) throws SQLException {
         return walletDAO.deductForAssetPurchase(investorId, amount, category);
     }
@@ -114,8 +102,6 @@ public class WalletTransactionImpl {
     public boolean deductForPurchase(Connection conn, int investorId, double amount, String category) throws SQLException {
         return walletDAO.deductForAssetPurchase(conn, investorId, amount, category);
     }
-
-    // ASSET SALE
 
     public boolean creditAssetSale(int investorId, double amount, String category) throws SQLException {
         return walletDAO.creditAssetSale(investorId, amount, category);
@@ -129,13 +115,9 @@ public class WalletTransactionImpl {
         return walletDAO.creditAssetSale(conn, investorId, amount, category);
     }
 
-    // REFUND
-
     public boolean refund(int investorId, double amount, String category) throws SQLException {
         return walletDAO.refund(investorId, amount, category);
     }
-
-    // ADMIN ADJUSTMENT
 
     public boolean adminAdjustment(int investorId, double amount, String reason) throws SQLException {
         return walletDAO.adminAdjustment(investorId, amount, reason);

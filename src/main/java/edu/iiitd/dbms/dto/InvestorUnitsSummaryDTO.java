@@ -1,6 +1,6 @@
 package edu.iiitd.dbms.dto;
 
-/** Q8 — SUM(units_held) grouped by investor_id, ordered DESC. */
+/*Q8 — SUM(units_held) grouped by investor_id, ordered DESC. */
 public class InvestorUnitsSummaryDTO {
     private final int investorId;
     private final int totalUnitsHeld;

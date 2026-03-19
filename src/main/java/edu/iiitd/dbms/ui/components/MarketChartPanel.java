@@ -44,14 +44,14 @@ public class MarketChartPanel extends JPanel {
         title.setForeground(textPrimary);
         title.setFont(new Font("SansSerif", Font.BOLD, 14));
 
-        // FIX 1: Mac OS overrides standard buttons. We use custom JLabels as toggles to force the aesthetic.
+
         JPanel togglePanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 0));
         togglePanel.setOpaque(false);
         
         CustomToggle btnLine = new CustomToggle("Line View", true);
         CustomToggle btnCandle = new CustomToggle("Candlestick", false);
 
-        // FIX 2: Generate 60 days of data for thin, sleek candlesticks
+
         XYDataset dataset = createMockData(60);
 
         lineChart = createLineChart(dataset);
@@ -90,7 +90,6 @@ public class MarketChartPanel extends JPanel {
         add(chartPanel, BorderLayout.CENTER);
     }
 
-    // Custom Label Button to evade Mac OS "Aqua" rendering
     class CustomToggle extends JLabel {
         private boolean isActive;
         public CustomToggle(String text, boolean isActive) {

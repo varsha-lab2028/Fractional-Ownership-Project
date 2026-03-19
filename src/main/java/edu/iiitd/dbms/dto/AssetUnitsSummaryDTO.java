@@ -1,6 +1,6 @@
 package edu.iiitd.dbms.dto;
 
-/** Q7 — SUM(units_held) grouped by asset_id. */
+/*Q7 — SUM(units_held) grouped by asset_id. */
 public class AssetUnitsSummaryDTO {
     private final int assetId;
     private final int totalUnitsHeld;

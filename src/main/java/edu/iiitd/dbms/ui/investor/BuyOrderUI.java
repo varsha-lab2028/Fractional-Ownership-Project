@@ -125,7 +125,6 @@ public class BuyOrderUI extends JFrame {
         mainContent.setOpaque(false);
         mainContent.setBorder(new EmptyBorder(20, 40, 40, 40));
 
-        // ===== LEFT: FORM =====
         JPanel formColumn = new JPanel();
         formColumn.setLayout(new BoxLayout(formColumn, BoxLayout.Y_AXIS));
         formColumn.setOpaque(false);
@@ -178,7 +177,7 @@ public class BuyOrderUI extends JFrame {
             public void keyReleased(java.awt.event.KeyEvent e) { updateTotal(); }
         });
 
-        // Price (auto-filled from IPO, read-only)
+        // Price
         priceField = createInputField();
         priceField.setText("0.00");
         priceField.setEditable(false);
@@ -269,7 +268,6 @@ public class BuyOrderUI extends JFrame {
         formColumn.add(Box.createRigidArea(new Dimension(0, 20)));
         formColumn.add(formCard);
 
-        // ===== RIGHT: ASSET LIST =====
         JPanel rightColumn = new JPanel(new BorderLayout());
         rightColumn.setOpaque(false);
         JPanel assetCard = createRoundedPanel();
@@ -331,7 +329,7 @@ public class BuyOrderUI extends JFrame {
         int idx = assetCombo.getSelectedIndex();
         if (idx >= 0 && verifiedAssets != null && idx < verifiedAssets.size()) {
             VerifiedAssetRow sel = verifiedAssets.get(idx);
-            // Auto-fill price from IPO — buyer cannot override it
+
             double ipoPrice = sel.getPricePerUnit();
             priceField.setText(ipoPrice > 0 ? String.format("%.2f", ipoPrice) : "0.00");
             String capacityInfo = sel.getTotalUnits() > 0
@@ -405,7 +403,7 @@ public class BuyOrderUI extends JFrame {
             TradeOrder order = new TradeOrder(newId, currentInvestorId, assetId, "BUY", price, units, LocalDate.now(), "OPEN");
             tradeOrderDAO.insertOrder(order);
 
-            // Grant ownership immediately (IPO purchase — no matching seller needed)
+            // Grant ownership immediately
             Ownership existing_ownership = ownershipDAO.findOwnership(currentInvestorId, assetId);
             int currentUnits = (existing_ownership != null) ? existing_ownership.getUnitsHeld() : 0;
             ownershipDAO.updateUnits(currentInvestorId, assetId, currentUnits + units);

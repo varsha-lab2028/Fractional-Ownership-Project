@@ -1,8 +1,6 @@
 package edu.iiitd.dbms.dto;
 
-/**
- * Q19 — Total amount transacted per investor per transaction type.
- */
+/*Q19 — Total amount transacted per investor per transaction type.*/
 public class WalletSummaryDTO {
     private final String investorName;
     private final String transactionType;

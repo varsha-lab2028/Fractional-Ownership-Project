@@ -112,31 +112,17 @@ public class CompactChartPanel extends JPanel {
         worker.execute();
     }
 
-    // ── Chart builders ────────────────────────────────────────────────────────
-
+    //Chart builders
     private void buildGrowthCharts(int investorId) throws Exception {
         PortfolioDAO portfolioDAO = new PortfolioDAO();
         ValuationDAO valuationDAO = new ValuationDAO();
         List<AssetHoldingDTO> holdings = portfolioDAO.getInvestorHoldings(investorId);
 
-        // Build month → portfolio value map using valuation history
-        // For each holding: investor's value = (unitsHeld / totalIPOUnits) * totalAssetValuation
         TreeMap<String, Double> monthlyTotal = new TreeMap<>();
 
         if (!holdings.isEmpty()) {
             for (AssetHoldingDTO h : holdings) {
                 List<Valuation> history = valuationDAO.getHistory(h.getAssetId());
-                // totalIPOUnits is NOT in AssetHoldingDTO directly, but:
-                // totalInvested = unitsHeld * avgBuyPrice
-                // fractionalOwnership = unitsHeld / ipoTotalUnits
-                // We can approximate: currentValue is already correctly calculated
-                // For historical: (unitsHeld / ipoTotalUnits) * historicalValuation
-                // ipoTotalUnits = totalInvested / avgBuyPrice = unitsHeld * avgBuyPrice / avgBuyPrice = unitsHeld
-                // Wait - totalInvested = unitsHeld * ipoPrice, avgBuyPrice = ipoPrice
-                // We need ipoTotalUnits from the DB. Use currentValue as proxy:
-                // currentValue = (unitsHeld / ipoTotalUnits) * latestValuation
-                // fractional = unitsHeld / ipoTotalUnits
-                // We derive fractional from: currentValue / latestValuation
                 double latestValuation = history.isEmpty() ? 0 :
                         history.get(0).getValuationAmount();
                 double fractional = latestValuation > 0
@@ -157,18 +143,16 @@ public class CompactChartPanel extends JPanel {
         DefaultCategoryDataset dataset = new DefaultCategoryDataset();
 
         if (monthlyTotal.isEmpty()) {
-            // Fallback: show invested vs current
             double invested = holdings.stream().mapToDouble(AssetHoldingDTO::getTotalInvested).sum();
             double current  = holdings.stream().mapToDouble(AssetHoldingDTO::getCurrentValue).sum();
             dataset.addValue(invested, "Value", "Invested");
             dataset.addValue(current,  "Value", "Current");
         } else {
-            // Show last 12 months only for clarity
             List<Map.Entry<String,Double>> entries = new ArrayList<>(monthlyTotal.entrySet());
             int start = Math.max(0, entries.size() - 12);
             for (int i = start; i < entries.size(); i++) {
                 Map.Entry<String,Double> e = entries.get(i);
-                // Display as short label: month/year
+
                 String[] parts = e.getKey().split("-");
                 String label = parts.length == 2
                         ? getMonthAbbr(Integer.parseInt(parts[1])) + " '" + parts[0].substring(2)
@@ -199,7 +183,6 @@ public class CompactChartPanel extends JPanel {
         if (holdings.isEmpty()) {
             dataset.setValue("No Holdings", 1);
         } else {
-            // Group by category using current value
             Map<String, Double> categoryValues = new LinkedHashMap<>();
             for (AssetHoldingDTO h : holdings) {
                 String cat = h.getCategory() != null ? h.getCategory() : "Other";
@@ -222,7 +205,7 @@ public class CompactChartPanel extends JPanel {
         viewTwo = pieChart;
     }
 
-    // ── Styling helpers ───────────────────────────────────────────────────────
+    //Styling helpers
 
     private void styleCategory(JFreeChart chart, Color seriesColor, boolean isLine) {
         chart.setBackgroundPaint(cardBg);

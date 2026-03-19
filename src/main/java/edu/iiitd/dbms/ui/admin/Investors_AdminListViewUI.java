@@ -46,7 +46,7 @@ public class Investors_AdminListViewUI extends JFrame {
         setLayout(new BorderLayout());
         getContentPane().setBackground(bgAbsoluteDark);
 
-        // --- DRAG BAR ---
+        //DRAG BAR
         JPanel dragBar = new JPanel(new BorderLayout());
         dragBar.setBackground(bgAbsoluteDark);
         dragBar.setPreferredSize(new Dimension(1350, 30));
@@ -66,7 +66,7 @@ public class Investors_AdminListViewUI extends JFrame {
             }
         });
 
-        // --- TOP NAV ---
+        //TOP NAV
         JPanel topBar = new JPanel(new BorderLayout());
         topBar.setBackground(bgAbsoluteDark);
         topBar.setBorder(new EmptyBorder(10, 15, 10, 25));
@@ -106,7 +106,7 @@ public class Investors_AdminListViewUI extends JFrame {
 
         sidebar = new GrainySidebar();
 
-        // --- MAIN CONTENT ---
+        //MAIN CONTENT
         JPanel mainContent = new JPanel();
         mainContent.setLayout(new BoxLayout(mainContent, BoxLayout.Y_AXIS));
         mainContent.setOpaque(false);
@@ -169,7 +169,7 @@ public class Investors_AdminListViewUI extends JFrame {
         loadInvestors();
     }
 
-    // --- DATA ---
+    // DATA
     private void loadInvestors() {
         try {
             allInvestors = investorDAO.listInvestors();
@@ -212,7 +212,7 @@ public class Investors_AdminListViewUI extends JFrame {
         investorListPanel.repaint();
     }
 
-    // --- ROW BUILDERS ---
+    // ROW BUILDERS
     private JPanel createTableHeader() {
         JPanel header = new JPanel(new GridLayout(1, 5));
         header.setOpaque(false);
@@ -295,7 +295,7 @@ public class Investors_AdminListViewUI extends JFrame {
         return p;
     }
 
-    // --- HELPERS ---
+    // HELPERS
     private JLabel makeCell(String text, Color color, boolean bold) {
         JLabel lbl = new JLabel(text);
         lbl.setForeground(color);
@@ -345,7 +345,7 @@ public class Investors_AdminListViewUI extends JFrame {
         });
     }
 
-    // --- SIDEBAR ---
+    // SIDEBAR
     class GrainySidebar extends JPanel {
         private boolean isExpanded = false;
         private final int EXPANDED_WIDTH = 250;
@@ -441,7 +441,7 @@ public class Investors_AdminListViewUI extends JFrame {
         }
     }
 
-    // --- AESTHETIC SEARCH BAR ---
+    // AESTHETIC SEARCH BAR
     class AestheticSearchBar extends JTextField {
         public AestheticSearchBar(String placeholder) {
             setOpaque(false);

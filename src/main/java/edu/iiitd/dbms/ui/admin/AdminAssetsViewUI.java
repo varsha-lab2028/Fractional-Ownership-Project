@@ -55,7 +55,7 @@ public class AdminAssetsViewUI extends JFrame {
         setLayout(new BorderLayout());
         getContentPane().setBackground(bgAbsoluteDark);
 
-        // --- DRAG BAR ---
+        //DRAG BAR
         JPanel dragBar = new JPanel(new BorderLayout());
         dragBar.setBackground(bgAbsoluteDark);
         dragBar.setPreferredSize(new Dimension(1350, 30));
@@ -75,7 +75,7 @@ public class AdminAssetsViewUI extends JFrame {
             }
         });
 
-        // --- TOP NAV ---
+        //TOP NAV
         JPanel topBar = new JPanel(new BorderLayout());
         topBar.setBackground(bgAbsoluteDark);
         topBar.setBorder(new EmptyBorder(10, 15, 10, 25));
@@ -105,7 +105,7 @@ public class AdminAssetsViewUI extends JFrame {
 
         sidebar = new GrainySidebar();
 
-        // --- MAIN CONTENT ---
+        //MAIN CONTENT
         JPanel mainContent = new JPanel();
         mainContent.setLayout(new BoxLayout(mainContent, BoxLayout.Y_AXIS));
         mainContent.setOpaque(false);
@@ -195,7 +195,7 @@ public class AdminAssetsViewUI extends JFrame {
         loadAllData(assetStatCard, ipoStatCard, tradeStatCard);
     }
 
-    // --- DATA ---
+    //DATA
     private void loadAllData(JPanel assetCard, JPanel ipoCard, JPanel tradeCard) {
         try {
             // Assets
@@ -257,7 +257,7 @@ public class AdminAssetsViewUI extends JFrame {
         }
     }
 
-    // --- ROW BUILDERS ---
+    //ROW BUILDERS
     private JPanel createRowHeader(String[] cols) {
         JPanel row = new JPanel(new GridLayout(1, cols.length));
         row.setOpaque(false);
@@ -289,7 +289,7 @@ public class AdminAssetsViewUI extends JFrame {
         return row;
     }
 
-    // --- HELPERS ---
+    //HELPERS
     private void switchTab(int tab) {
         CardLayout cl = (CardLayout) tabContent.getLayout();
         String[] keys = {"ASSETS", "IPOS", "TRADES"};
@@ -382,7 +382,7 @@ public class AdminAssetsViewUI extends JFrame {
         });
     }
 
-    // --- SIDEBAR ---
+    //SIDEBAR
     class GrainySidebar extends JPanel {
         private boolean isExpanded = false;
         private final int EXPANDED_WIDTH = 250;
