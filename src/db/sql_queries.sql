@@ -1,5 +1,4 @@
---USE fractional_ownership_db;
-USE test;
+USE fractional_ownership_db;
 
 --15 SQL queries
 --Q1 

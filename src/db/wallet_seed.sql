@@ -1,25 +1,14 @@
-USE test;
-
-
 -- ============================================================
--- WALLET SEED DATA  —  test
+-- data for wallet transaction table
 -- ============================================================
--- Inserts WALLET_TRANSACTION rows for all 15 investors and
--- then explicitly UPDATEs INVESTOR.wallet_balance for every
--- investor so the table is fully in sync.
--- ============================================================
-
-USE test;
+USE fractional_ownership_db;
 SET FOREIGN_KEY_CHECKS = 0;
 
--- ============================================================
--- STEP 1 — Clean slate
--- ============================================================
 DELETE FROM WALLET_TRANSACTION;
 UPDATE INVESTOR SET wallet_balance = 0.00;
 
 -- ============================================================
--- STEP 2 — INVESTOR 1  Aman Gupta
+-- INVESTOR 1  Aman Gupta
 -- ============================================================
 INSERT INTO WALLET_TRANSACTION
     (investor_id, amount, transaction_type, transfer_category, transaction_date)
@@ -41,7 +30,7 @@ VALUES
 UPDATE INVESTOR SET wallet_balance = 1067254.17 WHERE investor_id = 1;
 
 -- ============================================================
--- STEP 3 — INVESTOR 2  Riya Malhotra
+-- INVESTOR 2  Riya Malhotra
 -- ============================================================
 INSERT INTO WALLET_TRANSACTION
     (investor_id, amount, transaction_type, transfer_category, transaction_date)
@@ -60,7 +49,7 @@ VALUES
 UPDATE INVESTOR SET wallet_balance = 451950.00 WHERE investor_id = 2;
 
 -- ============================================================
--- STEP 4 — INVESTOR 3  Karan Mehta
+-- INVESTOR 3  Karan Mehta
 -- ============================================================
 INSERT INTO WALLET_TRANSACTION
     (investor_id, amount, transaction_type, transfer_category, transaction_date)
@@ -80,7 +69,7 @@ VALUES
 UPDATE INVESTOR SET wallet_balance = 801450.00 WHERE investor_id = 3;
 
 -- ============================================================
--- STEP 5 — INVESTOR 4  Sneha Iyer
+-- INVESTOR 4  Sneha Iyer
 -- ============================================================
 INSERT INTO WALLET_TRANSACTION
     (investor_id, amount, transaction_type, transfer_category, transaction_date)
@@ -101,7 +90,7 @@ VALUES
 UPDATE INVESTOR SET wallet_balance = 634200.00 WHERE investor_id = 4;
 
 -- ============================================================
--- STEP 6 — INVESTOR 5  Arjun Verma
+-- INVESTOR 5  Arjun Verma
 -- ============================================================
 INSERT INTO WALLET_TRANSACTION
     (investor_id, amount, transaction_type, transfer_category, transaction_date)
@@ -118,7 +107,7 @@ VALUES
 UPDATE INVESTOR SET wallet_balance = 211300.00 WHERE investor_id = 5;
 
 -- ============================================================
--- STEP 7 — INVESTOR 6  Meera Jain
+-- INVESTOR 6  Meera Jain
 -- ============================================================
 INSERT INTO WALLET_TRANSACTION
     (investor_id, amount, transaction_type, transfer_category, transaction_date)
@@ -136,7 +125,7 @@ VALUES
 UPDATE INVESTOR SET wallet_balance = 196780.94 WHERE investor_id = 6;
 
 -- ============================================================
--- STEP 8 — INVESTOR 7  Rahul Bose
+-- INVESTOR 7  Rahul Bose
 -- ============================================================
 INSERT INTO WALLET_TRANSACTION
     (investor_id, amount, transaction_type, transfer_category, transaction_date)
@@ -154,7 +143,7 @@ VALUES
 UPDATE INVESTOR SET wallet_balance = 245253.34 WHERE investor_id = 7;
 
 -- ============================================================
--- STEP 9 — INVESTOR 8  Tanya Roy
+-- INVESTOR 8  Tanya Roy
 -- ============================================================
 INSERT INTO WALLET_TRANSACTION
     (investor_id, amount, transaction_type, transfer_category, transaction_date)
@@ -172,7 +161,7 @@ VALUES
 UPDATE INVESTOR SET wallet_balance = 137113.78 WHERE investor_id = 8;
 
 -- ============================================================
--- STEP 10 — INVESTOR 9  Dev Khanna
+-- INVESTOR 9  Dev Khanna
 -- ============================================================
 INSERT INTO WALLET_TRANSACTION
     (investor_id, amount, transaction_type, transfer_category, transaction_date)
@@ -190,7 +179,7 @@ VALUES
 UPDATE INVESTOR SET wallet_balance = 501900.00 WHERE investor_id = 9;
 
 -- ============================================================
--- STEP 11 — INVESTOR 10  Ishita Singh
+-- INVESTOR 10  Ishita Singh
 -- ============================================================
 INSERT INTO WALLET_TRANSACTION
     (investor_id, amount, transaction_type, transfer_category, transaction_date)
@@ -205,7 +194,7 @@ VALUES
 UPDATE INVESTOR SET wallet_balance = 264038.46 WHERE investor_id = 10;
 
 -- ============================================================
--- STEP 12 — INVESTOR 11  Harsh Patel
+-- INVESTOR 11  Harsh Patel
 -- ============================================================
 INSERT INTO WALLET_TRANSACTION
     (investor_id, amount, transaction_type, transfer_category, transaction_date)
@@ -219,7 +208,7 @@ VALUES
 UPDATE INVESTOR SET wallet_balance = 184862.50 WHERE investor_id = 11;
 
 -- ============================================================
--- STEP 13 — INVESTOR 12  Neeraj Sood
+-- INVESTOR 12  Neeraj Sood
 -- ============================================================
 INSERT INTO WALLET_TRANSACTION
     (investor_id, amount, transaction_type, transfer_category, transaction_date)
@@ -233,7 +222,7 @@ VALUES
 UPDATE INVESTOR SET wallet_balance = 122625.00 WHERE investor_id = 12;
 
 -- ============================================================
--- STEP 14 — INVESTOR 13  Simran Kaur
+-- INVESTOR 13  Simran Kaur
 -- ============================================================
 INSERT INTO WALLET_TRANSACTION
     (investor_id, amount, transaction_type, transfer_category, transaction_date)
@@ -247,7 +236,7 @@ VALUES
 UPDATE INVESTOR SET wallet_balance = 119450.00 WHERE investor_id = 13;
 
 -- ============================================================
--- STEP 15 — INVESTOR 14  Rohit Das
+-- INVESTOR 14  Rohit Das
 -- ============================================================
 INSERT INTO WALLET_TRANSACTION
     (investor_id, amount, transaction_type, transfer_category, transaction_date)
@@ -262,7 +251,7 @@ VALUES
 UPDATE INVESTOR SET wallet_balance = 144200.00 WHERE investor_id = 14;
 
 -- ============================================================
--- STEP 16 — INVESTOR 15  Pooja Nair
+-- INVESTOR 15  Pooja Nair
 -- ============================================================
 INSERT INTO WALLET_TRANSACTION
     (investor_id, amount, transaction_type, transfer_category, transaction_date)
@@ -276,12 +265,7 @@ VALUES
 
 UPDATE INVESTOR SET wallet_balance = 52950.00 WHERE investor_id = 15;
 
--- ============================================================
--- STEP 17 — SAFETY NET
--- Recalculate every balance from the transaction log in case
--- any floating-point rounding caused a 1-cent drift.
--- This is the authoritative final UPDATE.
--- ============================================================
+-- Recalculating every balance from the transaction log just in case
 UPDATE INVESTOR i
 JOIN (
     SELECT investor_id, ROUND(SUM(amount), 2) AS computed_balance
@@ -292,11 +276,8 @@ SET i.wallet_balance = totals.computed_balance;
 
 SET FOREIGN_KEY_CHECKS = 1;
 
--- ============================================================
--- VERIFICATION — run these immediately after to confirm
--- ============================================================
-
--- Check 1: stored balance matches computed balance for every investor
+-- VERIFICATION
+-- stored balance matches computed balance for every investor
 SELECT
     i.investor_id,
     i.wallet_balance                                         AS stored_balance,
@@ -307,7 +288,7 @@ LEFT JOIN WALLET_TRANSACTION wt ON wt.investor_id = i.investor_id
 GROUP BY i.investor_id, i.wallet_balance
 ORDER BY i.investor_id;
 
--- Check 2: transaction counts and type breakdown per investor
+-- transaction counts and type breakdown per investor
 SELECT
     i.investor_id,
     wt.transaction_type,
@@ -318,13 +299,13 @@ JOIN INVESTOR i ON i.investor_id = wt.investor_id
 GROUP BY i.investor_id, wt.transaction_type
 ORDER BY i.investor_id, wt.transaction_type;
 
--- Check 3: no investor should have a zero or negative balance
+-- no investor should have a zero or negative balance
 SELECT investor_id, wallet_balance
 FROM INVESTOR
 WHERE wallet_balance <= 0.00
 ORDER BY investor_id;
 
--- Check 4: total row counts
+-- total row counts
 SELECT
     COUNT(*)                                    AS total_transactions,
     COUNT(DISTINCT investor_id)                 AS investors_with_transactions,

@@ -1,9 +1,5 @@
---CREATE DATABASE IF NOT EXISTS fractional_ownership_db;
---USE fractional_ownership_db;
-
-CREATE DATABASE IF NOT EXISTS test;
-USE test;
-
+CREATE DATABASE IF NOT EXISTS fractional_ownership_db;
+USE fractional_ownership_db;
 
 SET FOREIGN_KEY_CHECKS = 0;
 
