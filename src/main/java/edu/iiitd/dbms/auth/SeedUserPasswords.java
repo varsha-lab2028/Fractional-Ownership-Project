@@ -1,4 +1,3 @@
--- Active: 1773397102560@@127.0.0.1@3306@fractional_ownership_db
 package edu.iiitd.dbms.auth;
 
 import edu.iiitd.dbms.config.ServerConnector;
@@ -8,13 +7,8 @@ import java.sql.PreparedStatement;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-/**
- * Run this ONCE after setting up the database.
- * It hashes all passwords and writes them directly into the user_auth table.
- */
 public class SeedUserPasswords {
     public static void main(String[] args) {
-        // investor email → raw password
         Map<String, String> investorPasswords = new LinkedHashMap<>();
         investorPasswords.put("aman@gmail.com",   "aman123");
         investorPasswords.put("riya@gmail.com",   "riya123");
