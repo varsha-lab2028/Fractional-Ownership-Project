@@ -405,7 +405,7 @@ public class HoldingsViewUI extends JFrame {
             navButtons[1].addActionListener(e -> { dispose(); new MarketViewUI_updated().setVisible(true); });
             navButtons[2].addActionListener(e -> { dispose(); new WalletViewUI().setVisible(true); });
             navButtons[3].addActionListener(e -> { dispose(); new HoldingsViewUI_updated().setVisible(true); });
-            navButtons[4].addActionListener(e -> { dispose(); new ProfileSettingsUI().setVisible(true); });
+            navButtons[4].addActionListener(e -> { dispose(); new ProfileSettingsUI().setVisible(true); });}
         }
 
         public void toggleSidebar() {

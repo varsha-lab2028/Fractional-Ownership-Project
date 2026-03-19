@@ -1,4 +1,4 @@
-USE test;
+USE fractional_ownership_db;
 
 -- Drop and recreate user_auth
 DROP TABLE IF EXISTS `user_auth`;
