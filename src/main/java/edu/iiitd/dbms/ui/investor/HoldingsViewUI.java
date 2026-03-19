@@ -35,7 +35,7 @@ public class HoldingsViewUI extends JFrame {
     private JLabel totalInvestedLabel;
     private JLabel totalPLLabel;
 
-    // Data Access (Assuming Investor ID 1 for now)
+    // Data Access
     private int currentInvestorId = LoginManager.getCurrentUser() != null ? LoginManager.getCurrentUser().getLinkedId() : 1;
     private final InvestorDAO investorDAO = new InvestorDAO();
     private final PortfolioDAO portfolioDAO = new PortfolioDAO();

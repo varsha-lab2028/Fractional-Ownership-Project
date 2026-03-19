@@ -6,16 +6,6 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.Properties;
 
-/**
- * Unified DB connection provider — reads from src/main/resources/db.properties.
- * All DAOs call ServerConnector.DBConnection() so changing db.properties
- * is the single place to reconfigure the database.
- *
- * db.properties keys:
- *   db.url      = jdbc:mysql://localhost:3306/fractional_ownership_db
- *   db.user     = root
- *   db.password = root
- */
 public class ServerConnector {
 
     private static final String DB_URL;
@@ -45,10 +35,7 @@ public class ServerConnector {
         }
     }
 
-    /**
-     * Opens and returns a new JDBC connection.
-     * Callers are responsible for closing it (use try-with-resources).
-     */
+    //Opens and returns a new JDBC connection.
     public static Connection DBConnection() throws SQLException {
         return DriverManager.getConnection(DB_URL, DB_USER, DB_PASS);
     }

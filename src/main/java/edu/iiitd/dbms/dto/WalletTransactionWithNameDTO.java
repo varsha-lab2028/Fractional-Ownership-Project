@@ -2,9 +2,7 @@ package edu.iiitd.dbms.dto;
 
 import java.sql.Timestamp;
 
-/**
- * Q18 — Wallet transaction row enriched with the investor's name.
- */
+/*Q18 — Wallet transaction row enriched with the investor's name.*/
 public class WalletTransactionWithNameDTO {
     private final int       transactionId;
     private final String    investorName;

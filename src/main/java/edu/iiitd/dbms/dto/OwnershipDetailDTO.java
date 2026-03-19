@@ -1,9 +1,7 @@
 package edu.iiitd.dbms.dto;
 
-/**
- * Q6 — Ownership row enriched with investor name and asset name.
- * Used for the admin "all holdings" view.
- */
+/*Q6 — Ownership row enriched with investor name and asset name.
+ Used for the admin "all holdings" view.*/
 public class OwnershipDetailDTO {
     private final int    investorId;
     private final String investorName;

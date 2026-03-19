@@ -1,6 +1,5 @@
 package edu.iiitd.dbms.config;
 
-//checking whether DB Connection works
 import edu.iiitd.dbms.config.DBConnection;
 import java.sql.Connection;
 

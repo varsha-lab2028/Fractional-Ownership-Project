@@ -1,9 +1,7 @@
 package edu.iiitd.dbms.dto;
 
-/**
- * Q2 — Asset rows joined with the admin who verified them.
- * admin fields are nullable (LEFT JOIN) for unverified assets.
- */
+/*Q2 — Asset rows joined with the admin who verified them.
+ * admin fields are nullable (LEFT JOIN) for unverified assets.*/
 public class AssetWithAdminDTO {
     private final int     assetId;
     private final String  assetName;
