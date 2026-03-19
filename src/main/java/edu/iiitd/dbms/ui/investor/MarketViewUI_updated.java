@@ -92,11 +92,11 @@ public class MarketViewUI_updated extends JFrame {
         JLabel roleLabel = new JLabel("INVESTOR");
         roleLabel.setForeground(textMuted);
         roleLabel.setFont(new Font("SansSerif", Font.BOLD, 10));
-        JLabel profileLabel = new JLabel(getDisplayName());
-        profileLabel.setForeground(textPrimary);
-        profileLabel.setFont(new Font("SansSerif", Font.BOLD, 14));
+        //JLabel profileLabel = new JLabel(getDisplayName());
+        //profileLabel.setForeground(textPrimary);
+        //profileLabel.setFont(new Font("SansSerif", Font.BOLD, 14));
         profilePanel.add(roleLabel);
-        profilePanel.add(profileLabel);
+        //profilePanel.add(profileLabel);
 
         topBar.add(searchContainer, BorderLayout.WEST);
         topBar.add(profilePanel, BorderLayout.EAST);
