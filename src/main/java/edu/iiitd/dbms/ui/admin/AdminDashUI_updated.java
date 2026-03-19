@@ -409,6 +409,8 @@ public class AdminDashUI_updated extends JFrame {
         JLabel revLabel = new JLabel("["+reviewStatus+"]"); revLabel.setForeground(textMuted); revLabel.setFont(new Font("SansSerif", Font.PLAIN, 11));
         JLabel statLabel = new JLabel(status); statLabel.setForeground(statusColor); statLabel.setFont(new Font("SansSerif", Font.BOLD, 14));
         JButton editBtn = new JButton("Manage"); editBtn.setBackground(borderSubtle); editBtn.setForeground(textPrimary); editBtn.setFocusPainted(false); editBtn.setFont(new Font("SansSerif", Font.PLAIN, 11));
+        editBtn.setCursor(new Cursor(Cursor.HAND_CURSOR)); editBtn.setBorderPainted(false); editBtn.setOpaque(true);
+        editBtn.addActionListener(e -> { dispose(); new AdminAssetsViewUI().setVisible(true); });
         rightCol.add(revLabel); rightCol.add(statLabel); rightCol.add(editBtn);
         row.add(leftCol, BorderLayout.WEST); row.add(rightCol, BorderLayout.EAST);
         return row;
@@ -443,10 +445,10 @@ public class AdminDashUI_updated extends JFrame {
                 navButtons[i].setBounds(20, (i==navItems.length-1)?650:100+(i*50), 200, 40);
                 add(navButtons[i]);
             }
-            navButtons[0].addActionListener(e -> { dispose(); new AdminDashUI().setVisible(true); });
-            navButtons[1].addActionListener(e -> { dispose(); new AdminAssetsViewUI().setVisible(true); }); // Manage IPOs
-            navButtons[2].addActionListener(e -> { dispose(); new Investors_AdminListViewUI().setVisible(true); });
-            navButtons[3].addActionListener(e -> { dispose(); new AdminAssetsViewUI().setVisible(true); }); // Asset Verification
+            navButtons[0].addActionListener(e -> { AdminDashUI_updated.this.dispose(); new AdminDashUI().setVisible(true); });
+            navButtons[1].addActionListener(e -> { AdminDashUI_updated.this.dispose(); new AdminAssetsViewUI().setVisible(true); }); // Manage IPOs
+            navButtons[2].addActionListener(e -> { AdminDashUI_updated.this.dispose(); new Investors_AdminListViewUI().setVisible(true); });
+            navButtons[3].addActionListener(e -> { AdminDashUI_updated.this.dispose(); new AdminAssetsViewUI().setVisible(true); }); // Asset Verification
             navButtons[4].addActionListener(e -> {
                 int c2 = javax.swing.JOptionPane.showConfirmDialog(AdminDashUI_updated.this, "Sign out?", "Sign Out", javax.swing.JOptionPane.YES_NO_OPTION);
                 if (c2 == javax.swing.JOptionPane.YES_OPTION) { edu.iiitd.dbms.auth.LoginManager.logout(); dispose(); new edu.iiitd.dbms.ui.login.logintesterUI().setVisible(true); }

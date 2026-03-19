@@ -419,10 +419,10 @@ public class AdminAssetsViewUI extends JFrame {
                 navButtons[i].setBounds(20, yPos, 200, 40);
                 add(navButtons[i]);
             }
-            navButtons[0].addActionListener(e -> { dispose(); new AdminDashUI().setVisible(true); });
-            navButtons[1].addActionListener(e -> { dispose(); new AdminAssetsViewUI().setVisible(true); });
-            navButtons[2].addActionListener(e -> { dispose(); new Investors_AdminListViewUI().setVisible(true); });
-            navButtons[3].addActionListener(e -> { dispose(); new AdminAssetsViewUI().setVisible(true); });
+            navButtons[0].addActionListener(e -> { AdminAssetsViewUI.this.dispose(); new AdminDashUI().setVisible(true); });
+            navButtons[1].addActionListener(e -> { AdminAssetsViewUI.this.dispose(); new AdminAssetsViewUI().setVisible(true); });
+            navButtons[2].addActionListener(e -> { AdminAssetsViewUI.this.dispose(); new Investors_AdminListViewUI().setVisible(true); });
+            navButtons[3].addActionListener(e -> { AdminAssetsViewUI.this.dispose(); new AdminAssetsViewUI().setVisible(true); });
             navButtons[4].addActionListener(e -> {
                 int c = javax.swing.JOptionPane.showConfirmDialog(null, "Logout?", "Settings", javax.swing.JOptionPane.YES_NO_OPTION);
                 if (c == javax.swing.JOptionPane.YES_OPTION) { edu.iiitd.dbms.auth.LoginManager.logout(); dispose(); new edu.iiitd.dbms.ui.login.logintesterUI().setVisible(true); }

@@ -482,11 +482,11 @@ public class TradeHistoryUI extends JFrame {
                 add(navButtons[i]);
             }
 
-            navButtons[0].addActionListener(e -> { dispose(); new InvestorDashUI().setVisible(true); });
-            navButtons[1].addActionListener(e -> { dispose(); new MarketViewUI_updated().setVisible(true); });
-            navButtons[2].addActionListener(e -> { dispose(); new WalletViewUI().setVisible(true); });
-            navButtons[3].addActionListener(e -> { dispose(); new HoldingsViewUI_updated().setVisible(true); });
-            navButtons[4].addActionListener(e -> { dispose(); new ProfileSettingsUI().setVisible(true); });
+            navButtons[0].addActionListener(e -> { TradeHistoryUI.this.dispose(); new InvestorDashUI().setVisible(true); });
+            navButtons[1].addActionListener(e -> { TradeHistoryUI.this.dispose(); new MarketViewUI_updated().setVisible(true); });
+            navButtons[2].addActionListener(e -> { TradeHistoryUI.this.dispose(); new WalletViewUI().setVisible(true); });
+            navButtons[3].addActionListener(e -> { TradeHistoryUI.this.dispose(); new HoldingsViewUI_updated().setVisible(true); });
+            navButtons[4].addActionListener(e -> { TradeHistoryUI.this.dispose(); new ProfileSettingsUI().setVisible(true); });
         }
 
         public void toggleSidebar() {

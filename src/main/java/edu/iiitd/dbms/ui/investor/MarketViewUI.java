@@ -348,11 +348,11 @@ public class MarketViewUI extends JFrame {
                 navButtons[i].setBounds(20, yPos, 200, 40);
                 add(navButtons[i]);
                 // Add inside GrainySidebar constructor, after the for-loop that creates navButtons
-            navButtons[0].addActionListener(e -> { dispose(); new InvestorDashUI().setVisible(true); });
-            navButtons[1].addActionListener(e -> { dispose(); new MarketViewUI().setVisible(true); });
-            navButtons[2].addActionListener(e -> { dispose(); new WalletViewUI().setVisible(true); });
-            navButtons[3].addActionListener(e -> { dispose(); new HoldingsViewUI_updated().setVisible(true); });
-            navButtons[4].addActionListener(e -> { dispose(); new ProfileSettingsUI().setVisible(true); });
+            navButtons[0].addActionListener(e -> { MarketViewUI.this.dispose(); new InvestorDashUI().setVisible(true); });
+            navButtons[1].addActionListener(e -> { MarketViewUI.this.dispose(); new MarketViewUI().setVisible(true); });
+            navButtons[2].addActionListener(e -> { MarketViewUI.this.dispose(); new WalletViewUI().setVisible(true); });
+            navButtons[3].addActionListener(e -> { MarketViewUI.this.dispose(); new HoldingsViewUI_updated().setVisible(true); });
+            navButtons[4].addActionListener(e -> { MarketViewUI.this.dispose(); new ProfileSettingsUI().setVisible(true); });
                         }
         }
 
