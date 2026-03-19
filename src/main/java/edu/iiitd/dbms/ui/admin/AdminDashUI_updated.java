@@ -443,10 +443,10 @@ public class AdminDashUI_updated extends JFrame {
                 navButtons[i].setBounds(20, (i==navItems.length-1)?650:100+(i*50), 200, 40);
                 add(navButtons[i]);
             }
-            navButtons[0].addActionListener(e -> { dispose(); new AdminDashUI_updated().setVisible(true); });
-            navButtons[1].addActionListener(e -> { dispose(); new AdminAssetsViewUI().setVisible(true); });
-            navButtons[2].addActionListener(e -> { dispose(); new InvestorsListViewUI().setVisible(true); });
-            navButtons[3].addActionListener(e -> { dispose(); new AdminAssetsViewUI().setVisible(true); });
+            navButtons[0].addActionListener(e -> { dispose(); new AdminDashUI().setVisible(true); });
+            navButtons[1].addActionListener(e -> { dispose(); new AdminAssetsViewUI().setVisible(true); }); // Manage IPOs
+            navButtons[2].addActionListener(e -> { dispose(); new Investors_AdminListViewUI().setVisible(true); });
+            navButtons[3].addActionListener(e -> { dispose(); new AdminAssetsViewUI().setVisible(true); }); // Asset Verification
             navButtons[4].addActionListener(e -> {
                 int c2 = javax.swing.JOptionPane.showConfirmDialog(AdminDashUI_updated.this, "Sign out?", "Sign Out", javax.swing.JOptionPane.YES_NO_OPTION);
                 if (c2 == javax.swing.JOptionPane.YES_OPTION) { edu.iiitd.dbms.auth.LoginManager.logout(); dispose(); new edu.iiitd.dbms.ui.login.logintesterUI().setVisible(true); }

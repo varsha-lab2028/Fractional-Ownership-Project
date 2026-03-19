@@ -318,6 +318,8 @@ public class logintesterUI extends JFrame {
                     JOptionPane.showMessageDialog(right, "Selected role does not match this account.", "Login Error", JOptionPane.ERROR_MESSAGE);
                     return;
                 }
+                // Store session so all UIs have access to the logged-in user
+                edu.iiitd.dbms.auth.LoginManager.login(user);
                 JOptionPane.showMessageDialog(right, "Welcome, " + user.getName() + "!", "Success", JOptionPane.INFORMATION_MESSAGE);
                 dispose();
                 if (user.getUserType().equalsIgnoreCase("ADMIN")) new AdminDashUI().setVisible(true);

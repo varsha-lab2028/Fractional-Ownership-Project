@@ -319,14 +319,14 @@ public class ProfileSettingsUI extends JFrame {
                 int yPos = (i == navItems.length - 1) ? 650 : 100 + (i * 50);
                 navButtons[i].setBounds(20, yPos, 200, 40);
                 add(navButtons[i]);
-            }
-        }
+            
+        
 
             navButtons[0].addActionListener(e -> { ProfileSettingsUI.this.dispose(); new edu.iiitd.dbms.ui.investor.InvestorDashUI().setVisible(true); });
             navButtons[1].addActionListener(e -> { ProfileSettingsUI.this.dispose(); new edu.iiitd.dbms.ui.investor.MarketViewUI_updated().setVisible(true); });
             navButtons[2].addActionListener(e -> { ProfileSettingsUI.this.dispose(); new edu.iiitd.dbms.ui.investor.WalletViewUI().setVisible(true); });
             navButtons[3].addActionListener(e -> { ProfileSettingsUI.this.dispose(); new edu.iiitd.dbms.ui.investor.HoldingsViewUI_updated().setVisible(true); });
-            navButtons[4].addActionListener(e -> { ProfileSettingsUI.this.dispose(); new edu.iiitd.dbms.ui.investor.ProfileSettingsUI().setVisible(true); });
+            navButtons[4].addActionListener(e -> { ProfileSettingsUI.this.dispose(); new edu.iiitd.dbms.ui.investor.ProfileSettingsUI().setVisible(true); });}}
         public void toggleSidebar() {
             if (animator != null && animator.isRunning()) return;
             int targetWidth = isExpanded ? 0 : EXPANDED_WIDTH;

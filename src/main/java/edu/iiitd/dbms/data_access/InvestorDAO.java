@@ -9,7 +9,7 @@ import java.util.List;
 
 public class InvestorDAO {
     private static final String SELECT =
-        "SELECT investor_id, name, email, wallet_balance FROM investor";
+        "SELECT investor_id, investor_name AS name, email, wallet_balance FROM investor";
 
     private Investor map(ResultSet rs) throws SQLException {
         return new Investor(
@@ -25,7 +25,7 @@ public class InvestorDAO {
     //register investor
     public boolean registerInvestor(String name, String email, String phone) throws SQLException {
         String sqlQuery = """
-        INSERT INTO investor (name, email, phone)
+        INSERT INTO investor (investor_name, email, phone)
         VALUES (?, ?, ?)""";
 
         try (Connection conn = ServerConnector.DBConnection();
@@ -84,7 +84,7 @@ public class InvestorDAO {
     public boolean updateInvestorProfile(int id, String name, String phone) throws SQLException {
         // Only update name since phone doesn't exist in live DB
         try (Connection c = ServerConnector.DBConnection();
-             PreparedStatement ps = c.prepareStatement("UPDATE investor SET name = ? WHERE investor_id = ?")) {
+             PreparedStatement ps = c.prepareStatement("UPDATE investor SET investor_name = ? WHERE investor_id = ?")) {
             ps.setString(1, name); ps.setInt(2, id);
             return ps.executeUpdate() > 0;
         }

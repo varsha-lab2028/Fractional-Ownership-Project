@@ -174,12 +174,12 @@ public class BuyOrderUI extends JFrame {
             public void keyReleased(java.awt.event.KeyEvent e) { updateTotal(); }
         });
 
-        // Price
+        // Price (auto-filled from IPO, read-only)
         priceField = createInputField();
         priceField.setText("0.00");
-        priceField.addKeyListener(new java.awt.event.KeyAdapter() {
-            public void keyReleased(java.awt.event.KeyEvent e) { updateTotal(); }
-        });
+        priceField.setEditable(false);
+        priceField.setBackground(new Color(30, 30, 30));
+        priceField.setToolTipText("Price is fixed by the IPO — not editable");
 
         // Payment source (NEW)
         JPanel paymentRow = new JPanel(new BorderLayout());
@@ -327,7 +327,14 @@ public class BuyOrderUI extends JFrame {
         int idx = assetCombo.getSelectedIndex();
         if (idx >= 0 && verifiedAssets != null && idx < verifiedAssets.size()) {
             VerifiedAssetRow sel = verifiedAssets.get(idx);
-            assetPriceHintLabel.setText("Category: " + sel.getCategory() + "  |  " + sel.getStorageLocation());
+            // Auto-fill price from IPO — buyer cannot override it
+            double ipoPrice = sel.getPricePerUnit();
+            priceField.setText(ipoPrice > 0 ? String.format("%.2f", ipoPrice) : "0.00");
+            String capacityInfo = sel.getTotalUnits() > 0
+                ? String.format("  |  IPO Capacity: %,d units", sel.getTotalUnits()) : "";
+            assetPriceHintLabel.setText("Category: " + sel.getCategory()
+                + "  |  IPO Price: $" + String.format("%,.2f", ipoPrice) + capacityInfo);
+            updateTotal();
         }
     }
 
@@ -348,15 +355,31 @@ public class BuyOrderUI extends JFrame {
                 JOptionPane.showMessageDialog(this, "Please select an asset.", "Validation Error", JOptionPane.WARNING_MESSAGE);
                 return;
             }
-            int assetId  = verifiedAssets.get(idx).getAssetId();
+            VerifiedAssetRow selectedAsset = verifiedAssets.get(idx);
+            int assetId  = selectedAsset.getAssetId();
             int units    = Integer.parseInt(unitsField.getText().trim());
-            double price = Double.parseDouble(priceField.getText().trim());
+            double price = selectedAsset.getPricePerUnit(); // always use IPO price — not user input
             if (units <= 0) { JOptionPane.showMessageDialog(this, "Units must be > 0.", "Error", JOptionPane.WARNING_MESSAGE); return; }
-            if (price <= 0) { JOptionPane.showMessageDialog(this, "Price must be > 0.", "Error", JOptionPane.WARNING_MESSAGE); return; }
+            if (price <= 0) { JOptionPane.showMessageDialog(this, "This asset has no IPO price set.", "Error", JOptionPane.WARNING_MESSAGE); return; }
 
-            double total          = units * price;
-            boolean useWallet     = paymentSourceCombo.getSelectedIndex() == 0;
-            String paymentLabel   = useWallet ? "Wallet Balance" : "Bank Transfer";
+            // IPO capacity enforcement
+            if (selectedAsset.getTotalUnits() > 0) {
+                List<TradeOrder> allOrders = tradeOrderDAO.listOrders();
+                int unitsSold = allOrders.stream()
+                    .filter(o -> o.getAssetId() == assetId && "BUY".equalsIgnoreCase(o.getOrderType()))
+                    .mapToInt(TradeOrder::getUnits).sum();
+                int remaining = selectedAsset.getTotalUnits() - unitsSold;
+                if (units > remaining) {
+                    JOptionPane.showMessageDialog(this,
+                        String.format("IPO capacity exceeded.\nRequested: %d units  |  Remaining: %d units", units, remaining),
+                        "Capacity Limit", JOptionPane.WARNING_MESSAGE);
+                    return;
+                }
+            }
+
+            double total        = units * price;
+            boolean useWallet   = paymentSourceCombo.getSelectedIndex() == 0;
+            String paymentLabel = useWallet ? "Wallet Balance" : "Bank Transfer";
 
             if (useWallet) {
                 double balance = investorDAO.getWalletBalance(currentInvestorId);
@@ -366,11 +389,8 @@ public class BuyOrderUI extends JFrame {
                         "Insufficient Funds", JOptionPane.WARNING_MESSAGE);
                     return;
                 }
-                // Deduct from wallet
                 walletDAO.deductForAssetPurchase(currentInvestorId, total, "Buy Order – Asset " + assetId);
             } else {
-                // Bank transfer — record as a DEPOSIT then immediately as a purchase
-                // This keeps the wallet balance consistent: bank funds come in, then go out for the asset
                 walletDAO.deposit(currentInvestorId, total, "Bank Transfer – Buy Order");
                 walletDAO.deductForAssetPurchase(currentInvestorId, total, "Buy Order – Asset " + assetId + " (Bank Transfer)");
             }
@@ -382,7 +402,7 @@ public class BuyOrderUI extends JFrame {
             tradeOrderDAO.insertOrder(order);
 
             JOptionPane.showMessageDialog(this,
-                String.format("✓ Buy order #%d placed!\n%d units of Asset %d at $%.2f each.\nPayment: %s", newId, units, assetId, price, paymentLabel),
+                String.format("✓ Buy order #%d placed!\n%d units of Asset %d at $%.2f each.\nTotal: $%,.2f  |  Payment: %s", newId, units, assetId, price, total, paymentLabel),
                 "Order Placed", JOptionPane.INFORMATION_MESSAGE);
 
             // Reset
@@ -390,7 +410,7 @@ public class BuyOrderUI extends JFrame {
             loadData();
 
         } catch (NumberFormatException ex) {
-            JOptionPane.showMessageDialog(this, "Please enter valid numbers for units and price.", "Input Error", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Please enter a valid number of units.", "Input Error", JOptionPane.ERROR_MESSAGE);
         } catch (Exception ex) {
             ex.printStackTrace();
             JOptionPane.showMessageDialog(this, "Failed to place order: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);

@@ -2,7 +2,10 @@ package edu.iiitd.dbms.ui.login;
 
 //connecting the auth backend to loginUI
 import edu.iiitd.dbms.auth.AuthenticationService;
+import edu.iiitd.dbms.config.SessionManager;
 import edu.iiitd.dbms.domain.AuthClass;
+import edu.iiitd.dbms.ui.admin.AdminDashUI;
+import edu.iiitd.dbms.ui.investor.InvestorDashUI;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -161,12 +164,17 @@ public class loginUI extends JFrame {
 
                     dispose();
 
+                    // Store session so all UIs use the real logged-in user's ID
+                    SessionManager.login(
+                        loggedInUser.getLinkedId(),
+                        loggedInUser.getName(),
+                        loggedInUser.getUserType()
+                    );
+
                     if (loggedInUser.getUserType().equalsIgnoreCase("ADMIN")) {
-                        System.out.println("Routing to Admin Dashboard...");
-                        // new AdminDashboardUI().setVisible(true);
+                        new AdminDashUI().setVisible(true);
                     } else {
-                        System.out.println("Routing to Investor Dashboard...");
-                        // new InvestorDashboardUI().setVisible(true);
+                        new InvestorDashUI().setVisible(true);
                     }
 
                 } catch (Exception ex) {

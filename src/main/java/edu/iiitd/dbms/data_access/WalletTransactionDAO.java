@@ -127,7 +127,7 @@ public class WalletTransactionDAO {
     // Q18 — all transactions with investor name
     public List<WalletTransactionWithNameDTO> getAllTransactionsWithInvestorName() throws SQLException {
         String sql = """
-            SELECT wt.transaction_id, i.name AS investor_name, wt.amount,
+            SELECT wt.transaction_id, i.investor_name AS investor_name, wt.amount,
                    wt.transaction_type, wt.transfer_category, wt.transaction_date
             FROM WALLET_TRANSACTION wt
             JOIN INVESTOR i ON i.investor_id = wt.investor_id
@@ -153,11 +153,11 @@ public class WalletTransactionDAO {
     // Q19 — total per investor per type
     public List<WalletSummaryDTO> getTransactionSummaryByInvestorAndType() throws SQLException {
         String sql = """
-            SELECT i.name AS investor_name, wt.transaction_type, SUM(wt.amount) AS total_amount
+            SELECT i.investor_name AS investor_name, wt.transaction_type, SUM(wt.amount) AS total_amount
             FROM WALLET_TRANSACTION wt
             JOIN INVESTOR i ON i.investor_id = wt.investor_id
-            GROUP BY i.investor_id, i.name, wt.transaction_type
-            ORDER BY i.name, wt.transaction_type
+            GROUP BY i.investor_id, i.investor_name, wt.transaction_type
+            ORDER BY i.investor_name, wt.transaction_type
             """;
         List<WalletSummaryDTO> list = new ArrayList<>();
         try (Connection c = ServerConnector.DBConnection();

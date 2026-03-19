@@ -73,7 +73,7 @@ public class IpoDAO {
     // Q3 — all market rows
     public List<MarketViewRow> getAllMarketRows() throws SQLException {
         String sql = """
-            SELECT i.ipo_id, i.asset_id, a.name AS asset_name, a.category,
+            SELECT i.ipo_id, i.asset_id, a.asset_name AS asset_name, a.category,
                    i.total_units, i.price_per_unit, i.ipo_start_date, i.ipo_end_date, i.lock_in_period
             FROM IPO i JOIN ASSET a ON a.asset_id = i.asset_id
             ORDER BY i.ipo_id
@@ -90,7 +90,7 @@ public class IpoDAO {
     // Q5 — market rows by reference date
     public List<MarketViewRow> listIposByReferenceDate(LocalDate referenceDate) throws SQLException {
         String sql = """
-            SELECT i.ipo_id, i.asset_id, a.name AS asset_name, a.category,
+            SELECT i.ipo_id, i.asset_id, a.asset_name AS asset_name, a.category,
                    i.total_units, i.price_per_unit, i.ipo_start_date, i.ipo_end_date, i.lock_in_period
             FROM IPO i JOIN ASSET a ON a.asset_id = i.asset_id
             WHERE DATE(?) BETWEEN DATE(i.ipo_start_date) AND DATE(i.ipo_end_date)
@@ -107,10 +107,10 @@ public class IpoDAO {
 
     public List<MarketViewRow> searchMarketRowsByAssetName(String keyword) throws SQLException {
         String sql = """
-            SELECT i.ipo_id, i.asset_id, a.name AS asset_name, a.category,
+            SELECT i.ipo_id, i.asset_id, a.asset_name AS asset_name, a.category,
                    i.total_units, i.price_per_unit, i.ipo_start_date, i.ipo_end_date, i.lock_in_period
             FROM IPO i JOIN ASSET a ON a.asset_id = i.asset_id
-            WHERE LOWER(a.name) LIKE LOWER(?)
+            WHERE LOWER(a.asset_name) LIKE LOWER(?)
             ORDER BY i.ipo_id
             """;
         List<MarketViewRow> list = new ArrayList<>();
@@ -124,7 +124,7 @@ public class IpoDAO {
 
     public List<MarketViewRow> getMarketRowsByCategory(String category) throws SQLException {
         String sql = """
-            SELECT i.ipo_id, i.asset_id, a.name AS asset_name, a.category,
+            SELECT i.ipo_id, i.asset_id, a.asset_name AS asset_name, a.category,
                    i.total_units, i.price_per_unit, i.ipo_start_date, i.ipo_end_date, i.lock_in_period
             FROM IPO i JOIN ASSET a ON a.asset_id = i.asset_id
             WHERE LOWER(a.category) = LOWER(?)
