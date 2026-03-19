@@ -14,14 +14,13 @@ import javax.swing.*;
  *       INVESTOR → InvestorDashUI  (with investor's own data)
  *       ADMIN    → AdminDashUI_updated  (platform overview)
  *
- * Credentials (run SeedUserPasswords.java first if hashes are missing):
+ * Credentials:
  *   Investors: aman@gmail.com / aman123, riya@gmail.com / riya123, ...
  *   Admins:    ananya@platform.com / ananya123, raghav@platform.com / raghav123, ...
  */
 public class Main {
 
     public static void main(String[] args) {
-        // Use system look-and-feel for better cross-platform rendering
         try {
             UIManager.setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName());
         } catch (Exception ignored) {}
