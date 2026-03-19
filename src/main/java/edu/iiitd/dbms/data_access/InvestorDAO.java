@@ -8,9 +8,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class InvestorDAO {
-
-    // Live DB confirmed columns: investor_id, name, email, wallet_balance
-    // phone and registration_date do NOT exist in the live TiDB schema
     private static final String SELECT =
         "SELECT investor_id, name, email, wallet_balance FROM investor";
 
@@ -19,10 +16,41 @@ public class InvestorDAO {
             rs.getInt("investor_id"),
             rs.getString("name"),
             rs.getString("email"),
-            null,   // phone — not in live DB
-            null,   // registration_date — not in live DB
+            null,
+            null,
             rs.getDouble("wallet_balance")
         );
+    }
+
+    //register investor
+    public boolean registerInvestor(String name, String email, String phone) throws SQLException {
+        String sqlQuery = """
+        INSERT INTO investor (name, email, phone)
+        VALUES (?, ?, ?)""";
+
+        try (Connection conn = ServerConnector.DBConnection();
+             PreparedStatement ps = conn.prepareStatement(sqlQuery)) {
+            ps.setString(1, name);
+            ps.setString(2, email);
+            ps.setString(3, phone);
+
+            int rowsAffected = ps.executeUpdate();
+            return rowsAffected > 0;
+        }
+    }
+
+    //delete investor
+    public boolean deleteInvestor(int investorId) throws SQLException {
+        String sqlQuery = "DELETE FROM investor WHERE investor_id = ?";
+        try (Connection conn = ServerConnector.DBConnection();
+             PreparedStatement ps = conn.prepareStatement(sqlQuery)) {
+
+            ps.setInt(1, investorId);
+
+            int rowsAffected = ps.executeUpdate();
+
+            return rowsAffected > 0;
+        }
     }
 
     public List<Investor> listInvestors() throws SQLException {
