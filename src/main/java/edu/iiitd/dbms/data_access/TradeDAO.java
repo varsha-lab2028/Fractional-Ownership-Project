@@ -77,8 +77,8 @@ public class TradeDAO {
     public List<TradeWithPartiesDTO> getTradesWithParties() throws SQLException {
         String sql = """
             SELECT t.trade_id, t.trade_date, t.trade_price, t.trade_units, bo.asset_id,
-                   bi.investor_id AS buyer_id,  bi.name AS buyer_name,
-                   si.investor_id AS seller_id, si.name AS seller_name
+                   bi.investor_id AS buyer_id,  bi.investor_name AS buyer_name,
+                   si.investor_id AS seller_id, si.investor_name AS seller_name
             FROM TRADE t
             JOIN TRADE_ORDER bo ON t.buy_order_id  = bo.order_id
             JOIN TRADE_ORDER so ON t.sell_order_id = so.order_id

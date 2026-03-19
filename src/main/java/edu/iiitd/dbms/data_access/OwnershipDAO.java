@@ -65,7 +65,7 @@ public class OwnershipDAO {
 
     // Q6 — ownership details with investor name and asset name
     public List<OwnershipDetailDTO> getAllOwnershipDetails() throws SQLException {
-        String sql = "SELECT o.investor_id, inv.name AS investor_name, a.name AS asset_name, o.units_held FROM OWNERSHIP o JOIN INVESTOR inv ON inv.investor_id = o.investor_id JOIN ASSET a ON a.asset_id = o.asset_id ORDER BY o.investor_id, a.asset_id";
+        String sql = "SELECT o.investor_id, inv.investor_name AS investor_name, a.name AS asset_name, o.units_held FROM OWNERSHIP o JOIN INVESTOR inv ON inv.investor_id = o.investor_id JOIN ASSET a ON a.asset_id = o.asset_id ORDER BY o.investor_id, a.asset_id";
         List<OwnershipDetailDTO> list = new ArrayList<>();
         try (Connection c = ServerConnector.DBConnection();
              PreparedStatement ps = c.prepareStatement(sql);

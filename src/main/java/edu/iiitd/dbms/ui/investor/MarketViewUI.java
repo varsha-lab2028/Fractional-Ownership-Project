@@ -351,7 +351,7 @@ public class MarketViewUI extends JFrame {
             navButtons[0].addActionListener(e -> { dispose(); new InvestorDashUI().setVisible(true); });
             navButtons[1].addActionListener(e -> { dispose(); new MarketViewUI().setVisible(true); });
             navButtons[2].addActionListener(e -> { dispose(); new WalletViewUI().setVisible(true); });
-            navButtons[3].addActionListener(e -> { dispose(); new HoldingsViewUI().setVisible(true); });
+            navButtons[3].addActionListener(e -> { dispose(); new HoldingsViewUI_updated().setVisible(true); });
             navButtons[4].addActionListener(e -> { dispose(); new ProfileSettingsUI().setVisible(true); });
                         }
         }
