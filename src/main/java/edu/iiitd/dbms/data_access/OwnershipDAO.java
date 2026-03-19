@@ -23,6 +23,10 @@ public class OwnershipDAO {
             }
         }
     }
+    public void updateUnits(int investorId, int assetId, int newUnits) throws SQLException {
+    try (Connection c = ServerConnector.DBConnection()) { updateUnits(c, investorId, assetId, newUnits); }
+}
+
 
     public void updateUnits(Connection c, int investorId, int assetId, int newUnits) throws SQLException {
         try (PreparedStatement ps = c.prepareStatement("INSERT INTO ownership(investor_id, asset_id, units_held) VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE units_held = VALUES(units_held)")) {

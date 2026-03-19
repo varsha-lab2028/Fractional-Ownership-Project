@@ -1,5 +1,8 @@
 package edu.iiitd.dbms.ui.investor;
 
+import edu.iiitd.dbms.data_access.OwnershipDAO;
+import edu.iiitd.dbms.domain.Ownership;
+
 import edu.iiitd.dbms.auth.LoginManager;
 import edu.iiitd.dbms.data_access.AssetDAO;
 import edu.iiitd.dbms.data_access.InvestorDAO;
@@ -50,6 +53,7 @@ public class BuyOrderUI extends JFrame {
     private final InvestorDAO investorDAO        = new InvestorDAO();
     private final TradeOrderDAO tradeOrderDAO    = new TradeOrderDAO();
     private final WalletTransactionDAO walletDAO = new WalletTransactionDAO();
+    private final OwnershipDAO ownershipDAO = new OwnershipDAO();
     private List<VerifiedAssetRow> verifiedAssets;
 
     private String getDisplayName() {
@@ -347,7 +351,7 @@ public class BuyOrderUI extends JFrame {
             estimatedTotalLabel.setText("$—");
         }
     }
-
+    
     private void handleSubmit() {
         try {
             int idx = assetCombo.getSelectedIndex();
@@ -400,6 +404,11 @@ public class BuyOrderUI extends JFrame {
             int newId = existing.stream().mapToInt(TradeOrder::getOrderId).max().orElse(0) + 1;
             TradeOrder order = new TradeOrder(newId, currentInvestorId, assetId, "BUY", price, units, LocalDate.now(), "OPEN");
             tradeOrderDAO.insertOrder(order);
+
+            // Grant ownership immediately (IPO purchase — no matching seller needed)
+            Ownership existing_ownership = ownershipDAO.findOwnership(currentInvestorId, assetId);
+            int currentUnits = (existing_ownership != null) ? existing_ownership.getUnitsHeld() : 0;
+            ownershipDAO.updateUnits(currentInvestorId, assetId, currentUnits + units);
 
             JOptionPane.showMessageDialog(this,
                 String.format("✓ Buy order #%d placed!\n%d units of Asset %d at $%.2f each.\nTotal: $%,.2f  |  Payment: %s", newId, units, assetId, price, total, paymentLabel),
