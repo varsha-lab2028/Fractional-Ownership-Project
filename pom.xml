@@ -16,10 +16,17 @@
 
     <dependencies>
         <!-- MySQL JDBC Driver -->
-        <dependency>
+        <!-- <dependency>
             <groupId>com.mysql</groupId>
             <artifactId>mysql-connector-j</artifactId>
             <version>8.3.0</version>
+        </dependency>-->
+
+        <!--Connecting to Supabase -->
+        <dependency>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+            <version>42.7.3</version>
         </dependency>
 
         <dependency>
