@@ -13,13 +13,6 @@
 
 USE fractional_ownership_db;
 
--- ----------------------------------------------------------------
--- PREREQUISITE: Add units_sold column to IPO if not already there
--- ----------------------------------------------------------------
-ALTER TABLE IPO
-    ADD COLUMN IF NOT EXISTS units_sold INT NOT NULL DEFAULT 0;
-
-
 -- ================================================================
 -- TRANSACTION 1: IPO SUBSCRIPTION
 -- ================================================================

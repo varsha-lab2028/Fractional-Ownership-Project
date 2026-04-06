@@ -427,10 +427,6 @@ BEGIN
 END$$
 DELIMITER ;
 
--- ------------------------------------------------------------
--- PROCEDURE 4: sp_execute_trade
--- ------------------------------------------------------------
-
 
 -- ------------------------------------------------------------
 -- PROCEDURE 5: sp_get_investor_summary
@@ -747,7 +743,6 @@ proc_main: BEGIN
     );
 END$$
 DELIMITER ;
-
 
 
 -- Confirm all procedures installed:

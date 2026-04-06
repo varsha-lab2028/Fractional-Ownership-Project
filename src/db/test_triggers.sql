@@ -36,21 +36,21 @@ VALUES
 -- TEST 4: Ownership insert logging (after insert trigger)
 -- Insert ownership
 INSERT INTO OWNERSHIP (investor_id, asset_id, units_held)
-VALUES (1, 101, 10);
+VALUES (1, 11, 10);
 -- Check history
 SELECT *
 FROM OWNERSHIP_HISTORY
-WHERE investor_id = 1 AND asset_id = 101;
+WHERE investor_id = 1 AND asset_id = 11;
 
 --TEST 5 : Ownership update logging (after update trigger)
 -- Update ownership
 UPDATE OWNERSHIP
 SET units_held = 15
-WHERE investor_id = 1 AND asset_id = 101;
+WHERE investor_id = 1 AND asset_id = 11;
 -- Check history again
 SELECT *
 FROM OWNERSHIP_HISTORY
-WHERE investor_id = 1 AND asset_id = 101;
+WHERE investor_id = 1 AND asset_id = 11;
 
 -- TEST 6 : Trade Trigger (order status update)
 -- Insert trade
