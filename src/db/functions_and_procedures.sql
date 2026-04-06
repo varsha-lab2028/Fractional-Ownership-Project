@@ -214,16 +214,14 @@ BEGIN
     SELECT
         o.investor_id,
         a.asset_id,
-        a.asset_name                              AS asset_name,
+        a.asset_name,
         a.category,
         o.units_held,
-        i.price_per_unit                    AS ipo_price_per_unit,
+        i.price_per_unit AS ipo_price_per_unit,
         fn_get_latest_valuation(a.asset_id) AS latest_valuation,
         ROUND(
             (o.units_held * 1.0 / i.total_units)
-            * fn_get_latest_valuation(a.asset_id),
-            2
-        )                                   AS current_holding_value
+            * fn_get_latest_valuation(a.asset_id),2) AS current_holding_value
     FROM  OWNERSHIP o
     JOIN  ASSET     a ON a.asset_id = o.asset_id
     JOIN  IPO       i ON i.asset_id = o.asset_id
@@ -353,41 +351,42 @@ BEGIN
         ROLLBACK;
     END;
 
-    -- Load buy order
-    SELECT investor_id, asset_id, units, status
-    INTO v_buy_investor_id, v_buy_asset_id, v_buy_units, v_buy_status
-    FROM TRADE_ORDER WHERE order_id = p_buy_order_id;
+    START TRANSACTION;
+        -- Load buy order WITH lock — no other session can modify this row
+        SELECT investor_id, asset_id, units, status
+        INTO v_buy_investor_id, v_buy_asset_id, v_buy_units, v_buy_status
+        FROM TRADE_ORDER WHERE order_id = p_buy_order_id
+        FOR UPDATE;
 
-    -- Load sell order
-    SELECT investor_id, asset_id, units, price, status
-    INTO v_sell_investor_id, v_sell_asset_id, v_sell_units, v_sell_price, v_sell_status
-    FROM TRADE_ORDER WHERE order_id = p_sell_order_id;
+        -- Load sell order WITH lock — no other session can modify this row
+        SELECT investor_id, asset_id, units, price, status
+        INTO v_sell_investor_id, v_sell_asset_id, v_sell_units, v_sell_price, v_sell_status
+        FROM TRADE_ORDER WHERE order_id = p_sell_order_id
+        FOR UPDATE;
 
-    -- Validate
-    IF v_buy_investor_id IS NULL THEN
-        SET v_valid = 0;
-        SET p_message = CONCAT('Buy order #', p_buy_order_id, ' not found.');
-    ELSEIF v_sell_investor_id IS NULL THEN
-        SET v_valid = 0;
-        SET p_message = CONCAT('Sell order #', p_sell_order_id, ' not found.');
-    ELSEIF v_buy_status <> 'OPEN' THEN
-        SET v_valid = 0;
-        SET p_message = CONCAT('Buy order #', p_buy_order_id, ' is not OPEN.');
-    ELSEIF v_sell_status <> 'OPEN' THEN
-        SET v_valid = 0;
-        SET p_message = CONCAT('Sell order #', p_sell_order_id, ' is not OPEN.');
-    ELSEIF v_buy_asset_id <> v_sell_asset_id THEN
-        SET v_valid = 0;
-        SET p_message = 'Orders are for different assets.';
-    END IF;
+        -- Validate
+        IF v_buy_investor_id IS NULL THEN
+            SET v_valid = 0;
+            SET p_message = CONCAT('Buy order #', p_buy_order_id, ' not found.');
+        ELSEIF v_sell_investor_id IS NULL THEN
+            SET v_valid = 0;
+            SET p_message = CONCAT('Sell order #', p_sell_order_id, ' not found.');
+        ELSEIF v_buy_status <> 'OPEN' THEN
+            SET v_valid = 0;
+            SET p_message = CONCAT('Buy order #', p_buy_order_id, ' is not OPEN.');
+        ELSEIF v_sell_status <> 'OPEN' THEN
+            SET v_valid = 0;
+            SET p_message = CONCAT('Sell order #', p_sell_order_id, ' is not OPEN.');
+        ELSEIF v_buy_asset_id <> v_sell_asset_id THEN
+            SET v_valid = 0;
+            SET p_message = 'Orders are for different assets.';
+        END IF;
 
-    IF v_valid = 1 THEN
-        SET v_trade_units = LEAST(v_buy_units, v_sell_units);
-        SET v_trade_total = v_trade_units * v_sell_price;
+        IF v_valid = 1 THEN
+            SET v_trade_units = LEAST(v_buy_units, v_sell_units);
+            SET v_trade_total = v_trade_units * v_sell_price;
 
-        SELECT COALESCE(MAX(trade_id), 0) + 1 INTO v_new_trade_id FROM TRADE;
-
-        START TRANSACTION;
+            SELECT COALESCE(MAX(trade_id), 0) + 1 INTO v_new_trade_id FROM TRADE;
 
         INSERT INTO TRADE (trade_id, trade_price, trade_units, trade_date, buy_order_id, sell_order_id)
         VALUES (v_new_trade_id, v_sell_price, v_trade_units, CURDATE(), p_buy_order_id, p_sell_order_id);
@@ -428,9 +427,14 @@ BEGIN
 END$$
 DELIMITER ;
 
+-- ------------------------------------------------------------
+-- PROCEDURE 4: sp_execute_trade
+-- ------------------------------------------------------------
+
 
 -- ------------------------------------------------------------
--- PROCEDURE 5: sp_get_investor_summary (already installed, recreating cleanly)
+-- PROCEDURE 5: sp_get_investor_summary
+-- this is a cleaner version
 -- ------------------------------------------------------------
 DROP PROCEDURE IF EXISTS sp_get_investor_summary;
 
@@ -444,14 +448,12 @@ CREATE PROCEDURE sp_get_investor_summary(
     OUT p_trade_order_count  INT
 )
 BEGIN
-    SELECT name, wallet_balance INTO p_name, p_wallet_balance
-    FROM INVESTOR WHERE investor_id = p_investor_id;
+    SELECT investor_name, wallet_balance INTO p_name, p_wallet_balance FROM INVESTOR WHERE investor_id = p_investor_id;
 
     SET p_portfolio_value = fn_get_investor_portfolio_value(p_investor_id);
     SET p_asset_count     = fn_count_investor_holdings(p_investor_id);
 
-    SELECT COUNT(*) INTO p_trade_order_count
-    FROM TRADE_ORDER WHERE investor_id = p_investor_id;
+    SELECT COUNT(*) INTO p_trade_order_count FROM TRADE_ORDER WHERE investor_id = p_investor_id;
 END$$
 DELIMITER ;
 
@@ -604,6 +606,148 @@ BEGIN
     END IF;
 END$$
 DELIMITER ;
+
+
+-- ------------------------------------------------------------
+-- PROCEDURE 9: sp_subscribe_to_ipo
+-- ------------------------------------------------------------
+DROP PROCEDURE IF EXISTS sp_subscribe_to_ipo;
+
+DELIMITER $$
+CREATE PROCEDURE sp_subscribe_to_ipo(
+    IN  p_investor_id INT,
+    IN  p_ipo_id      INT,
+    IN  p_units       INT,
+    OUT p_success     TINYINT(1),
+    OUT p_message     VARCHAR(255)
+)
+proc_main: BEGIN
+    DECLARE v_asset_id     INT;
+    DECLARE v_price        DECIMAL(10,2);
+    DECLARE v_total        DECIMAL(15,2);
+    DECLARE v_balance      DECIMAL(15,2);
+    DECLARE v_ipo_start    DATE;
+    DECLARE v_ipo_end      DATE;
+    DECLARE v_total_units  INT;
+    DECLARE v_units_sold   INT;
+    DECLARE v_units_before INT DEFAULT 0;
+
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+        SET p_success = 0;
+        SET p_message = 'Transaction failed and rolled back.';
+    END;
+
+    IF p_units <= 0 THEN
+        SET p_success = 0;
+        SET p_message = 'Units must be greater than 0.';
+        LEAVE proc_main;
+    END IF;
+
+    START TRANSACTION;
+
+    -- Lock IPO row first
+    SELECT asset_id, price_per_unit, ipo_start_date, ipo_end_date, total_units, units_sold
+    INTO   v_asset_id, v_price, v_ipo_start, v_ipo_end, v_total_units, v_units_sold
+    FROM   IPO
+    WHERE  ipo_id = p_ipo_id
+    FOR UPDATE;
+
+    IF v_asset_id IS NULL THEN
+        SET p_success = 0;
+        SET p_message = CONCAT('IPO #', p_ipo_id, ' does not exist.');
+        ROLLBACK;
+        LEAVE proc_main;
+    END IF;
+
+    IF CURDATE() < v_ipo_start OR CURDATE() > v_ipo_end THEN
+        SET p_success = 0;
+        SET p_message = CONCAT('IPO #', p_ipo_id, ' is not currently active.');
+        ROLLBACK;
+        LEAVE proc_main;
+    END IF;
+
+    IF v_units_sold + p_units > v_total_units THEN
+        SET p_success = 0;
+        SET p_message = CONCAT('Not enough units left in IPO #', p_ipo_id, '.');
+        ROLLBACK;
+        LEAVE proc_main;
+    END IF;
+
+    -- Lock investor row
+    SELECT wallet_balance
+    INTO   v_balance
+    FROM   INVESTOR
+    WHERE  investor_id = p_investor_id
+    FOR UPDATE;
+
+    IF v_balance IS NULL THEN
+        SET p_success = 0;
+        SET p_message = CONCAT('Investor #', p_investor_id, ' does not exist.');
+        ROLLBACK;
+        LEAVE proc_main;
+    END IF;
+
+    SET v_total = p_units * v_price;
+
+    IF v_balance < v_total THEN
+        SET p_success = 0;
+        SET p_message = CONCAT('Insufficient balance. Required: ', v_total, ', Available: ', v_balance);
+        ROLLBACK;
+        LEAVE proc_main;
+    END IF;
+
+    -- Lock existing ownership row if present
+    SELECT units_held
+    INTO   v_units_before
+    FROM   OWNERSHIP
+    WHERE  investor_id = p_investor_id
+      AND  asset_id = v_asset_id
+    FOR UPDATE;
+
+    IF v_units_before IS NULL THEN
+        SET v_units_before = 0;
+    END IF;
+
+    -- Deduct wallet
+    UPDATE INVESTOR
+    SET wallet_balance = wallet_balance - v_total
+    WHERE investor_id = p_investor_id;
+
+    -- Increase sold units
+    UPDATE IPO
+    SET units_sold = units_sold + p_units
+    WHERE ipo_id = p_ipo_id;
+
+    -- Add/update ownership
+    INSERT INTO OWNERSHIP (investor_id, asset_id, units_held)
+    VALUES (p_investor_id, v_asset_id, p_units)
+    ON DUPLICATE KEY UPDATE
+        units_held = units_held + VALUES(units_held);
+
+    -- Log wallet transaction
+    INSERT INTO WALLET_TRANSACTION
+        (investor_id, amount, transaction_type, transfer_category, transaction_date)
+    VALUES
+        (p_investor_id, -v_total, 'ASSET_PURCHASE', 'IPO Subscription', NOW());
+
+    -- Log ownership history
+    INSERT INTO OWNERSHIP_HISTORY
+        (investor_id, asset_id, units_before, units_after, change_date, change_type, trade_id, ipo_id)
+    VALUES
+        (p_investor_id, v_asset_id, v_units_before, v_units_before + p_units, CURDATE(), 'IPO', NULL, p_ipo_id);
+
+    COMMIT;
+
+    SET p_success = 1;
+    SET p_message = CONCAT(
+        'IPO subscription successful. Investor ', p_investor_id,
+        ' bought ', p_units, ' unit(s) in IPO #', p_ipo_id, '.'
+    );
+END$$
+DELIMITER ;
+
 
 
 -- Confirm all procedures installed:

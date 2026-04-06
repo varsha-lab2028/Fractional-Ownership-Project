@@ -9,7 +9,7 @@ SET FOREIGN_KEY_CHECKS = 0;
 DROP TABLE IF EXISTS `ADMIN`;
 CREATE TABLE `ADMIN` (
   `admin_id` int NOT NULL,
-  `name` varchar(100) DEFAULT NULL,
+  `admin_name` varchar(100) DEFAULT NULL,
   `email` varchar(100) DEFAULT NULL,
   `role` varchar(50) DEFAULT NULL,
   PRIMARY KEY (`admin_id`),
@@ -19,8 +19,7 @@ CREATE TABLE `ADMIN` (
 --
 -- Dumping data for table `ADMIN`
 --
-/*need to add more data here*/
-INSERT INTO `ADMIN` VALUES (1,'Ananya Rao','ananya@platform.com','Verifier'),(2,'Raghav Menon','raghav@platform.com','Verifier'),(3,'Priya Shah','priya@platform.com','Verifier'),(4,'Vikram Sethi','vikram@platform.com','Verifier'),(5,'Neha Kapoor','neha@platform.com','Verifier'),(6,'Aditya Nair','aditya@platform.com','Verifier'),(7,'Sonal Gupta','sonal@platform.com','Verifier'),(8,'Kunal Arora','kunal@platform.com','Verifier'),(9,'Ira Malhotra','ira@platform.com','Verifier'),(10,'Sameer Khan','sameer@platform.com','Verifier'),(11,'Divya Iyer','divya@platform.com','Verifier'),(12,'Manav Joshi','manav@platform.com','Verifier'),(13,'Aisha Qureshi','aisha@platform.com','Verifier'),(14,'Nikhil Bansal','nikhil@platform.com','Verifier'),(15,'Ritu Sharma','ritu@platform.com','Verifier');
+INSERT INTO `ADMIN` (admin_id, admin_name, email, role) VALUES (1,'Ananya Rao','ananya@platform.com','Verifier'),(2,'Raghav Menon','raghav@platform.com','Verifier'),(3,'Priya Shah','priya@platform.com','Verifier'),(4,'Vikram Sethi','vikram@platform.com','Verifier'),(5,'Neha Kapoor','neha@platform.com','Verifier'),(6,'Aditya Nair','aditya@platform.com','Verifier'),(7,'Sonal Gupta','sonal@platform.com','Verifier'),(8,'Kunal Arora','kunal@platform.com','Verifier'),(9,'Ira Malhotra','ira@platform.com','Verifier'),(10,'Sameer Khan','sameer@platform.com','Verifier'),(11,'Divya Iyer','divya@platform.com','Verifier'),(12,'Manav Joshi','manav@platform.com','Verifier'),(13,'Aisha Qureshi','aisha@platform.com','Verifier'),(14,'Nikhil Bansal','nikhil@platform.com','Verifier'),(15,'Ritu Sharma','ritu@platform.com','Verifier');
 
 --
 -- Table structure for table `ASSET`
@@ -135,6 +134,7 @@ CREATE TABLE `IPO` (
   `ipo_start_date` date DEFAULT NULL,
   `ipo_end_date` date DEFAULT NULL,
   `lock_in_period` int DEFAULT NULL,
+  `units_sold` int NOT NULL DEFAULT 0,
   PRIMARY KEY (`ipo_id`),
   UNIQUE KEY `asset_id` (`asset_id`),
   CONSTRAINT `IPO_ibfk_1` FOREIGN KEY (`asset_id`) REFERENCES `ASSET` (`asset_id`)
@@ -143,8 +143,25 @@ CREATE TABLE `IPO` (
 --
 -- Dumping data for table `IPO`
 --
-/*need to add more data here*/
-INSERT INTO `IPO` VALUES (1,1,100,12000.00,'2024-01-10','2024-01-20',30),(2,2,80,8500.00,'2024-02-05','2024-02-15',45),(3,3,150,6000.00,'2024-03-01','2024-03-10',30),(4,4,120,9500.00,'2024-04-01','2024-04-12',60),(5,5,60,15000.00,'2024-05-10','2024-05-20',30),(6,6,200,7000.00,'2024-06-01','2024-06-12',90),(7,7,90,11000.00,'2024-07-01','2024-07-10',30),(8,8,70,9000.00,'2024-08-01','2024-08-10',45),(9,9,130,5000.00,'2024-09-01','2024-09-12',30),(10,10,50,4000.00,'2024-10-01','2024-10-10',30),(11,11,75,20000.00,'2024-11-01','2024-11-12',60),(12,12,140,6500.00,'2024-12-01','2024-12-10',30),(13,13,95,10500.00,'2025-01-01','2025-01-10',45),(14,14,85,17000.00,'2025-02-01','2025-02-10',30),(15,15,160,5500.00,'2025-03-01','2025-03-10',30);
+INSERT INTO `IPO` (
+    ipo_id, asset_id, total_units, price_per_unit,
+    ipo_start_date, ipo_end_date, lock_in_period, units_sold
+) VALUES
+(1,1,100,12000.00,'2024-01-10','2024-01-20',30,100),
+(2,2,80,8500.00,'2024-02-05','2024-02-15',45,0),
+(3,3,150,6000.00,'2024-03-01','2024-03-10',30,0),
+(4,4,120,9500.00,'2024-04-01','2024-04-12',60,0),
+(5,5,60,15000.00,'2024-05-10','2024-05-20',30,0),
+(6,6,200,7000.00,'2024-06-01','2024-06-12',90,0),
+(7,7,90,11000.00,'2024-07-01','2024-07-10',30,0),
+(8,8,70,9000.00,'2024-08-01','2024-08-10',45,0),
+(9,9,130,5000.00,'2024-09-01','2024-09-12',30,0),
+(10,10,50,4000.00,'2024-10-01','2024-10-10',30,0),
+(11,11,75,20000.00,'2024-11-01','2024-11-12',60,0),
+(12,12,140,6500.00,'2024-12-01','2024-12-10',30,0),
+(13,13,95,10500.00,'2025-01-01','2025-01-10',45,95),
+(14,14,85,17000.00,'2025-02-01','2025-02-10',30,85),
+(15,15,160,5500.00,'2025-03-01','2025-03-10',30,160);
 
 --
 -- Table structure for table `OWNERSHIP`
@@ -164,7 +181,6 @@ CREATE TABLE `OWNERSHIP` (
 --
 -- Dumping data for table `OWNERSHIP`
 --
-/*need to add more data here*/
 INSERT INTO `OWNERSHIP` VALUES (1,1,40),(1,4,70),(2,1,30),(2,3,60),(2,11,75),(3,1,30),(3,5,60),(3,12,70),(4,2,50),(4,7,90),(4,12,70),(5,2,30),(5,6,100),(6,3,50),(6,8,40),(7,3,40),(7,8,30),(8,4,50),(8,9,60),(9,6,100),(9,10,50),(10,9,70),(11,13,50),(12,13,45),(13,14,85),(14,15,80),(15,15,80);
 
 --
