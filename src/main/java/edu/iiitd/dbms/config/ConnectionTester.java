@@ -10,12 +10,11 @@ public class ConnectionTester {
             if (connection!=null) {
                 //System.out.println("DB Connection is successful");
                 System.out.println("Connected to Supabase successfully");
-                System.out.println("Database: " + connection.getMetaData().getURL());
-                connection.close();
+                System.out.println(connection.getMetaData().getURL());
             }
         } catch (Exception e){
             System.out.println("Connection failed");
-            System.out.println("Error: " + e.getMessage());
+            e.printStackTrace();
         }
     }
 }
