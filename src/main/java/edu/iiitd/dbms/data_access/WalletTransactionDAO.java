@@ -10,17 +10,16 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class WalletTransactionDAO {
-
-    public boolean insertWalletTransaction(Connection c, int investorId, double amount, String type, String category) throws SQLException {
-        try (PreparedStatement ps = c.prepareStatement(
+    public boolean insertWalletTransaction(Connection connection, int investorId, double amount, String type, String category) throws SQLException {
+        try (PreparedStatement ps = connection.prepareStatement(
                 "INSERT INTO wallet_transaction (investor_id, amount, transaction_type, transfer_category, transaction_date) VALUES (?, ?, ?, ?, NOW())")) {
             ps.setInt(1, investorId); ps.setDouble(2, amount); ps.setString(3, type); ps.setString(4, category);
             return ps.executeUpdate() > 0;
         }
     }
     public boolean insertWalletTransaction(int investorId, double amount, String type, String category) throws SQLException {
-        try (Connection c = ServerConnector.DBConnection()) {
-            return insertWalletTransaction(c, investorId, amount, type, category);
+        try (Connection connection = ServerConnector.DBConnection()) {
+            return insertWalletTransaction(connection, investorId, amount, type, category);
         }
     }
 

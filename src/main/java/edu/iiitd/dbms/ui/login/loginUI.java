@@ -4,7 +4,7 @@ package edu.iiitd.dbms.ui.login;
 import edu.iiitd.dbms.auth.AuthenticationService;
 import edu.iiitd.dbms.config.SessionManager;
 import edu.iiitd.dbms.domain.AuthClass;
-import edu.iiitd.dbms.ui.admin.AdminDashUI;
+import edu.iiitd.dbms.ui.admin.AdminControlCenter;
 import edu.iiitd.dbms.ui.investor.InvestorDashUI;
 
 import javax.swing.*;
@@ -172,7 +172,7 @@ public class loginUI extends JFrame {
                     );
 
                     if (loggedInUser.getUserType().equalsIgnoreCase("ADMIN")) {
-                        new AdminDashUI().setVisible(true);
+                        new AdminControlCenter().setVisible(true);
                     } else {
                         new InvestorDashUI().setVisible(true);
                     }

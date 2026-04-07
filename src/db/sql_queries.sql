@@ -71,7 +71,8 @@ FROM TRADE t
 JOIN TRADE_ORDER bo ON t.buy_order_id = bo.order_id
 JOIN TRADE_ORDER so ON t.sell_order_id = so.order_id
 JOIN INVESTOR bi ON bo.investor_id = bi.investor_id
-JOIN INVESTOR si ON so.investor_id = si.investor_id;
+JOIN INVESTOR si ON so.investor_id = si.investor_id
+ORDER BY t.trade_date DESC, t.trade_id;
 
 --Q17 investor's name, id and email along with the current wallet balance they have
 SELECT investor_id, investor_name, email, wallet_balance

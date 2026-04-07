@@ -3,7 +3,7 @@ package edu.iiitd.dbms.ui.login;
 import edu.iiitd.dbms.auth.AuthenticationService;
 import edu.iiitd.dbms.domain.AuthClass;
 import edu.iiitd.dbms.ui.investor.InvestorDashUI;
-import edu.iiitd.dbms.ui.admin.AdminDashUI;
+import edu.iiitd.dbms.ui.admin.AdminControlCenter;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -322,7 +322,7 @@ public class logintesterUI extends JFrame {
                 edu.iiitd.dbms.auth.LoginManager.login(user);
                 JOptionPane.showMessageDialog(right, "Welcome, " + user.getName() + "!", "Success", JOptionPane.INFORMATION_MESSAGE);
                 dispose();
-                if (user.getUserType().equalsIgnoreCase("ADMIN")) new AdminDashUI().setVisible(true);
+                if (user.getUserType().equalsIgnoreCase("ADMIN")) new AdminControlCenter().setVisible(true);
                 else new InvestorDashUI().setVisible(true);
             } catch (Exception ex) {
                 JOptionPane.showMessageDialog(right, ex.getMessage(), "Login Failed", JOptionPane.ERROR_MESSAGE);

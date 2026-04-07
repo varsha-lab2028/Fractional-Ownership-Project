@@ -9,7 +9,6 @@ import edu.iiitd.dbms.data_access.IpoDAO;
 import edu.iiitd.dbms.dto.InvestorMarketView.VerifiedAssetRow;
 import edu.iiitd.dbms.dto.InvestorMarketView.MarketViewRow;
 import edu.iiitd.dbms.domain.Trade;
-import edu.iiitd.dbms.domain.TradeOrder;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -419,7 +418,7 @@ public class AdminAssetsViewUI extends JFrame {
                 navButtons[i].setBounds(20, yPos, 200, 40);
                 add(navButtons[i]);
             }
-            navButtons[0].addActionListener(e -> { AdminAssetsViewUI.this.dispose(); new AdminDashUI().setVisible(true); });
+            navButtons[0].addActionListener(e -> { AdminAssetsViewUI.this.dispose(); new AdminDashUI().setVisible(true); }); //changed from AdminControlCenter to AdminDashUI
             navButtons[1].addActionListener(e -> { AdminAssetsViewUI.this.dispose(); new AdminAssetsViewUI().setVisible(true); });
             navButtons[2].addActionListener(e -> { AdminAssetsViewUI.this.dispose(); new Investors_AdminListViewUI().setVisible(true); });
             navButtons[3].addActionListener(e -> { AdminAssetsViewUI.this.dispose(); new AdminAssetsViewUI().setVisible(true); });

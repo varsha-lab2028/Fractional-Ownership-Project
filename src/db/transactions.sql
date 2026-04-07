@@ -1,14 +1,5 @@
 -- ================================================================
--- TASK 6: TRANSACTIONS FILE (CORRECTED)
--- Project: Fractional Ownership Platform
--- Database: fractional_ownership_db
--- ================================================================
--- FIXES APPLIED:
---   1. LEAVE BEGIN → replaced with named block labels
---   2. VALUES() in ON DUPLICATE KEY → replaced with row alias
---   3. units_sold added via ALTER TABLE safely (IF NOT EXISTS)
---   4. Transaction 3 now locks rows with FOR UPDATE properly
---   5. All 3 transactions have proper conflict demo instructions
+-- TASK 6: TRANSACTIONS FILE
 -- ================================================================
 
 USE fractional_ownership_db;

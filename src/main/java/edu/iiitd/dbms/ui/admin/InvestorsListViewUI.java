@@ -367,7 +367,7 @@ public class InvestorsListViewUI extends JFrame {
                 navButtons[i].setBounds(20, (i == navItems.length-1) ? 650 : 100+(i*50), 200, 40);
                 add(navButtons[i]);
             }
-            navButtons[0].addActionListener(e -> { InvestorsListViewUI.this.dispose();; new AdminDashUI().setVisible(true); });
+            navButtons[0].addActionListener(e -> { InvestorsListViewUI.this.dispose();; new AdminControlCenter().setVisible(true); });
             navButtons[1].addActionListener(e -> { InvestorsListViewUI.this.dispose(); new AdminAssetsViewUI().setVisible(true); });
             navButtons[2].addActionListener(e -> { InvestorsListViewUI.this.dispose(); new Investors_AdminListViewUI().setVisible(true); });
             navButtons[3].addActionListener(e -> { InvestorsListViewUI.this.dispose(); new AdminAssetsViewUI().setVisible(true); });

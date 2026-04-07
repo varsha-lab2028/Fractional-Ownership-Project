@@ -91,34 +91,46 @@ public class TradingService {
             conn = ServerConnector.DBConnection();
             conn.setAutoCommit(false);
 
-            // Load both orders
-            TradeOrder buyOrder  = tradeOrderDAO.findByOrderId(conn, buyOrderId);
+            //loading both orders
+            TradeOrder buyOrder = tradeOrderDAO.findByOrderId(conn, buyOrderId);
             TradeOrder sellOrder = tradeOrderDAO.findByOrderId(conn, sellOrderId);
-
-            if (buyOrder == null)  throw new Exception("Buy order #"  + buyOrderId  + " not found.");
-            if (sellOrder == null) throw new Exception("Sell order #" + sellOrderId + " not found.");
+            if (buyOrder.getInvestorId().equals(sellOrder.getInvestorId())) {
+                throw new Exception("Buyer and seller cannot be the same.");
+            }
+            if (buyOrder == null) throw new Exception("Buy order: " + buyOrderId + " not found.");
+            if (sellOrder == null) throw new Exception("Sell order: " + sellOrderId + " not found.");
 
             if (!"OPEN".equalsIgnoreCase(buyOrder.getStatus()))
-                throw new Exception("Buy order #"  + buyOrderId  + " is not OPEN.");
+                throw new Exception("Buy order: " + buyOrderId + " is not OPEN.");
             if (!"OPEN".equalsIgnoreCase(sellOrder.getStatus()))
-                throw new Exception("Sell order #" + sellOrderId + " is not OPEN.");
+                throw new Exception("Sell order: " + sellOrderId + " is not OPEN.");
 
             if (!buyOrder.getAssetId().equals(sellOrder.getAssetId()))
                 throw new Exception("Orders are for different assets — cannot match.");
 
-            int    assetId    = buyOrder.getAssetId();
-            int    tradeUnits = Math.min(buyOrder.getUnits(), sellOrder.getUnits());
+            int assetId = buyOrder.getAssetId();
+            double requiredAmount = buyOrder.getUnits() * sellOrder.getPrice();
+            double buyerBalance = walletTransactionDAO.getStoredWalletBalance(buyOrder.getInvestorId());
+            if (buyerBalance < requiredAmount) {
+                throw new Exception("Buyer does not have enough wallet balance.");
+            }
+
+            //int tradeUnits = Math.min(buyOrder.getUnits(), sellOrder.getUnits());
+            if (!buyOrder.getUnits().equals(sellOrder.getUnits())) {
+                throw new Exception("Partial fills are not supported. Units must match exactly.");
+            }
+            int tradeUnits = buyOrder.getUnits();
             double tradePrice = sellOrder.getPrice(); // use seller's asking price
 
             int newTradeId = nextTradeId();
             Trade trade = new Trade(newTradeId, tradePrice, tradeUnits,
-                                    LocalDate.now(), buyOrderId, sellOrderId);
+                    LocalDate.now(), buyOrderId, sellOrderId);
             tradeDAO.insertTrade(conn, trade);
 
 
-            int buyerPrev  = getUnits(conn, buyOrder.getInvestorId(), assetId);
+            int buyerPrev = getUnits(conn, buyOrder.getInvestorId(), assetId);
             ownershipDAO.updateUnits(conn, buyOrder.getInvestorId(), assetId,
-                                     buyerPrev + tradeUnits);
+                    buyerPrev + tradeUnits);
 
             // Insert ownership history — buyer
             ownershipHistoryDAO.insert(conn,
@@ -129,7 +141,7 @@ public class TradingService {
 
             int sellerPrev = getUnits(conn, sellOrder.getInvestorId(), assetId);
             ownershipDAO.updateUnits(conn, sellOrder.getInvestorId(), assetId,
-                                     sellerPrev - tradeUnits);
+                    sellerPrev - tradeUnits);
 
             // Insert ownership history — seller
             ownershipHistoryDAO.insert(conn,
@@ -142,14 +154,11 @@ public class TradingService {
             ownershipDAO.deleteIfZero(conn, sellOrder.getInvestorId(), assetId);
 
             // Update order statuses
-            tradeOrderDAO.updateStatus(conn, buyOrderId,  "MATCHED");
+            tradeOrderDAO.updateStatus(conn, buyOrderId, "MATCHED");
             tradeOrderDAO.updateStatus(conn, sellOrderId, "MATCHED");
 
-            /*double totalCost = tradeUnits * tradePrice;
-            investorDAO.updateWalletBalance(conn, buyOrder.getInvestorId(),  -totalCost);
-            investorDAO.updateWalletBalance(conn, sellOrder.getInvestorId(), +totalCost);*/
-
             double totalCost = tradeUnits * tradePrice;
+
             // Buyer pays — deduct from wallet
             walletTransactionDAO.deductForAssetPurchase(
                     conn,
@@ -169,17 +178,33 @@ public class TradingService {
             return trade;
 
         } catch (SQLException e) {
-            if (conn != null) { try { conn.rollback(); } catch (SQLException ignored) {} }
+            if (conn != null) {
+                try {
+                    conn.rollback();
+                } catch (SQLException ignored) {
+                }
+            }
             String msg = e.getMessage();
             if (msg != null && msg.toLowerCase().contains("units_held")) {
                 throw new Exception("Trade blocked by DB trigger: seller does not have enough units.");
             }
             throw new Exception("Trade execution failed: " + msg);
         } catch (Exception e) {
-            if (conn != null) { try { conn.rollback(); } catch (SQLException ignored) {} }
+            if (conn != null) {
+                try {
+                    conn.rollback();
+                } catch (SQLException ignored) {
+                }
+            }
             throw e;
         } finally {
-            if (conn != null) { try { conn.setAutoCommit(true); conn.close(); } catch (SQLException ignored) {} }
+            if (conn != null) {
+                try {
+                    conn.setAutoCommit(true);
+                    conn.close();
+                } catch (SQLException ignored) {
+                }
+            }
         }
     }
 

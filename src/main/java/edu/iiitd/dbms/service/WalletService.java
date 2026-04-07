@@ -15,12 +15,12 @@ public class WalletService {
         this.walletDAO = new WalletTransactionDAO();
     }
 
-    /*Return the investor's current wallet balance. */
+    //Return the investor's current wallet balance
     public double getWalletBalance(int investorId) throws SQLException {
         return walletDAO.getStoredWalletBalance(investorId);
     }
 
-    /*Return the investor's full transaction history as rich DTOs, newest first. */
+    //Return the investor's full transaction history as rich DTOs, newest first
     public List<WalletTransactionDTO> getTransactionHistory(int investorId) throws SQLException {
         return walletDAO.getTransactionHistory(investorId);
     }
@@ -29,41 +29,41 @@ public class WalletService {
         return walletDAO.deposit(investorId, amount, category);
     }
 
-    public boolean deposit(int investorId, double amount) throws SQLException {
+    /*public boolean deposit(int investorId, double amount) throws SQLException {
         return walletDAO.deposit(investorId, amount);
-    }
+    }*/
 
     public boolean withdraw(int investorId, double amount, String category) throws SQLException {
         return walletDAO.withdraw(investorId, amount, category);
     }
 
-    public boolean withdraw(int investorId, double amount) throws SQLException {
+    /*public boolean withdraw(int investorId, double amount) throws SQLException {
         return walletDAO.withdraw(investorId, amount);
-    }
+    }*/
 
     public boolean creditDividend(int investorId, double amount, String category) throws SQLException {
         return walletDAO.creditDividend(investorId, amount, category);
     }
 
-    public boolean creditDividend(int investorId, double amount) throws SQLException {
+    /*public boolean creditDividend(int investorId, double amount) throws SQLException {
         return walletDAO.creditDividend(investorId, amount);
-    }
+    }*/
 
     public boolean deductForAssetPurchase(int investorId, double amount, String category) throws SQLException {
         return walletDAO.deductForAssetPurchase(investorId, amount, category);
     }
 
-    public boolean deductForAssetPurchase(int investorId, double amount) throws SQLException {
+    /*public boolean deductForAssetPurchase(int investorId, double amount) throws SQLException {
         return walletDAO.deductForAssetPurchase(investorId, amount);
-    }
+    }*/
 
     public boolean creditAssetSale(int investorId, double amount, String category) throws SQLException {
         return walletDAO.creditAssetSale(investorId, amount, category);
     }
 
-    public boolean creditAssetSale(int investorId, double amount) throws SQLException {
+    /*public boolean creditAssetSale(int investorId, double amount) throws SQLException {
         return walletDAO.creditAssetSale(investorId, amount);
-    }
+    }*/
 
     public boolean refund(int investorId, double amount, String category) throws SQLException {
         return walletDAO.refund(investorId, amount, category);
