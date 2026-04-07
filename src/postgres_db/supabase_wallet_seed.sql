@@ -2,7 +2,6 @@
 -- data for wallet transaction table
 -- ============================================================
 USE fractional_ownership_db;
-SET FOREIGN_KEY_CHECKS = 0;
 
 DELETE FROM WALLET_TRANSACTION;
 UPDATE INVESTOR SET wallet_balance = 0.00;
@@ -219,7 +218,6 @@ VALUES
     (12,    2625.00, 'DIVIDEND',       'Yield Payout - Asset 13', '2025-03-31 08:00:00'),
     (12,   50000.00, 'DEPOSIT',        'Bank Transfer',           '2025-04-01 09:00:00');
 
-UPDATE INVESTOR SET wallet_balance = 122625.00 WHERE investor_id = 12;
 
 -- ============================================================
 -- INVESTOR 13  Simran Kaur
@@ -232,8 +230,6 @@ VALUES
     (13,    7225.00, 'DIVIDEND',       'Yield Payout - Asset 14', '2025-03-31 08:00:00'),
     (13,   50000.00, 'DEPOSIT',        'Bank Transfer',           '2025-03-01 09:00:00'),
     (13,    7225.00, 'DIVIDEND',       'Yield Payout - Asset 14', '2025-06-30 08:00:00');
-
-UPDATE INVESTOR SET wallet_balance = 119450.00 WHERE investor_id = 13;
 
 -- ============================================================
 -- INVESTOR 14  Rohit Das
@@ -248,7 +244,6 @@ VALUES
     (14,    2200.00, 'DIVIDEND',       'Yield Payout - Asset 15', '2025-03-31 08:00:00'),
     (14,   50000.00, 'DEPOSIT',        'Bank Transfer',           '2025-04-15 09:00:00');
 
-UPDATE INVESTOR SET wallet_balance = 144200.00 WHERE investor_id = 14;
 
 -- ============================================================
 -- INVESTOR 15  Pooja Nair
@@ -263,52 +258,3 @@ VALUES
     (15,   50000.00, 'DEPOSIT',        'Bank Transfer',           '2025-04-15 09:00:00'),
     (15,    2475.00, 'DIVIDEND',       'Yield Payout - Asset 15', '2025-06-30 08:00:00');
 
-UPDATE INVESTOR SET wallet_balance = 52950.00 WHERE investor_id = 15;
-
--- Recalculating every balance from the transaction log just in case
-UPDATE INVESTOR i
-JOIN (
-    SELECT investor_id, ROUND(SUM(amount), 2) AS computed_balance
-    FROM WALLET_TRANSACTION
-    GROUP BY investor_id
-) totals ON totals.investor_id = i.investor_id
-SET i.wallet_balance = totals.computed_balance;
-
-SET FOREIGN_KEY_CHECKS = 1;
-
--- VERIFICATION
--- stored balance matches computed balance for every investor
-SELECT
-    i.investor_id,
-    i.wallet_balance                                         AS stored_balance,
-    ROUND(COALESCE(SUM(wt.amount), 0), 2)                    AS computed_balance,
-    ROUND(i.wallet_balance - COALESCE(SUM(wt.amount), 0), 2) AS drift
-FROM INVESTOR i
-LEFT JOIN WALLET_TRANSACTION wt ON wt.investor_id = i.investor_id
-GROUP BY i.investor_id, i.wallet_balance
-ORDER BY i.investor_id;
-
--- transaction counts and type breakdown per investor
-SELECT
-    i.investor_id,
-    wt.transaction_type,
-    COUNT(*)        AS txn_count,
-    SUM(wt.amount)  AS net_amount
-FROM WALLET_TRANSACTION wt
-JOIN INVESTOR i ON i.investor_id = wt.investor_id
-GROUP BY i.investor_id, wt.transaction_type
-ORDER BY i.investor_id, wt.transaction_type;
-
--- no investor should have a zero or negative balance
-SELECT investor_id, wallet_balance
-FROM INVESTOR
-WHERE wallet_balance <= 0.00
-ORDER BY investor_id;
-
--- total row counts
-SELECT
-    COUNT(*)                                    AS total_transactions,
-    COUNT(DISTINCT investor_id)                 AS investors_with_transactions,
-    SUM(CASE WHEN amount > 0 THEN amount END)   AS total_credits,
-    SUM(CASE WHEN amount < 0 THEN ABS(amount) END) AS total_debits
-FROM WALLET_TRANSACTION;

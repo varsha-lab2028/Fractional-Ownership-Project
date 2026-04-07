@@ -391,8 +391,8 @@ BEGIN
         p_message := 'Orders are for different assets.'; RETURN;
     END IF;
 
-    SET v_trade_units = LEAST(v_buy_units, v_sell_units);
-    SET v_trade_total = v_trade_units * v_sell_price;
+    v_trade_units := LEAST(v_buy_units, v_sell_units);
+    v_trade_total := v_trade_units * v_sell_price;
 
     SELECT COALESCE(MAX(trade_id), 0) + 1 INTO v_new_trade_id FROM trade;
 
@@ -560,7 +560,7 @@ BEGIN
         p_message := FORMAT('Investor #%s does not exist.', p_investor_id); RETURN;
     END IF;
 
-    SET v_total = p_units * v_price;
+    v_total := p_units * v_price;
 
     IF v_balance < v_total THEN
         p_success := FALSE;
