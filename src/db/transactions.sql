@@ -143,7 +143,7 @@ proc_main: BEGIN
     INSERT INTO OWNERSHIP (investor_id, asset_id, units_held)
     VALUES (p_investor_id, v_asset_id, p_units) AS new_row
     ON DUPLICATE KEY UPDATE
-        units_held = units_held + new_row.units_held;
+        units_held = units_held + p_units;
 
     -- 4. Log wallet transaction
     INSERT INTO WALLET_TRANSACTION
@@ -168,7 +168,6 @@ proc_main: BEGIN
 END$$
 
 DELIMITER ;
-
 
 -- ================================================================
 -- TRANSACTION 2: PEER-TO-PEER (P2P) UNIT TRANSFER
