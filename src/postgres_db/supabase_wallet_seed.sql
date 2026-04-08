@@ -1,15 +1,21 @@
 -- ============================================================
+-- SUPABASE / POSTGRES VERSION: wallet_transaction seed data
+-- ============================================================
+-- Run this AFTER supabase_schema_and_data.sql
+-- ============================================================
+
+-- ============================================================
 -- data for wallet transaction table
 -- ============================================================
-USE fractional_ownership_db;
 
-DELETE FROM WALLET_TRANSACTION;
-UPDATE INVESTOR SET wallet_balance = 0.00;
+
+DELETE FROM wallet_transaction;
+UPDATE investor SET wallet_balance = 0.00;
 
 -- ============================================================
--- INVESTOR 1  Aman Gupta
+-- investor 1  Aman Gupta
 -- ============================================================
-INSERT INTO WALLET_TRANSACTION
+INSERT INTO wallet_transaction
     (investor_id, amount, transaction_type, transfer_category, transaction_date)
 VALUES
     (1,  800000.00, 'DEPOSIT',        'Bank Transfer',           '2024-01-05 09:00:00'),
@@ -26,12 +32,12 @@ VALUES
     (1,    5000.00, 'DIVIDEND',       'Yield Payout - Asset 4',  '2025-03-31 08:00:00'),
     (1,  100000.00, 'DEPOSIT',        'Bank Transfer',           '2025-04-01 09:00:00');
 
-UPDATE INVESTOR SET wallet_balance = 1067254.17 WHERE investor_id = 1;
+UPDATE investor SET wallet_balance = 1067254.17 WHERE investor_id = 1;
 
 -- ============================================================
--- INVESTOR 2  Riya Malhotra
+-- investor 2  Riya Malhotra
 -- ============================================================
-INSERT INTO WALLET_TRANSACTION
+INSERT INTO wallet_transaction
     (investor_id, amount, transaction_type, transfer_category, transaction_date)
 VALUES
     (2, 2000000.00, 'DEPOSIT',        'Wire Transfer',            '2023-12-15 09:00:00'),
@@ -45,12 +51,12 @@ VALUES
     (2,  150000.00, 'DEPOSIT',        'Bank Transfer',            '2025-04-01 09:00:00'),
     (2,    9000.00, 'DIVIDEND',       'Yield Payout - Asset 11',  '2025-03-31 08:00:00');
 
-UPDATE INVESTOR SET wallet_balance = 451950.00 WHERE investor_id = 2;
+UPDATE investor SET wallet_balance = 451950.00 WHERE investor_id = 2;
 
 -- ============================================================
--- INVESTOR 3  Karan Mehta
+-- investor 3  Karan Mehta
 -- ============================================================
-INSERT INTO WALLET_TRANSACTION
+INSERT INTO wallet_transaction
     (investor_id, amount, transaction_type, transfer_category, transaction_date)
 VALUES
     (3, 1000000.00, 'DEPOSIT',        'Bank Transfer',            '2024-01-08 11:00:00'),
@@ -65,12 +71,12 @@ VALUES
     (3,    4750.00, 'DIVIDEND',       'Yield Payout - Asset 5',   '2025-03-31 08:00:00'),
     (3,    2500.00, 'DIVIDEND',       'Yield Payout - Asset 12',  '2025-03-31 08:05:00');
 
-UPDATE INVESTOR SET wallet_balance = 801450.00 WHERE investor_id = 3;
+UPDATE investor SET wallet_balance = 801450.00 WHERE investor_id = 3;
 
 -- ============================================================
--- INVESTOR 4  Sneha Iyer
+-- investor 4  Sneha Iyer
 -- ============================================================
-INSERT INTO WALLET_TRANSACTION
+INSERT INTO wallet_transaction
     (investor_id, amount, transaction_type, transfer_category, transaction_date)
 VALUES
     (4,  600000.00, 'DEPOSIT',        'Bank Transfer',            '2024-02-01 09:00:00'),
@@ -86,12 +92,12 @@ VALUES
     (4,    2500.00, 'DIVIDEND',       'Yield Payout - Asset 12',  '2024-12-31 08:05:00'),
     (4,    4950.00, 'DIVIDEND',       'Yield Payout - Asset 7',   '2025-03-31 08:00:00');
 
-UPDATE INVESTOR SET wallet_balance = 634200.00 WHERE investor_id = 4;
+UPDATE investor SET wallet_balance = 634200.00 WHERE investor_id = 4;
 
 -- ============================================================
--- INVESTOR 5  Arjun Verma
+-- investor 5  Arjun Verma
 -- ============================================================
-INSERT INTO WALLET_TRANSACTION
+INSERT INTO wallet_transaction
     (investor_id, amount, transaction_type, transfer_category, transaction_date)
 VALUES
     (5,  400000.00, 'DEPOSIT',        'Bank Transfer',            '2024-02-03 10:00:00'),
@@ -103,12 +109,12 @@ VALUES
     (5,    3400.00, 'DIVIDEND',       'Yield Payout - Asset 6',   '2025-03-31 08:00:00'),
     (5,   50000.00, 'DEPOSIT',        'Bank Transfer',            '2025-01-15 09:00:00');
 
-UPDATE INVESTOR SET wallet_balance = 211300.00 WHERE investor_id = 5;
+UPDATE investor SET wallet_balance = 211300.00 WHERE investor_id = 5;
 
 -- ============================================================
--- INVESTOR 6  Meera Jain
+-- investor 6  Meera Jain
 -- ============================================================
-INSERT INTO WALLET_TRANSACTION
+INSERT INTO wallet_transaction
     (investor_id, amount, transaction_type, transfer_category, transaction_date)
 VALUES
     (6,  400000.00, 'DEPOSIT',        'Bank Transfer',            '2024-02-28 09:00:00'),
@@ -121,12 +127,12 @@ VALUES
     (6,    1857.14, 'DIVIDEND',       'Yield Payout - Asset 8',   '2025-03-31 08:05:00'),
     (6,   50000.00, 'DEPOSIT',        'Bank Transfer',            '2025-02-01 09:00:00');
 
-UPDATE INVESTOR SET wallet_balance = 196780.94 WHERE investor_id = 6;
+UPDATE investor SET wallet_balance = 196780.94 WHERE investor_id = 6;
 
 -- ============================================================
--- INVESTOR 7  Rahul Bose
+-- investor 7  Rahul Bose
 -- ============================================================
-INSERT INTO WALLET_TRANSACTION
+INSERT INTO wallet_transaction
     (investor_id, amount, transaction_type, transfer_category, transaction_date)
 VALUES
     (7,  300000.00, 'DEPOSIT',        'Bank Transfer',            '2024-02-28 10:00:00'),
@@ -139,12 +145,12 @@ VALUES
     (7,    1400.00, 'DIVIDEND',       'Yield Payout - Asset 8',   '2025-03-31 08:05:00'),
     (7,   50000.00, 'DEPOSIT',        'Bank Transfer',            '2025-01-10 09:00:00');
 
-UPDATE INVESTOR SET wallet_balance = 245253.34 WHERE investor_id = 7;
+UPDATE investor SET wallet_balance = 245253.34 WHERE investor_id = 7;
 
 -- ============================================================
--- INVESTOR 8  Tanya Roy
+-- investor 8  Tanya Roy
 -- ============================================================
-INSERT INTO WALLET_TRANSACTION
+INSERT INTO wallet_transaction
     (investor_id, amount, transaction_type, transfer_category, transaction_date)
 VALUES
     (8,  600000.00, 'DEPOSIT',        'Bank Transfer',            '2024-03-28 09:00:00'),
@@ -157,12 +163,12 @@ VALUES
     (8,    3114.58, 'DIVIDEND',       'Yield Payout - Asset 4',   '2025-03-31 08:00:00'),
     (8,   50000.00, 'DEPOSIT',        'Bank Transfer',            '2025-02-01 09:00:00');
 
-UPDATE INVESTOR SET wallet_balance = 137113.78 WHERE investor_id = 8;
+UPDATE investor SET wallet_balance = 137113.78 WHERE investor_id = 8;
 
 -- ============================================================
--- INVESTOR 9  Dev Khanna
+-- investor 9  Dev Khanna
 -- ============================================================
-INSERT INTO WALLET_TRANSACTION
+INSERT INTO wallet_transaction
     (investor_id, amount, transaction_type, transfer_category, transaction_date)
 VALUES
     (9,  800000.00, 'DEPOSIT',        'Bank Transfer',            '2024-06-01 09:30:00'),
@@ -175,12 +181,12 @@ VALUES
     (9,  200000.00, 'DEPOSIT',        'Bank Transfer',            '2025-01-01 09:00:00'),
     (9,    4600.00, 'DIVIDEND',       'Yield Payout - Asset 6',   '2025-03-31 08:00:00');
 
-UPDATE INVESTOR SET wallet_balance = 501900.00 WHERE investor_id = 9;
+UPDATE investor SET wallet_balance = 501900.00 WHERE investor_id = 9;
 
 -- ============================================================
--- INVESTOR 10  Ishita Singh
+-- investor 10  Ishita Singh
 -- ============================================================
-INSERT INTO WALLET_TRANSACTION
+INSERT INTO wallet_transaction
     (investor_id, amount, transaction_type, transfer_category, transaction_date)
 VALUES
     (10,  450000.00, 'DEPOSIT',        'Bank Transfer',           '2024-08-30 09:00:00'),
@@ -190,12 +196,12 @@ VALUES
     (10,    2019.23, 'DIVIDEND',       'Yield Payout - Asset 9',  '2025-03-31 08:00:00'),
     (10,   50000.00, 'DEPOSIT',        'Bank Transfer',           '2025-04-01 09:00:00');
 
-UPDATE INVESTOR SET wallet_balance = 264038.46 WHERE investor_id = 10;
+UPDATE investor SET wallet_balance = 264038.46 WHERE investor_id = 10;
 
 -- ============================================================
--- INVESTOR 11  Harsh Patel
+-- investor 11  Harsh Patel
 -- ============================================================
-INSERT INTO WALLET_TRANSACTION
+INSERT INTO wallet_transaction
     (investor_id, amount, transaction_type, transfer_category, transaction_date)
 VALUES
     (11,  600000.00, 'DEPOSIT',        'Bank Transfer',           '2024-12-28 09:00:00'),
@@ -204,12 +210,12 @@ VALUES
     (11,    2362.50, 'DIVIDEND',       'Yield Payout - Asset 13', '2025-03-31 08:00:00'),
     (11,   50000.00, 'DEPOSIT',        'Bank Transfer',           '2025-04-01 09:00:00');
 
-UPDATE INVESTOR SET wallet_balance = 184862.50 WHERE investor_id = 11;
+UPDATE investor SET wallet_balance = 184862.50 WHERE investor_id = 11;
 
 -- ============================================================
--- INVESTOR 12  Neeraj Sood
+-- investor 12  Neeraj Sood
 -- ============================================================
-INSERT INTO WALLET_TRANSACTION
+INSERT INTO wallet_transaction
     (investor_id, amount, transaction_type, transfer_category, transaction_date)
 VALUES
     (12,  600000.00, 'DEPOSIT',        'Bank Transfer',           '2024-12-28 09:30:00'),
@@ -220,9 +226,9 @@ VALUES
 
 
 -- ============================================================
--- INVESTOR 13  Simran Kaur
+-- investor 13  Simran Kaur
 -- ============================================================
-INSERT INTO WALLET_TRANSACTION
+INSERT INTO wallet_transaction
     (investor_id, amount, transaction_type, transfer_category, transaction_date)
 VALUES
     (13, 1500000.00, 'DEPOSIT',        'Wire Transfer',           '2025-01-28 09:00:00'),
@@ -232,9 +238,9 @@ VALUES
     (13,    7225.00, 'DIVIDEND',       'Yield Payout - Asset 14', '2025-06-30 08:00:00');
 
 -- ============================================================
--- INVESTOR 14  Rohit Das
+-- investor 14  Rohit Das
 -- ============================================================
-INSERT INTO WALLET_TRANSACTION
+INSERT INTO wallet_transaction
     (investor_id, amount, transaction_type, transfer_category, transaction_date)
 VALUES
     (14,  500000.00, 'DEPOSIT',        'Bank Transfer',           '2025-02-28 09:00:00'),
@@ -246,9 +252,9 @@ VALUES
 
 
 -- ============================================================
--- INVESTOR 15  Pooja Nair
+-- investor 15  Pooja Nair
 -- ============================================================
-INSERT INTO WALLET_TRANSACTION
+INSERT INTO wallet_transaction
     (investor_id, amount, transaction_type, transfer_category, transaction_date)
 VALUES
     (15,  500000.00, 'DEPOSIT',        'Bank Transfer',           '2025-02-28 10:00:00'),
