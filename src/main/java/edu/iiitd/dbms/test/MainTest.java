@@ -47,7 +47,7 @@ public class MainTest {
     // ────────────────────────────────────────────────────────────────────────
     public static void main(String[] args) {
         System.out.println("=".repeat(60));
-        System.out.println("  MainTest — Task 7.6 Trade Demo");
+        System.out.println("  MainTest — Week 6 Trade Demo");
         System.out.println("=".repeat(60));
 
         // ── Step 1: verify DB connectivity before anything else ──────────

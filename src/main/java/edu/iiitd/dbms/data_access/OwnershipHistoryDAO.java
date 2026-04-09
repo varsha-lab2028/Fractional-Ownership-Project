@@ -20,7 +20,7 @@ public class OwnershipHistoryDAO {
             INSERT INTO ownership_history
                 (investor_id, asset_id, units_before, units_after,
                  change_date, change_type, trade_id, ipo_id)
-            VALUES (?, ?, ?, ?, CURDATE(), ?, ?, ?)
+            VALUES (?, ?, ?, ?, CURRENT_DATE, ?, ?, ?)
         """;
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setInt(1, investorId);

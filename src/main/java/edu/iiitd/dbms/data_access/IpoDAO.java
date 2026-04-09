@@ -63,7 +63,7 @@ public class IpoDAO {
     public List<IPO> listActiveIpos() throws SQLException {
         List<IPO> list = new ArrayList<>();
         try (Connection c = ServerConnector.DBConnection();
-             PreparedStatement ps = c.prepareStatement("SELECT * FROM ipo WHERE CURDATE() BETWEEN ipo_start_date AND ipo_end_date ORDER BY ipo_start_date DESC");
+             PreparedStatement ps = c.prepareStatement("SELECT * FROM ipo WHERE CURRENT_DATE BETWEEN ipo_start_date AND ipo_end_date ORDER BY ipo_start_date DESC");
              ResultSet rs = ps.executeQuery()) {
             while (rs.next()) list.add(map(rs));
         }
