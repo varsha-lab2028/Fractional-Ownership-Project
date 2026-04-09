@@ -140,11 +140,19 @@ public class LiveMarketChartPanel extends JPanel {
                 }).start();
                 return;
             }
+            if (selectedAssetId < 0) {
+                refreshBtn.setText("Select asset");
+                new javax.swing.Timer(1200, ev -> {
+                    refreshBtn.setText("↻  Refresh");
+                    ((javax.swing.Timer) ev.getSource()).stop();
+                }).start();
+                return;
+            }
             refreshBtn.setEnabled(false);
             refreshBtn.setText("Updating…");
-            // Run tick off EDT so UI stays responsive, then push results back on EDT
+            final int assetToTick = selectedAssetId; // capture for background thread
             new Thread(() -> {
-                lmd.tick();
+                lmd.tickAsset(assetToTick);           // only moves THIS asset's price
                 SwingUtilities.invokeLater(() -> {
                     refreshBtn.setEnabled(true);
                     refreshBtn.setText("↻  Refresh");

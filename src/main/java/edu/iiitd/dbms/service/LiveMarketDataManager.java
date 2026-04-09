@@ -153,39 +153,68 @@ public class LiveMarketDataManager {
     public void addListener(PropertyChangeListener l)    { pcs.addPropertyChangeListener(l); }
     public void removeListener(PropertyChangeListener l) { pcs.removePropertyChangeListener(l); }
 
-    // ── Tick logic — call this manually (e.g. from a Refresh button) ─────────
+    // ── Tick logic ───────────────────────────────────────────────────────────
+
+    /**
+     * Tick ONLY the given asset — used by the Refresh button so only the
+     * selected IPO's price moves.  Fires a "priceUpdate" event with just
+     * that one asset in the map so listeners can update selectively.
+     */
+    public void tickAsset(int assetId) {
+        if (!currentPrices.containsKey(assetId)) return;
+        long   now  = System.currentTimeMillis();
+        double prev = currentPrices.get(assetId);
+        double base = basePrices.getOrDefault(assetId, prev);
+
+        double pct   = (rng.nextDouble() * 2.0 - 1.0) * MAX_TICK_PCT;
+        double drift = (base > 0) ? (prev - base) / base : 0;
+        if      (drift >  DRIFT_CAP_PCT) pct -= 0.008;
+        else if (drift < -DRIFT_CAP_PCT) pct += 0.008;
+
+        double newPrice = Math.max(0.01, prev * (1.0 + pct));
+        currentPrices.put(assetId, newPrice);
+
+        double high = Math.max(prev, newPrice) * (1.0 + rng.nextDouble() * 0.004);
+        double low  = Math.min(prev, newPrice) * (1.0 - rng.nextDouble() * 0.004);
+        double vol  = 500 + rng.nextDouble() * 2000;
+        List<double[]> candles = candleData.computeIfAbsent(assetId, k -> new ArrayList<>());
+        candles.add(new double[]{now, prev, high, low, newPrice, vol});
+        if (candles.size() > MAX_CANDLES) candles.remove(0);
+
+        if (valuationDAO != null) {
+            try { valuationDAO.insertValuationToSimulate(assetId, newPrice, new Date(now)); }
+            catch (Exception ignored) {}
+        }
+
+        // Fire event with only this asset's new price
+        Map<Integer, Double> single = new HashMap<>();
+        single.put(assetId, newPrice);
+        pcs.firePropertyChange("priceUpdate", null, single);
+    }
+
+    /** Tick ALL tracked assets at once (kept for future use). */
     public void tick() {
         long now = System.currentTimeMillis();
         for (Map.Entry<Integer, Double> entry : currentPrices.entrySet()) {
             int    assetId = entry.getKey();
             double prev    = entry.getValue();
             double base    = basePrices.getOrDefault(assetId, prev);
-
-            // Bounded random walk with mean-reversion at the caps
-            double pct   = (rng.nextDouble() * 2.0 - 1.0) * MAX_TICK_PCT;
-            double drift = (base > 0) ? (prev - base) / base : 0;
-            if (drift >  DRIFT_CAP_PCT) pct -= 0.008;
+            double pct     = (rng.nextDouble() * 2.0 - 1.0) * MAX_TICK_PCT;
+            double drift   = (base > 0) ? (prev - base) / base : 0;
+            if      (drift >  DRIFT_CAP_PCT) pct -= 0.008;
             else if (drift < -DRIFT_CAP_PCT) pct += 0.008;
-
             double newPrice = Math.max(0.01, prev * (1.0 + pct));
             currentPrices.put(assetId, newPrice);
-
-            // Append candle
             double high = Math.max(prev, newPrice) * (1.0 + rng.nextDouble() * 0.004);
             double low  = Math.min(prev, newPrice) * (1.0 - rng.nextDouble() * 0.004);
-            double vol  = 500 + rng.nextDouble() * 2000;
             List<double[]> candles = candleData.computeIfAbsent(assetId, k -> new ArrayList<>());
-            candles.add(new double[]{now, prev, high, low, newPrice, vol});
+            candles.add(new double[]{now, prev, high, low, newPrice, 500 + rng.nextDouble() * 2000});
             if (candles.size() > MAX_CANDLES) candles.remove(0);
-
-            // Persist to DB (non-fatal if connection unavailable)
             if (valuationDAO != null) {
-                try {
-                    valuationDAO.insertValuationToSimulate(assetId, newPrice, new Date(now));
-                } catch (Exception ignored) {}
+                try { valuationDAO.insertValuationToSimulate(assetId, newPrice, new Date(now)); }
+                catch (Exception ignored) {}
             }
         }
-        // Fire single event carrying the full price map snapshot
         pcs.firePropertyChange("priceUpdate", null, new HashMap<>(currentPrices));
     }
 }
