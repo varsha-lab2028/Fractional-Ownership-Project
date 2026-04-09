@@ -117,9 +117,40 @@ public class LiveMarketChartPanel extends JPanel {
         pricePanel.add(Box.createHorizontalStrut(12));
         pricePanel.add(marketStatusBadge);
 
-        // Right: Line / Candle toggle
+        // Right: Refresh + Line / Candle toggle
         JPanel togglePanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 8, 3));
         togglePanel.setOpaque(false);
+
+        JButton refreshBtn = new JButton("↻  Refresh");
+        refreshBtn.setBackground(new Color(45, 45, 45));
+        refreshBtn.setForeground(new Color(174, 198, 207));
+        refreshBtn.setFont(new Font("SansSerif", Font.BOLD, 12));
+        refreshBtn.setFocusPainted(false);
+        refreshBtn.setOpaque(true);
+        refreshBtn.setBorderPainted(false);
+        refreshBtn.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        refreshBtn.setPreferredSize(new Dimension(100, 28));
+        refreshBtn.setToolTipText("Generate a new price tick");
+        refreshBtn.addActionListener(e -> {
+            if (!lmd.isMarketOpen()) {
+                refreshBtn.setText("Market closed");
+                new javax.swing.Timer(1200, ev -> {
+                    refreshBtn.setText("↻  Refresh");
+                    ((javax.swing.Timer) ev.getSource()).stop();
+                }).start();
+                return;
+            }
+            refreshBtn.setEnabled(false);
+            refreshBtn.setText("Updating…");
+            // Run tick off EDT so UI stays responsive, then push results back on EDT
+            new Thread(() -> {
+                lmd.tick();
+                SwingUtilities.invokeLater(() -> {
+                    refreshBtn.setEnabled(true);
+                    refreshBtn.setText("↻  Refresh");
+                });
+            }, "manual-tick").start();
+        });
         CustomToggle btnLine   = new CustomToggle("Line",   true);
         CustomToggle btnCandle = new CustomToggle("Candle", false);
         btnLine.addMouseListener(new java.awt.event.MouseAdapter() {
@@ -136,6 +167,7 @@ public class LiveMarketChartPanel extends JPanel {
                 if (chartPanel != null) chartPanel.setChart(candleChart);
             }
         });
+        togglePanel.add(refreshBtn);
         togglePanel.add(btnLine);
         togglePanel.add(btnCandle);
 

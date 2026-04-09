@@ -6,7 +6,6 @@ import edu.iiitd.dbms.domain.*;
 import edu.iiitd.dbms.service.TradingService;
 
 import java.sql.*;
-import java.time.LocalDate;
 import java.util.List;
 
 /**
@@ -142,7 +141,7 @@ public class MainTest {
         // Execute
         Trade trade = tradingService.executeTrade(buyOrder.getOrderId(), sellOrder.getOrderId());
         System.out.printf("%nTrade #%d executed successfully at $%.2f × %d units%n",
-            trade.getTradeId(), trade.getPrice(), trade.getUnits());
+            trade.getTradeId(), trade.getTradePrice(), trade.getTradeUnits());
 
         // Print state AFTER
         System.out.println("\n--- AFTER TRADE ---");

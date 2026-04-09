@@ -188,7 +188,7 @@ public class AdminDashUI extends JFrame {
         mkStatus.setAlignmentX(Component.LEFT_ALIGNMENT);
 
         // Live tick counter label
-        JLabel tickLabel = new JLabel("Tick interval: 2 s");
+        JLabel tickLabel = new JLabel("Tick interval: 15 s");
         tickLabel.setForeground(textMuted); tickLabel.setFont(new Font("SansSerif", Font.PLAIN, 11));
         tickLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
 

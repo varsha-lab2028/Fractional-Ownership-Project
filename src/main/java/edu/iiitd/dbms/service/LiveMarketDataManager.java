@@ -4,7 +4,6 @@ import edu.iiitd.dbms.data_access.IpoDAO;
 import edu.iiitd.dbms.data_access.ValuationDAO;
 import edu.iiitd.dbms.dto.InvestorMarketView.MarketViewRow;
 
-import javax.swing.Timer;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.sql.Date;
@@ -16,7 +15,7 @@ import java.util.concurrent.ConcurrentHashMap;
  *
  * Behaviour:
  *   - Admin calls openMarket() / closeMarket()  (e.g. from AdminDashUI)
- *   - When open, a Swing Timer fires every TICK_MS, generating new price ticks
+ *   - When open, call tick() manually to generate a new price update
  *     using a bounded random walk:  max ±2% per tick, hard cap ±30% from IPO base
  *   - Fires "priceUpdate" PropertyChangeEvent to registered listeners on every tick
  *   - Fires "marketState" PropertyChangeEvent when market opens/closes
@@ -26,10 +25,9 @@ import java.util.concurrent.ConcurrentHashMap;
 public class LiveMarketDataManager {
 
     // ── Tuning constants ────────────────────────────────────────────────────
-    public static final int    TICK_MS        = 2_000;   // 2-second ticks
     private static final double MAX_TICK_PCT  = 0.020;   // ±2% max move per tick
     private static final double DRIFT_CAP_PCT = 0.30;    // hard cap ±30% from IPO base
-    private static final int    MAX_CANDLES   = 300;     // rolling window per asset
+    public static final int     MAX_CANDLES   = 300;     // rolling window per asset
 
     // ── Singleton ───────────────────────────────────────────────────────────
     private static volatile LiveMarketDataManager instance;
@@ -56,7 +54,6 @@ public class LiveMarketDataManager {
     private final Map<Integer, List<double[]>> candleData = new ConcurrentHashMap<>();
 
     private volatile boolean marketOpen = false;
-    private Timer liveTimer;
     private final Random rng = new Random();
     private final PropertyChangeSupport pcs = new PropertyChangeSupport(this);
 
@@ -99,7 +96,7 @@ public class LiveMarketDataManager {
             double c = o * (1 + (rng.nextDouble() * 0.04 - 0.02));
             double h = Math.max(o, c) * (1 + rng.nextDouble() * 0.005);
             double l = Math.min(o, c) * (1 - rng.nextDouble() * 0.005);
-            candles.add(new double[]{now - (long) i * TICK_MS, o, h, l, c, 500 + rng.nextDouble() * 1500});
+            candles.add(new double[]{now - (long) i * 2_000L, o, h, l, c, 500 + rng.nextDouble() * 1500});
             p = c;
         }
         currentPrices.put(assetId, p); // last historical close becomes starting price
@@ -118,16 +115,13 @@ public class LiveMarketDataManager {
     public synchronized void openMarket() {
         if (marketOpen) return;
         marketOpen = true;
-        liveTimer  = new Timer(TICK_MS, e -> tick());
-        liveTimer.start();
         pcs.firePropertyChange("marketState", false, true);
-        System.out.println("[LiveMarket] Market OPENED");
+        System.out.println("[LiveMarket] Market OPENED  (manual-tick mode)");
     }
 
     public synchronized void closeMarket() {
         if (!marketOpen) return;
         marketOpen = false;
-        if (liveTimer != null) { liveTimer.stop(); liveTimer = null; }
         pcs.firePropertyChange("marketState", true, false);
         System.out.println("[LiveMarket] Market CLOSED");
     }
@@ -159,8 +153,8 @@ public class LiveMarketDataManager {
     public void addListener(PropertyChangeListener l)    { pcs.addPropertyChangeListener(l); }
     public void removeListener(PropertyChangeListener l) { pcs.removePropertyChangeListener(l); }
 
-    // ── Tick logic ───────────────────────────────────────────────────────────
-    private void tick() {
+    // ── Tick logic — call this manually (e.g. from a Refresh button) ─────────
+    public void tick() {
         long now = System.currentTimeMillis();
         for (Map.Entry<Integer, Double> entry : currentPrices.entrySet()) {
             int    assetId = entry.getKey();
