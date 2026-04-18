@@ -54,11 +54,52 @@ public class WalletTransactionDAO {
         return list;
     }
 
-    private boolean record(int investorId, double amount, String type, String category) throws SQLException {
+    /**
+     * Core internal method: inserts a wallet_transaction row and updates
+     * investor.wallet_balance within the same transaction.
+     *
+     * NOTE: If the DB trigger trg_update_wallet_balance_after_transaction is
+     * installed it will also fire on the INSERT, causing a double-update.
+     * Either remove that trigger or remove the explicit UPDATE below.
+     *
+     * @param checkBalance when true, verifies the investor has sufficient
+     *                     funds before allowing a debit (amount < 0).
+     */
+    private boolean record(int investorId, double amount, String type,
+                           String category, boolean checkBalance) throws SQLException {
         try (Connection c = ServerConnector.DBConnection()) {
             c.setAutoCommit(false);
             try {
+                // --- Bug fix #2: overdraft guard ---
+                if (checkBalance && amount < 0) {
+                    // Lock the investor row so concurrent transactions cannot race past this check.
+                    try (PreparedStatement ps = c.prepareStatement(
+                            "SELECT wallet_balance FROM INVESTOR WHERE investor_id = ? FOR UPDATE")) {
+                        ps.setInt(1, investorId);
+                        try (ResultSet rs = ps.executeQuery()) {
+                            if (!rs.next()) throw new SQLException("Investor not found: " + investorId);
+                            double balance = rs.getDouble(1);
+                            if (balance + amount < 0) {
+                                throw new SQLException(
+                                    "Insufficient wallet balance. Available: " + String.format("%.2f", balance)
+                                    + ", Requested debit: " + String.format("%.2f", -amount));
+                            }
+                        }
+                    }
+                }
+
+                // Insert the transaction log entry
                 insertWalletTransaction(c, investorId, amount, type, category);
+
+                // --- Bug fix #1: sync wallet_balance in the same transaction ---
+                try (PreparedStatement ps = c.prepareStatement(
+                        "UPDATE INVESTOR SET wallet_balance = wallet_balance + ? WHERE investor_id = ?")) {
+                    ps.setDouble(1, amount);
+                    ps.setInt(2, investorId);
+                    int rows = ps.executeUpdate();
+                    if (rows == 0) throw new SQLException("Investor not found when updating balance: " + investorId);
+                }
+
                 c.commit();
                 return true;
             } catch (SQLException e) {
@@ -66,6 +107,11 @@ public class WalletTransactionDAO {
                 throw e;
             }
         }
+    }
+
+    /** Convenience overload — no balance pre-check (used for credits). */
+    private boolean record(int investorId, double amount, String type, String category) throws SQLException {
+        return record(investorId, amount, type, category, false);
     }
 
     public boolean deposit(int id, double amount, String cat) throws SQLException {
@@ -80,7 +126,7 @@ public class WalletTransactionDAO {
 
     public boolean withdraw(int id, double amount, String cat) throws SQLException {
         if (amount <= 0) throw new IllegalArgumentException("Amount must be positive");
-        return record(id, -amount, "WITHDRAWAL", cat);
+        return record(id, -amount, "WITHDRAWAL", cat, true); // true = enforce balance check
     }
     public boolean withdraw(int id, double amount) throws SQLException { return withdraw(id, amount, "Bank Transfer"); }
     public boolean withdraw(Connection c, int id, double amount, String cat) throws SQLException {
@@ -99,7 +145,7 @@ public class WalletTransactionDAO {
 
     public boolean deductForAssetPurchase(int id, double amount, String cat) throws SQLException {
         if (amount <= 0) throw new IllegalArgumentException("Amount must be positive");
-        return record(id, -amount, "ASSET_PURCHASE", cat);
+        return record(id, -amount, "ASSET_PURCHASE", cat, true); // true = enforce balance check
     }
     public boolean deductForAssetPurchase(int id, double amount) throws SQLException { return deductForAssetPurchase(id, amount, "Secondary Market Order"); }
     public boolean deductForAssetPurchase(Connection c, int id, double amount, String cat) throws SQLException {
